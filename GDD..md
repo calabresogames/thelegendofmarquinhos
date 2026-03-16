@@ -213,3 +213,6 @@ Ataque
 Dano
 Morte
 
+Fonte de Receita:
+
+A fonte primordial de renda seria a venda direta do software em plataformas como Steam e Nintendo eShop, utilizando um modelo de preço premium acessível, preços que incentivam a compra por impulso, com um preço menor para adquirir a OST. Também, num possível site oficial do jogo, é possível a venda de pôsteres, camisetas, canecas e plushies relacionados com os protagonistas e com os outros personagens do jogo. 
