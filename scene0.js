@@ -39,25 +39,10 @@ class scene0 extends Phaser.Scene {
     this.load.image("Sakura Tree", "Sakura_Tree.gif");
 
     this.load.image("SCS_Background_Sunset_01", "SCS_Background_Sunset_01.png");
-
-    //this.load.spritesheet("android", "SpaceStation_Android_Sheet.png", {
-    //frameWidth: 32,
-    //frameHeight: 32,
-    //});
     this.load.spritesheet("character", "SpaceStation_Character_Sheet.png", {
       frameWidth: 32,
       frameHeight: 32,
     });
-    //this.load.image("objects", "SpaceStation_Objects.png");
-    //this.load.spritesheet("projectiles", "SpaceStation_Projectiles_Sheet.png", {
-    //frameWidth: 32,
-    //frameHeight: 32,
-    //});
-    //this.load.image("tileset", "SpaceStation_Tileset.png");
-    //this.load.spritesheet("turret", "SpaceStation_Turret_Sheet.png", {
-    //frameWidth: 32,
-    //frameHeight: 32,
-    //});
     this.load.spritesheet("buttons", "buttons.png", {
       frameWidth: 32,
       frameHeight: 32,
@@ -94,11 +79,6 @@ class scene0 extends Phaser.Scene {
     this.tilesetSunset = this.tilemap.addTilesetImage(
       "SCS_Background_Sunset_01",
     );
-    /*
-    this.tilesetTurret = this.tilemap.addTilesetImage("turret");
-    this.tilesetCharacter = this.tilemap.addTilesetImage("character");
-    this.tilesetAndroid = this.tilemap.addTilesetImage("android");
-    */
 
     this.layerbackground0 = this.tilemap.createLayer("background 0", [
       this.tilesetSunset,
@@ -139,24 +119,6 @@ class scene0 extends Phaser.Scene {
     ]);
     this.layerrua = this.tilemap.createLayer("rua", [this.tilesetRoadLamps]);
     this.layerobjetos = this.tilemap.createLayer("objetos", [this.tilesetArc]);
-    //this.layerTeletransport = this.tilemap.createLayer("teletransport", [
-    //this.tilesetTileset,
-    //this.tilesetObjects,
-    //]);
-    /*
-    this.layerCharacter = this.tilemap.createLayer("character", [
-      this.tilesetCharacter,
-    ]);
-    this.layerEnemy = this.tilemap.createLayer("enemy", [this.tilesetAndroid]);
-    */
-    //this.layerPlatform = this.tilemap.createLayer("platform", [
-    //this.tilesetTileset,
-    //this.tilesetObjects,
-    //]);
-    //this.layerShelf = this.tilemap.createLayer("shelf", [
-    //this.tilesetTileset,
-    //this.tilesetObjects,
-    //]);
 
     this.player = this.physics.add.sprite(150, 656, "character", 0);
 
@@ -249,33 +211,29 @@ class scene0 extends Phaser.Scene {
       const force = this.joystick.force;
 
       if (force > this.threshold) {
-        this.direction = new Phaser.Math.Vector2(
+        const dir = new Phaser.Math.Vector2(
           Math.cos(angle),
           Math.sin(angle),
         ).normalize();
-      }
 
-      if (this.joystick.force > 0) {
-        switch (true) {
-          // right
-          case this.joystick.angle >= -20 && this.joystick.angle < 20:
-            this.player.flipX = false;
-            this.player.setVelocityX(200);
-            if (this.player.body.blocked.down || this.player.body.blocked.up) {
-              this.player.anims.play("running", true);
-            }
-            break;
-          // left
-          case this.joystick.angle >= 160 || this.joystick.angle < -160:
-            this.player.flipX = true;
-            this.player.setVelocityX(-200);
-            if (this.player.body.blocked.down || this.player.body.blocked.up) {
-              this.player.anims.play("running", true);
-            }
-            break;
+        let vx = 0;
+        let vy = 0;
+
+        if (Math.abs(dir.x) > Math.abs(dir.y)) {
+          vx = dir.x * 200;
+        } else {
+          vy = dir.y * 200;
         }
+
+        this.player.setVelocity(vx, vy);
+
+        if (vx < 0) this.player.flipX = true;
+        else if (vx > 0) this.player.flipX = false;
+
+        this.player.anims.play("running", true);
       } else {
-        this.player.setVelocityX(0);
+        this.player.setVelocity(0, 0);
+        this.player.anims.play("standing-still", true);
       }
     });
 
