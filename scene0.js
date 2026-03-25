@@ -39,10 +39,22 @@ class scene0 extends Phaser.Scene {
     this.load.image("Sakura Tree", "Sakura_Tree.gif");
 
     this.load.image("SCS_Background_Sunset_01", "SCS_Background_Sunset_01.png");
-    this.load.spritesheet("character", "SpaceStation_Character_Sheet.png", {
-      frameWidth: 32,
+    this.load.spritesheet("vigilant_idle", "NES_Vigilante_Idle_1_strip4.png", {
+      frameWidth: 16,
       frameHeight: 32,
     });
+    this.load.spritesheet("vigilant_run", "NES_Vigilante_Run_strip4.png", {
+      frameWidth: 16,
+      frameHeight: 32,
+    });
+    this.load.spritesheet(
+      "vigilant_jump",
+      "NES_Vigilante_Jump_Kick_strip4.png",
+      {
+        frameWidth: 16,
+        frameHeight: 16,
+      },
+    );
     this.load.spritesheet("buttons", "buttons.png", {
       frameWidth: 32,
       frameHeight: 32,
@@ -120,11 +132,29 @@ class scene0 extends Phaser.Scene {
     this.layerrua = this.tilemap.createLayer("rua", [this.tilesetRoadLamps]);
     this.layerobjetos = this.tilemap.createLayer("objetos", [this.tilesetArc]);
 
-    this.player = this.physics.add.sprite(150, 656, "character", 0);
+    // Removed collision from background layers to allow movement
+    // this.layerbackground0.setCollisionByProperty({ collides: true });
+    // this.layerbackground1.setCollisionByProperty({ collides: true });
+    // this.layerbackground2.setCollisionByProperty({ collides: true });
+    // this.layerbackground3.setCollisionByProperty({ collides: true });
+    // this.layerbackground4.setCollisionByProperty({ collides: true });
+    // this.layerbackground5.setCollisionByProperty({ collides: true });
+
+    // this.physics.add.collider(this.player, this.layerbackground0);
+    // this.physics.add.collider(this.player, this.layerbackground1);
+    // this.physics.add.collider(this.player, this.layerbackground2);
+    // this.physics.add.collider(this.player, this.layerbackground3);
+    // this.physics.add.collider(this.player, this.layerbackground4);
+    // this.physics.add.collider(this.player, this.layerbackground5);
+
+    this.player = this.physics.add.sprite(150, 656, "vigilant_idle", 0);
+
+    this.player.setScale(4,5);
+    this.player.setOrigin(0.5, 1);
 
     this.anims.create({
       key: "standing-still",
-      frames: this.anims.generateFrameNumbers("character", {
+      frames: this.anims.generateFrameNumbers("vigilant_idle", {
         start: 0,
         end: 3,
       }),
@@ -134,9 +164,9 @@ class scene0 extends Phaser.Scene {
 
     this.anims.create({
       key: "running",
-      frames: this.anims.generateFrameNumbers("character", {
-        start: 8,
-        end: 15,
+      frames: this.anims.generateFrameNumbers("vigilant_run", {
+        start: 0,
+        end: 3,
       }),
       frameRate: 10,
       repeat: -1,
@@ -144,9 +174,9 @@ class scene0 extends Phaser.Scene {
 
     this.anims.create({
       key: "jumping",
-      frames: this.anims.generateFrameNumbers("character", {
-        start: 40,
-        end: 47,
+      frames: this.anims.generateFrameNumbers("vigilant_jump", {
+        start: 0,
+        end: 3,
       }),
       frameRate: 10,
       repeat: -1,
@@ -165,6 +195,7 @@ class scene0 extends Phaser.Scene {
       this.tilemap.heightInPixels,
     );
     this.cameras.main.startFollow(this.player);
+    this.cameras.main.setZoom(0.5);
 
     this.player.setCollideWorldBounds(true);
 
