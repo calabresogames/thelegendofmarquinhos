@@ -149,8 +149,30 @@ class scene0 extends Phaser.Scene {
 
     this.player = this.physics.add.sprite(150, 656, "vigilant_idle", 0);
 
-    this.player.setScale(4,5);
+    this.player.setScale(4, 5);
     this.player.setOrigin(0.5, 1);
+
+    // Ajuste de corpo físico para beat’em-up (2D top-down na rua)
+    this.player.body.setSize(10, 20);
+    this.player.body.setOffset(3, 12);
+    this.player.setBounce(0.1);
+    this.physics.world.gravity.y = 0;
+    this.player.body.setAllowGravity(false);
+    this.player.setCollideWorldBounds(true);
+
+    this.player.lastStreetPosition = { x: 150, y: 656 };
+
+    // Linha limite horizontal fixa (onde começa a calçada da rua)
+    this.limitLineY = this.player.y - 40;
+
+    // Desenhar linha para visualização da barreira
+    this.limitLine = this.add.graphics();
+    this.limitLine.lineStyle(2, 0xff00ff, 1);
+    this.limitLine.beginPath();
+    this.limitLine.moveTo(0, this.limitLineY);
+    this.limitLine.lineTo(this.tilemap.widthInPixels, this.limitLineY);
+    this.limitLine.closePath();
+    this.limitLine.strokePath();
 
     this.anims.create({
       key: "standing-still",
@@ -227,6 +249,7 @@ class scene0 extends Phaser.Scene {
     // });
 
     // this.music = this.sound.add("music", { loop: true }).play();
+
     this.laser = this.sound.add("laser");
 
     this.joystick = this.plugins.get("rexvirtualjoystickplugin").add(this, {
@@ -295,6 +318,14 @@ class scene0 extends Phaser.Scene {
   }
 
   update() {
+    // Impede que o jogador passe acima da linha limite horizontal
+    if (this.player.y < this.limitLineY) {
+      this.player.y = this.limitLineY;
+      this.player.body.velocity.y = 0;
+      this.player.body.blocked.up = true;
+      this.player.body.blocked.down = false;
+    }
+
     if (
       this.player.body.velocity.x === 0 &&
       this.player.body.velocity.y === 0 &&
