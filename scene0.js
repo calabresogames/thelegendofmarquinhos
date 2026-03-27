@@ -61,7 +61,7 @@ class scene0 extends Phaser.Scene {
     });
 
     // this.load.audio("music", "music.mp3");
-    this.load.audio("laser", "laser.mp3");
+    // this.load.audio("laser", "laser.mp3");
 
     this.load.plugin(
       "rexvirtualjoystickplugin",
@@ -167,7 +167,7 @@ class scene0 extends Phaser.Scene {
 
     // Desenhar linha para visualização da barreira
     this.limitLine = this.add.graphics();
-    this.limitLine.lineStyle(2, 0xff00ff, 1);
+    //this.limitLine.lineStyle(2, 0xff00ff, 1);
     this.limitLine.beginPath();
     this.limitLine.moveTo(0, this.limitLineY);
     this.limitLine.lineTo(this.tilemap.widthInPixels, this.limitLineY);
@@ -250,7 +250,7 @@ class scene0 extends Phaser.Scene {
 
     // this.music = this.sound.add("music", { loop: true }).play();
 
-    this.laser = this.sound.add("laser");
+    // this.laser = this.sound.add("laser");
 
     this.joystick = this.plugins.get("rexvirtualjoystickplugin").add(this, {
       x: 100,
