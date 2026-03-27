@@ -55,6 +55,12 @@ class scene0 extends Phaser.Scene {
         frameHeight: 16,
       },
     );
+    // Punch sprites
+    this.load.image("punch1", "NES_Vigilante_Punch_1.png");
+    this.load.image("punch2", "NES_Vigilante_Punch_2.png");
+    // Kick sprites
+    this.load.image("kick1", "NES_Vigilante_Kick_1.png");
+    this.load.image("kick2", "NES_Vigilante_Kick_2.png");
     this.load.spritesheet("buttons", "buttons.png", {
       frameWidth: 32,
       frameHeight: 32,
@@ -204,6 +210,34 @@ class scene0 extends Phaser.Scene {
       repeat: -1,
     });
 
+    // Punch animation
+    this.anims.create({
+      key: "punching",
+      frames: [
+        { key: "punch1", frame: 0 },
+        { key: "punch2", frame: 0 },
+      ],
+      frameRate: 10,
+      repeat: 0,
+      onComplete: () => {
+        this.player.anims.play("standing-still", true);
+      }
+    });
+
+    // Kick animation
+    this.anims.create({
+      key: "kicking",
+      frames: [
+        { key: "kick1", frame: 0 },
+        { key: "kick2", frame: 0 },
+      ],
+      frameRate: 10,
+      repeat: 0,
+      onComplete: () => {
+        this.player.anims.play("standing-still", true);
+      }
+    });
+
     this.physics.world.setBounds(
       0,
       0,
@@ -270,14 +304,9 @@ class scene0 extends Phaser.Scene {
           Math.sin(angle),
         ).normalize();
 
-        let vx = 0;
-        let vy = 0;
-
-        if (Math.abs(dir.x) > Math.abs(dir.y)) {
-          vx = dir.x * 200;
-        } else {
-          vy = dir.y * 200;
-        }
+        const speed = 200;
+        const vx = dir.x * speed;
+        const vy = dir.y * speed;
 
         this.player.setVelocity(vx, vy);
 
@@ -315,13 +344,45 @@ class scene0 extends Phaser.Scene {
         this.jumpButton.setFrame(8);
       })
       .setScrollFactor(0);
+
+    // Punch button
+    this.punchButton = this.add
+      .sprite(600, 400, "buttons", 2) // Assume frame 2/3 for punch (A button style)
+      .setInteractive()
+      .on("pointerdown", () => {
+        this.punchButton.setFrame(3);
+        if (!this.player.anims.isPlaying || this.player.anims.currentAnim.key !== 'running') {
+          this.player.setVelocity(0);
+          this.player.anims.play('punching', true);
+        }
+      })
+      .on("pointerup", () => {
+        this.punchButton.setFrame(2);
+      })
+      .setScrollFactor(0);
+
+    // Kick button
+    this.kickButton = this.add
+      .sprite(650, 400, "buttons", 4) // Assume frame 4/5 for kick (B button style)
+      .setInteractive()
+      .on("pointerdown", () => {
+        this.kickButton.setFrame(5);
+        if (!this.player.anims.isPlaying || this.player.anims.currentAnim.key !== 'running') {
+          this.player.setVelocity(0);
+          this.player.anims.play('kicking', true);
+        }
+      })
+      .on("pointerup", () => {
+        this.kickButton.setFrame(4);
+      })
+      .setScrollFactor(0);
   }
 
   update() {
     // Impede que o jogador passe acima da linha limite horizontal
     if (this.player.y < this.limitLineY) {
       this.player.y = this.limitLineY;
-      this.player.body.velocity.y = 0;
+      this.player.body.velocity.y = Math.max(0, this.player.body.velocity.y);
       this.player.body.blocked.up = true;
       this.player.body.blocked.down = false;
     }
@@ -336,16 +397,15 @@ class scene0 extends Phaser.Scene {
   }
 
   jump(player, gravity) {
-    if (gravity > 0) {
-      if (player.body.blocked.down) {
-        player.setVelocityY(-150);
-      }
-    } else {
-      if (player.body.blocked.up) {
-        player.setVelocityY(150);
-      }
-    }
+    player.body.setAllowGravity(true);
+    player.setVelocityY(-300);
     player.anims.play("jumping", true);
+    
+    this.time.delayedCall(500, () => {
+      player.body.setAllowGravity(false);
+      player.body.velocity.y = 0;
+      player.anims.play("standing-still", true);
+    });
   }
 }
 
