@@ -24,9 +24,9 @@ class scene0 extends Phaser.Scene {
 
     this.load.image("houded2", "houded2.png");
 
-    this.load.image("House Inside", "House_Inside.png");
+    this.load.image("House Inside", "House Inside.png");
 
-    this.load.image("House Outside", "House_Outside.png");
+    this.load.image("House Outside", "House Outside.png");
 
     this.load.image("houses", "houses.png");
 
@@ -36,9 +36,10 @@ class scene0 extends Phaser.Scene {
 
     this.load.image("road&lamps", "road&lamps.png");
 
-    this.load.image("Sakura Tree", "Sakura_Tree.gif");
+    this.load.image("Sakura Tree", "Sakura Tree.gif");
 
     this.load.image("SCS_Background_Sunset_01", "SCS_Background_Sunset_01.png");
+
     this.load.spritesheet("vigilant_idle", "NES_Vigilante_Idle_1_strip4.png", {
       frameWidth: 16,
       frameHeight: 32,
@@ -47,14 +48,14 @@ class scene0 extends Phaser.Scene {
       frameWidth: 16,
       frameHeight: 32,
     });
-    this.load.spritesheet(
-      "vigilant_jump",
-      "NES_Vigilante_Jump_Kick_strip4.png",
-      {
-        frameWidth: 16,
-        frameHeight: 16,
-      },
-    );
+    //this.load.spritesheet(
+    //"vigilant_jump",
+    //"NES_Vigilante_Jump_Kick_strip4.png",
+    //{
+    //frameWidth: 16,
+    //frameHeight: 16,
+    //},
+    //);
     // Punch sprites
     this.load.image("punch1", "NES_Vigilante_Punch_1.png");
     this.load.image("punch2", "NES_Vigilante_Punch_2.png");
@@ -191,6 +192,13 @@ class scene0 extends Phaser.Scene {
     });
 
     this.anims.create({
+      key: "idle-frame0",
+      frames: [{ key: "vigilant_idle", frame: 0 }],
+      frameRate: 1,
+      repeat: 0,
+    });
+
+    this.anims.create({
       key: "running",
       frames: this.anims.generateFrameNumbers("vigilant_run", {
         start: 0,
@@ -200,15 +208,15 @@ class scene0 extends Phaser.Scene {
       repeat: -1,
     });
 
-    this.anims.create({
-      key: "jumping",
-      frames: this.anims.generateFrameNumbers("vigilant_jump", {
-        start: 0,
-        end: 3,
-      }),
-      frameRate: 10,
-      repeat: -1,
-    });
+    //this.anims.create({
+    //key: "jumping",
+    //frames: this.anims.generateFrameNumbers("vigilant_jump", {
+    //start: 0,
+    //end: 3,
+    //}),
+    //frameRate: 10,
+    //repeat: -1,
+    //});
 
     // Punch animation
     this.anims.create({
@@ -216,12 +224,13 @@ class scene0 extends Phaser.Scene {
       frames: [
         { key: "punch1", frame: 0 },
         { key: "punch2", frame: 0 },
+        { key: "vigilant_idle", frame: 0 },
       ],
       frameRate: 10,
       repeat: 0,
       onComplete: () => {
-        this.player.anims.play("standing-still", true);
-      }
+        this.player.anims.play("idle-frame0", true);
+      },
     });
 
     // Kick animation
@@ -230,12 +239,13 @@ class scene0 extends Phaser.Scene {
       frames: [
         { key: "kick1", frame: 0 },
         { key: "kick2", frame: 0 },
+        { key: "vigilant_idle", frame: 0 },
       ],
       frameRate: 10,
       repeat: 0,
       onComplete: () => {
-        this.player.anims.play("standing-still", true);
-      }
+        this.player.anims.play("idle-frame0", true);
+      },
     });
 
     this.physics.world.setBounds(
@@ -263,28 +273,6 @@ class scene0 extends Phaser.Scene {
 
     this.layerrua.setCollisionByProperty({ collides: true });
     this.physics.add.collider(this.player, this.layerrua);
-
-    // this.layerWallsUnder.setCollisionByProperty({ collides: true });
-    // this.physics.add.collider(this.player, this.layerWallsUnder);
-
-    // this.layerWallsOver.setCollisionByProperty({ collides: true });
-    // this.physics.add.collider(this.player, this.layerWallsOver);
-
-    // this.layerLamps.setCollisionByProperty({ collides: true });
-    // this.physics.add.collider(this.player, this.layerLamps);
-
-    // this.layerPlatform.setCollisionByProperty({ collides: true });
-    // this.physics.add.collider(this.player, this.layerPlatform);
-    // this.layerPlatform.forEachTile((tile) => {
-    //   if (tile.properties.collides) {
-    //     // left, right, up, down
-    //     tile.setCollision(false, false, true, false);
-    //   }
-    // });
-
-    // this.music = this.sound.add("music", { loop: true }).play();
-
-    // this.laser = this.sound.add("laser");
 
     this.joystick = this.plugins.get("rexvirtualjoystickplugin").add(this, {
       x: 100,
@@ -351,9 +339,12 @@ class scene0 extends Phaser.Scene {
       .setInteractive()
       .on("pointerdown", () => {
         this.punchButton.setFrame(3);
-        if (!this.player.anims.isPlaying || this.player.anims.currentAnim.key !== 'running') {
+        if (
+          !this.player.anims.isPlaying ||
+          this.player.anims.currentAnim.key !== "running"
+        ) {
           this.player.setVelocity(0);
-          this.player.anims.play('punching', true);
+          this.player.anims.play("punching", true);
         }
       })
       .on("pointerup", () => {
@@ -367,9 +358,12 @@ class scene0 extends Phaser.Scene {
       .setInteractive()
       .on("pointerdown", () => {
         this.kickButton.setFrame(5);
-        if (!this.player.anims.isPlaying || this.player.anims.currentAnim.key !== 'running') {
+        if (
+          !this.player.anims.isPlaying ||
+          this.player.anims.currentAnim.key !== "running"
+        ) {
           this.player.setVelocity(0);
-          this.player.anims.play('kicking', true);
+          this.player.anims.play("kicking", true);
         }
       })
       .on("pointerup", () => {
@@ -390,7 +384,11 @@ class scene0 extends Phaser.Scene {
     if (
       this.player.body.velocity.x === 0 &&
       this.player.body.velocity.y === 0 &&
-      (this.player.body.blocked.down || this.player.body.blocked.up)
+      (this.player.body.blocked.down || this.player.body.blocked.up) &&
+      this.player.anims.currentAnim &&
+      this.player.anims.currentAnim.key !== "punching" &&
+      this.player.anims.currentAnim.key !== "kicking" &&
+      this.player.anims.currentAnim.key !== "idle-frame0"
     ) {
       this.player.anims.play("standing-still", true);
     }
@@ -400,7 +398,7 @@ class scene0 extends Phaser.Scene {
     player.body.setAllowGravity(true);
     player.setVelocityY(-300);
     player.anims.play("jumping", true);
-    
+
     this.time.delayedCall(500, () => {
       player.body.setAllowGravity(false);
       player.body.velocity.y = 0;
