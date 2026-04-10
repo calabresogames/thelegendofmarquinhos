@@ -48,6 +48,7 @@ class scene0 extends Phaser.Scene {
       frameWidth: 16,
       frameHeight: 32,
     });
+<<<<<<< HEAD
     //this.load.spritesheet(
     //"vigilant_jump",
     //"NES_Vigilante_Jump_Kick_strip4.png",
@@ -56,19 +57,16 @@ class scene0 extends Phaser.Scene {
     //frameHeight: 16,
     //},
     //);
+=======
+>>>>>>> 71c8b600a9d7988abe7767cf908deff5aa621d4b
     // Punch sprites
     this.load.image("punch1", "NES_Vigilante_Punch_1.png");
     this.load.image("punch2", "NES_Vigilante_Punch_2.png");
     // Kick sprites
     this.load.image("kick1", "NES_Vigilante_Kick_1.png");
     this.load.image("kick2", "NES_Vigilante_Kick_2.png");
-    this.load.spritesheet("buttons", "buttons.png", {
-      frameWidth: 32,
-      frameHeight: 32,
-    });
-
-    // this.load.audio("music", "music.mp3");
-    // this.load.audio("laser", "laser.mp3");
+    this.load.image("botaochute", "botaochute.png");
+    this.load.image("botaosoco", "botaosoco.png");
 
     this.load.plugin(
       "rexvirtualjoystickplugin",
@@ -139,21 +137,6 @@ class scene0 extends Phaser.Scene {
     this.layerrua = this.tilemap.createLayer("rua", [this.tilesetRoadLamps]);
     this.layerobjetos = this.tilemap.createLayer("objetos", [this.tilesetArc]);
 
-    // Removed collision from background layers to allow movement
-    // this.layerbackground0.setCollisionByProperty({ collides: true });
-    // this.layerbackground1.setCollisionByProperty({ collides: true });
-    // this.layerbackground2.setCollisionByProperty({ collides: true });
-    // this.layerbackground3.setCollisionByProperty({ collides: true });
-    // this.layerbackground4.setCollisionByProperty({ collides: true });
-    // this.layerbackground5.setCollisionByProperty({ collides: true });
-
-    // this.physics.add.collider(this.player, this.layerbackground0);
-    // this.physics.add.collider(this.player, this.layerbackground1);
-    // this.physics.add.collider(this.player, this.layerbackground2);
-    // this.physics.add.collider(this.player, this.layerbackground3);
-    // this.physics.add.collider(this.player, this.layerbackground4);
-    // this.physics.add.collider(this.player, this.layerbackground5);
-
     this.player = this.physics.add.sprite(150, 656, "vigilant_idle", 0);
 
     this.player.setScale(4, 5);
@@ -196,6 +179,7 @@ class scene0 extends Phaser.Scene {
       frames: [{ key: "vigilant_idle", frame: 0 }],
       frameRate: 1,
       repeat: 0,
+<<<<<<< HEAD
     });
 
     this.anims.create({
@@ -217,6 +201,19 @@ class scene0 extends Phaser.Scene {
     //frameRate: 10,
     //repeat: -1,
     //});
+=======
+    });
+
+    this.anims.create({
+      key: "running",
+      frames: this.anims.generateFrameNumbers("vigilant_run", {
+        start: 0,
+        end: 3,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+>>>>>>> 71c8b600a9d7988abe7767cf908deff5aa621d4b
 
     // Punch animation
     this.anims.create({
@@ -275,11 +272,11 @@ class scene0 extends Phaser.Scene {
     this.physics.add.collider(this.player, this.layerrua);
 
     this.joystick = this.plugins.get("rexvirtualjoystickplugin").add(this, {
-      x: 100,
-      y: 350,
+      x: -30,
+      y: 480,
       radius: 50,
-      base: this.add.circle(0, 0, 50, 0xcccccc),
-      thumb: this.add.circle(0, 0, 25, 0x666666),
+      base: this.add.circle(0, 0, 80, 0xcccccc),
+      thumb: this.add.circle(0, 0, 35, 0x666666),
     });
 
     this.joystick.on("update", () => {
@@ -308,37 +305,17 @@ class scene0 extends Phaser.Scene {
       }
     });
 
-    this.changeGravityButton = this.add
-      .sprite(700, 400, "buttons", 0)
-      .setInteractive()
-      .on("pointerdown", () => {
-        this.changeGravityButton.setFrame(1);
-        this.physics.world.gravity.y *= -1;
-        this.player.setFlipY(this.physics.world.gravity.y < 0);
-      })
-      .on("pointerup", () => {
-        this.changeGravityButton.setFrame(0);
-      })
-      .setScrollFactor(0);
-
-    this.jumpButton = this.add
-      .sprite(750, 400, "buttons", 8)
-      .setInteractive()
-      .on("pointerdown", () => {
-        this.jumpButton.setFrame(9);
-        this.jump(this.player, this.physics.world.gravity.y);
-      })
-      .on("pointerup", () => {
-        this.jumpButton.setFrame(8);
-      })
-      .setScrollFactor(0);
-
     // Punch button
     this.punchButton = this.add
-      .sprite(600, 400, "buttons", 2) // Assume frame 2/3 for punch (A button style)
+      .image(980, 400, "botaosoco")
+      .setScale(0.6)
       .setInteractive()
       .on("pointerdown", () => {
+<<<<<<< HEAD
         this.punchButton.setFrame(3);
+=======
+        this.punchButton.setTint(0xcccccc);
+>>>>>>> 71c8b600a9d7988abe7767cf908deff5aa621d4b
         if (
           !this.player.anims.isPlaying ||
           this.player.anims.currentAnim.key !== "running"
@@ -348,16 +325,22 @@ class scene0 extends Phaser.Scene {
         }
       })
       .on("pointerup", () => {
-        this.punchButton.setFrame(2);
+        this.punchButton.clearTint();
       })
-      .setScrollFactor(0);
+      .setScrollFactor(0)
+      .setDepth(10);
 
     // Kick button
     this.kickButton = this.add
-      .sprite(650, 400, "buttons", 4) // Assume frame 4/5 for kick (B button style)
+      .image(880, 520, "botaochute")
+      .setScale(0.6)
       .setInteractive()
       .on("pointerdown", () => {
+<<<<<<< HEAD
         this.kickButton.setFrame(5);
+=======
+        this.kickButton.setTint(0xcccccc);
+>>>>>>> 71c8b600a9d7988abe7767cf908deff5aa621d4b
         if (
           !this.player.anims.isPlaying ||
           this.player.anims.currentAnim.key !== "running"
@@ -367,9 +350,10 @@ class scene0 extends Phaser.Scene {
         }
       })
       .on("pointerup", () => {
-        this.kickButton.setFrame(4);
+        this.kickButton.clearTint();
       })
-      .setScrollFactor(0);
+      .setScrollFactor(0)
+      .setDepth(10);
   }
 
   update() {
