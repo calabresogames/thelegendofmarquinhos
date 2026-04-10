@@ -49,11 +49,6 @@ class scene0 extends Phaser.Scene {
       frameHeight: 32,
     });
 
-    this.load.spritesheet("enemy", "Machine_guy_sprite_sheet.png", {
-      frameWidth: 16,
-      frameHeight: 32,
-    });
-    
     // Punch sprites
     this.load.image("punch1", "NES_Vigilante_Punch_1.png");
     this.load.image("punch2", "NES_Vigilante_Punch_2.png");
@@ -216,45 +211,6 @@ class scene0 extends Phaser.Scene {
       },
     });
 
-    this.anims.create({
-      key: "enemy-still",
-      frames: this.anims.generateFrameNumbers("enemy", {
-        start: 0,
-        end: 5,
-      }),
-      frameRate: 5,
-      repeat: -1,
-    });
-
-    this.anims.create({
-      key: "enemy-running",
-      frames: this.anims.generateFrameNumbers("enemy", {
-        start: 6,
-        end: 12,
-      }),
-      frameRate: 5,
-      repeat: -1,
-    });
-
-this.anims.create({
-      key: "enemy-attack",
-      frames: this.anims.generateFrameNumbers("enemy", {
-        start: 13,
-        end: 20,
-      }),
-      frameRate: 5,
-      repeat: -1,
-    });
-
-   this.anims.create({
-      key: "enemy-death",
-      frames: this.anims.generateFrameNumbers("enemy", {
-        start: 21,
-        end: 26,
-      }),
-      frameRate: 5,
-      repeat: -1,
-    });
 
     this.physics.world.setBounds(
       0,
