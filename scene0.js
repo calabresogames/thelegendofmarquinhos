@@ -49,6 +49,12 @@ class scene0 extends Phaser.Scene {
       frameHeight: 32,
     });
 
+    // ===== INIMIGO =====
+    this.load.spritesheet("enemy", "Machine_guy_sprite_sheet.png", {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+
     // Punch sprites
     this.load.image("punch1", "NES_Vigilante_Punch_1.png");
     this.load.image("punch2", "NES_Vigilante_Punch_2.png");
@@ -106,7 +112,8 @@ class scene0 extends Phaser.Scene {
     ]);
     this.layerbackground5 = this.tilemap.createLayer("background 5", [
       this.tileset2,
-      this.tileset4,this.load.image("punch1", "NES_Vigilante_Punch_1.png"),
+      this.tileset4,
+      this.load.image("punch1", "NES_Vigilante_Punch_1.png"),
       this.tileset6,
       this.tilesetSakuraTree,
       this.tilesetHouses1,
@@ -211,6 +218,67 @@ class scene0 extends Phaser.Scene {
       },
     });
 
+    // ===== ANIMAÇÕES DO INIMIGO =====
+
+    // IDLE
+    this.anims.create({
+      key: "enemy_idle",
+      frames: this.anims.generateFrameNumbers("enemy", { start: 0, end: 5 }),
+      frameRate: 5,
+      repeat: -1,
+    });
+
+    // RUN
+    this.anims.create({
+      key: "enemy_run",
+      frames: this.anims.generateFrameNumbers("enemy", { start: 6, end: 14 }),
+      frameRate: 8,
+      repeat: -1,
+    });
+
+    // ATTACK
+    this.anims.create({
+      key: "enemy_attack",
+      frames: this.anims.generateFrameNumbers("enemy", { start: 15, end: 22 }),
+      frameRate: 10,
+      repeat: 0,
+    });
+
+    // DEATH
+    this.anims.create({
+      key: "enemy_death",
+      frames: this.anims.generateFrameNumbers("enemy", { start: 23, end: 28 }),
+      frameRate: 10,
+      repeat: 0,
+    });
+
+    // ===== GRUPO DE INIMIGOS =====
+    this.enemies = this.physics.add.group();
+
+    // ===== FUNÇÃO PARA CRIAR INIMIGO =====
+    this.spawnEnemy = (x, y) => {
+      let enemy = this.enemies.create(x, y, "enemy");
+
+      enemy.setScale(4);
+      enemy.setCollideWorldBounds(true);
+
+      enemy.body.setSize(32, 32);
+      enemy.body.setOffset(0, 0);
+
+      enemy.health = 3;
+      enemy.speed = 80;
+      enemy.state = "idle";
+
+      enemy.anims.play("enemy_idle");
+
+      return enemy;
+    };
+
+    // ===== SPAWN INICIAL =====
+    this.spawnEnemy(400, 650);
+    this.spawnEnemy(600, 650);
+
+    this.physics.add.collider(this.player, this.enemies);
 
     this.physics.world.setBounds(
       0,
@@ -286,7 +354,31 @@ class scene0 extends Phaser.Scene {
           this.player.setVelocity(0);
           this.player.anims.play("punching", true);
         }
+
+        // ===== DANO NOS INIMIGOS (SOCO) =====
+        this.enemies.children.iterate((enemy) => {
+          if (!enemy) return;
+
+          let distance = Phaser.Math.Distance.Between(
+            this.player.x,
+            this.player.y,
+            enemy.x,
+            enemy.y,
+          );
+
+          if (distance < 80) {
+            enemy.health -= 1;
+
+            let dir = enemy.x < this.player.x ? -1 : 1;
+            enemy.setVelocityX(150 * dir);
+
+            if (enemy.health <= 0) {
+              enemy.destroy();
+            }
+          }
+        });
       })
+
       .on("pointerup", () => {
         this.punchButton.clearTint();
       })
@@ -300,12 +392,38 @@ class scene0 extends Phaser.Scene {
       .setInteractive()
       .on("pointerdown", () => {
         this.kickButton.setTint(0xcccccc);
+
         if (
           !this.player.anims.isPlaying ||
           this.player.anims.currentAnim.key !== "running"
         ) {
           this.player.setVelocity(0);
           this.player.anims.play("kicking", true);
+
+          // ===== DANO NOS INIMIGOS (CHUTE) =====
+          if (this.enemies) {
+            this.enemies.children.iterate((enemy) => {
+              if (!enemy) return;
+
+              const distance = Phaser.Math.Distance.Between(
+                this.player.x,
+                this.player.y,
+                enemy.x,
+                enemy.y,
+              );
+
+              if (distance < 90) {
+                enemy.health -= 2;
+
+                const dir = enemy.x < this.player.x ? -1 : 1;
+                enemy.setVelocityX(200 * dir);
+
+                if (enemy.health <= 0) {
+                  enemy.destroy();
+                }
+              }
+            });
+          }
         }
       })
       .on("pointerup", () => {
@@ -316,7 +434,7 @@ class scene0 extends Phaser.Scene {
   }
 
   update() {
-    // Impede que o jogador passe acima da linha limite horizontal
+    // ===== LIMITE DA RUA =====
     if (this.player.y < this.limitLineY) {
       this.player.y = this.limitLineY;
       this.player.body.velocity.y = Math.max(0, this.player.body.velocity.y);
@@ -324,6 +442,7 @@ class scene0 extends Phaser.Scene {
       this.player.body.blocked.down = false;
     }
 
+    // ===== ANIMAÇÃO PARADO =====
     if (
       this.player.body.velocity.x === 0 &&
       this.player.body.velocity.y === 0 &&
@@ -335,8 +454,72 @@ class scene0 extends Phaser.Scene {
     ) {
       this.player.anims.play("standing-still", true);
     }
+
+    // ===== IA DOS INIMIGOS =====
+    if (this.enemies && this.enemies.children) {
+      this.enemies.children.iterate((enemy) => {
+        if (!enemy || !enemy.active) return;
+
+        const distance = Phaser.Math.Distance.Between(
+          enemy.x,
+          enemy.y,
+          this.player.x,
+          this.player.y,
+        );
+
+        const attackRange = 60;
+
+        if (distance > attackRange) {
+          // PERSEGUIR
+          this.physics.moveToObject(enemy, this.player, enemy.speed);
+
+          if (
+            !enemy.anims.currentAnim ||
+            enemy.anims.currentAnim.key !== "enemy_run_anim"
+          ) {
+            enemy.anims.play("enemy_run_anim", true);
+          }
+
+          enemy.flipX = this.player.x < enemy.x;
+          enemy.state = "chasing";
+        } else {
+          // PARAR
+          enemy.setVelocity(0, 0);
+
+          if (enemy.state !== "attacking") {
+            enemy.state = "attacking";
+
+            enemy.anims.play("enemy_attack_anim", true);
+
+            // DANO NO PLAYER
+            this.time.delayedCall(300, () => {
+              if (!enemy || !enemy.active) return;
+
+              const dist = Phaser.Math.Distance.Between(
+                enemy.x,
+                enemy.y,
+                this.player.x,
+                this.player.y,
+              );
+
+              if (dist < attackRange) {
+                console.log("Player levou dano!");
+              }
+            });
+
+            // RESET
+            this.time.delayedCall(800, () => {
+              if (enemy && enemy.active) {
+                enemy.state = "idle";
+              }
+            });
+          }
+        }
+      });
+    }
   }
 
+  // ===== FUNÇÃO DE PULO =====
   jump(player, gravity) {
     player.body.setAllowGravity(true);
     player.setVelocityY(-300);
@@ -348,6 +531,6 @@ class scene0 extends Phaser.Scene {
       player.anims.play("standing-still", true);
     });
   }
-}
+} // ← FECHA A CLASSE
 
 export default scene0;
