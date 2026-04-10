@@ -48,17 +48,12 @@ class scene0 extends Phaser.Scene {
       frameWidth: 16,
       frameHeight: 32,
     });
-<<<<<<< HEAD
-    //this.load.spritesheet(
-    //"vigilant_jump",
-    //"NES_Vigilante_Jump_Kick_strip4.png",
-    //{
-    //frameWidth: 16,
-    //frameHeight: 16,
-    //},
-    //);
-=======
->>>>>>> 71c8b600a9d7988abe7767cf908deff5aa621d4b
+
+    this.load.spritesheet("enemy", "Machine_guy_sprite_sheet.png", {
+      frameWidth: 16,
+      frameHeight: 32,
+    });
+    
     // Punch sprites
     this.load.image("punch1", "NES_Vigilante_Punch_1.png");
     this.load.image("punch2", "NES_Vigilante_Punch_2.png");
@@ -116,7 +111,7 @@ class scene0 extends Phaser.Scene {
     ]);
     this.layerbackground5 = this.tilemap.createLayer("background 5", [
       this.tileset2,
-      this.tileset4,
+      this.tileset4,this.load.image("punch1", "NES_Vigilante_Punch_1.png");
       this.tileset6,
       this.tilesetSakuraTree,
       this.tilesetHouses1,
@@ -179,7 +174,6 @@ class scene0 extends Phaser.Scene {
       frames: [{ key: "vigilant_idle", frame: 0 }],
       frameRate: 1,
       repeat: 0,
-<<<<<<< HEAD
     });
 
     this.anims.create({
@@ -191,29 +185,6 @@ class scene0 extends Phaser.Scene {
       frameRate: 10,
       repeat: -1,
     });
-
-    //this.anims.create({
-    //key: "jumping",
-    //frames: this.anims.generateFrameNumbers("vigilant_jump", {
-    //start: 0,
-    //end: 3,
-    //}),
-    //frameRate: 10,
-    //repeat: -1,
-    //});
-=======
-    });
-
-    this.anims.create({
-      key: "running",
-      frames: this.anims.generateFrameNumbers("vigilant_run", {
-        start: 0,
-        end: 3,
-      }),
-      frameRate: 10,
-      repeat: -1,
-    });
->>>>>>> 71c8b600a9d7988abe7767cf908deff5aa621d4b
 
     // Punch animation
     this.anims.create({
@@ -243,6 +214,46 @@ class scene0 extends Phaser.Scene {
       onComplete: () => {
         this.player.anims.play("idle-frame0", true);
       },
+    });
+
+    this.anims.create({
+      key: "enemy-still",
+      frames: this.anims.generateFrameNumbers("enemy", {
+        start: 0,
+        end: 5,
+      }),
+      frameRate: 5,
+      repeat: -1,
+    });
+
+    this.anims.create({
+      key: "enemy-running",
+      frames: this.anims.generateFrameNumbers("enemy", {
+        start: 6,
+        end: 12,
+      }),
+      frameRate: 5,
+      repeat: -1,
+    });
+
+this.anims.create({
+      key: "enemy-attack",
+      frames: this.anims.generateFrameNumbers("enemy", {
+        start: 13,
+        end: 20,
+      }),
+      frameRate: 5,
+      repeat: -1,
+    });
+
+   this.anims.create({
+      key: "enemy-death",
+      frames: this.anims.generateFrameNumbers("enemy", {
+        start: 21,
+        end: 26,
+      }),
+      frameRate: 5,
+      repeat: -1,
     });
 
     this.physics.world.setBounds(
@@ -311,11 +322,7 @@ class scene0 extends Phaser.Scene {
       .setScale(0.6)
       .setInteractive()
       .on("pointerdown", () => {
-<<<<<<< HEAD
-        this.punchButton.setFrame(3);
-=======
         this.punchButton.setTint(0xcccccc);
->>>>>>> 71c8b600a9d7988abe7767cf908deff5aa621d4b
         if (
           !this.player.anims.isPlaying ||
           this.player.anims.currentAnim.key !== "running"
@@ -336,11 +343,7 @@ class scene0 extends Phaser.Scene {
       .setScale(0.6)
       .setInteractive()
       .on("pointerdown", () => {
-<<<<<<< HEAD
-        this.kickButton.setFrame(5);
-=======
         this.kickButton.setTint(0xcccccc);
->>>>>>> 71c8b600a9d7988abe7767cf908deff5aa621d4b
         if (
           !this.player.anims.isPlaying ||
           this.player.anims.currentAnim.key !== "running"
