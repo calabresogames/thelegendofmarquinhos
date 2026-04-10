@@ -106,7 +106,7 @@ class scene0 extends Phaser.Scene {
     ]);
     this.layerbackground5 = this.tilemap.createLayer("background 5", [
       this.tileset2,
-      this.tileset4,this.load.image("punch1", "NES_Vigilante_Punch_1.png");
+      this.tileset4,this.load.image("punch1", "NES_Vigilante_Punch_1.png"),
       this.tileset6,
       this.tilesetSakuraTree,
       this.tilesetHouses1,
