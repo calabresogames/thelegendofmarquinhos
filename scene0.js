@@ -52,7 +52,8 @@ class scene0 extends Phaser.Scene {
     // ===== INIMIGO =====
     this.load.spritesheet("enemy", "Machine_guy_sprite_sheet.png", {
       frameWidth: 32,
-      frameHeight: 32,
+      frameHeight: 64,
+     
     });
 
     // Punch sprites
@@ -141,8 +142,8 @@ class scene0 extends Phaser.Scene {
 
     // Ajuste de corpo físico para beat’em-up (2D top-down na rua)
     this.player.body.setSize(10, 20);
-    this.player.body.setOffset(3, 12);
-    this.player.setBounce(0.1);
+    this.player.body.setOffset(3, 10);
+    this.player.setBounce(0);
     this.physics.world.gravity.y = 0;
     this.player.body.setAllowGravity(false);
     this.player.setCollideWorldBounds(true);
@@ -154,7 +155,6 @@ class scene0 extends Phaser.Scene {
 
     // Desenhar linha para visualização da barreira
     this.limitLine = this.add.graphics();
-    //this.limitLine.lineStyle(2, 0xff00ff, 1);
     this.limitLine.beginPath();
     this.limitLine.moveTo(0, this.limitLineY);
     this.limitLine.lineTo(this.tilemap.widthInPixels, this.limitLineY);
@@ -224,7 +224,7 @@ class scene0 extends Phaser.Scene {
     this.anims.create({
       key: "enemy_idle",
       frames: this.anims.generateFrameNumbers("enemy", { start: 0, end: 5 }),
-      frameRate: 5,
+      frameRate: 10,
       repeat: -1,
     });
 
@@ -232,7 +232,7 @@ class scene0 extends Phaser.Scene {
     this.anims.create({
       key: "enemy_run",
       frames: this.anims.generateFrameNumbers("enemy", { start: 6, end: 14 }),
-      frameRate: 8,
+      frameRate: 10,
       repeat: -1,
     });
 
@@ -254,16 +254,16 @@ class scene0 extends Phaser.Scene {
 
     // ===== GRUPO DE INIMIGOS =====
     this.enemies = this.physics.add.group();
-
+    
     // ===== FUNÇÃO PARA CRIAR INIMIGO =====
     this.spawnEnemy = (x, y) => {
       let enemy = this.enemies.create(x, y, "enemy");
-
-      enemy.setScale(4);
+      enemy.setOrigin(0.5, 1);
+      enemy.setScale(3);
       enemy.setCollideWorldBounds(true);
 
-      enemy.body.setSize(32, 32);
-      enemy.body.setOffset(0, 0);
+      enemy.body.setSize(18, 30);
+      enemy.body.setOffset(10, 30);
 
       enemy.health = 3;
       enemy.speed = 80;
@@ -475,9 +475,9 @@ class scene0 extends Phaser.Scene {
 
           if (
             !enemy.anims.currentAnim ||
-            enemy.anims.currentAnim.key !== "enemy_run_anim"
+            enemy.anims.currentAnim.key !== "enemy_run"
           ) {
-            enemy.anims.play("enemy_run_anim", true);
+            enemy.anims.play("enemy_run", true);
           }
 
           enemy.flipX = this.player.x < enemy.x;
@@ -489,7 +489,7 @@ class scene0 extends Phaser.Scene {
           if (enemy.state !== "attacking") {
             enemy.state = "attacking";
 
-            enemy.anims.play("enemy_attack_anim", true);
+            enemy.anims.play("enemy_attack", true);
 
             // DANO NO PLAYER
             this.time.delayedCall(300, () => {
@@ -531,6 +531,6 @@ class scene0 extends Phaser.Scene {
       player.anims.play("standing-still", true);
     });
   }
-} // ← FECHA A CLASSE
+} 
 
 export default scene0;
