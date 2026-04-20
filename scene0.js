@@ -9,10 +9,6 @@ class scene0 extends Phaser.Scene {
 
   preload() {
 
-    this.textures.get("enemy").setFilter(Phaser.Textures.FilterMode.NEAREST);
-
-    this.physics.world.createDebugGraphic();
-
     this.load.setPath("assets/");
 
     this.load.tilemapTiledJSON("MapaFase1", "MapaFase1.JSON");
