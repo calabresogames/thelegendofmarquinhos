@@ -5,10 +5,42 @@ class scene0 extends Phaser.Scene {
     this.threshold = 0.1;
     this.speed = 100;
     this.direction = undefined;
+
+    // ===== WAVE SYSTEM =====
+    this.waveConfig = [
+      // Wave 1 – introdução, 2 inimigos simples
+      {
+        enemies: [
+          { x: 500, y: 650, type: "normal" },
+          { x: 700, y: 650, type: "normal" },
+        ],
+      },
+      // Wave 2 – 3 inimigos, um rápido
+      {
+        enemies: [
+          { x: 400, y: 650, type: "normal" },
+          { x: 600, y: 640, type: "fast" },
+          { x: 800, y: 650, type: "normal" },
+        ],
+      },
+      // Wave 3 – 4 inimigos, um tanque
+      {
+        enemies: [
+          { x: 350, y: 650, type: "normal" },
+          { x: 550, y: 640, type: "fast" },
+          { x: 750, y: 650, type: "normal" },
+          { x: 650, y: 655, type: "tank" },
+        ],
+      },
+    ];
+
+    this.currentWave = 0;
+    this.waveActive = false;
+    this.waveCleared = false;
+    this.cameraLocked = false;
   }
 
   preload() {
-
     this.load.setPath("assets/");
 
     this.load.tilemapTiledJSON("MapaFase1", "MapaFase1.JSON");
@@ -52,9 +84,8 @@ class scene0 extends Phaser.Scene {
 
     // ===== INIMIGO =====
     this.load.spritesheet("enemy", "Machine_guy_sprite_sheet.png", {
-      frameWidth: 32,
-      frameHeight: 64,
-     
+      frameWidth: 180,
+      frameHeight: 90,
     });
 
     // Punch sprites
@@ -225,7 +256,7 @@ class scene0 extends Phaser.Scene {
     this.anims.create({
       key: "enemy_idle",
       frames: this.anims.generateFrameNumbers("enemy", { start: 0, end: 5 }),
-      frameRate: 10,
+      frameRate: 8,
       repeat: -1,
     });
 
@@ -248,39 +279,51 @@ class scene0 extends Phaser.Scene {
     // DEATH
     this.anims.create({
       key: "enemy_death",
-      frames: this.anims.generateFrameNumbers("enemy", { start: 23, end: 28 }),
-      frameRate: 10,
+      frames: this.anims.generateFrameNumbers("enemy", { start: 23, end: 27 }),
+      frameRate: 8,
       repeat: 0,
     });
 
     // ===== GRUPO DE INIMIGOS =====
     this.enemies = this.physics.add.group();
-    
-    // ===== FUNÇÃO PARA CRIAR INIMIGO =====
-    this.spawnEnemy = (x, y) => {
-      let enemy = this.enemies.create(x, y, "enemy");
-      enemy.setOrigin(0.5, 1);
-      enemy.setScale(3);
+
+    // ── SPAWN DE INIMIGO ─────────────────────
+    /**
+     * Tipos:
+     *   "normal" – padrão                    (branco)
+     *   "fast"   – mais veloz, menos HP      (vermelho)
+     *   "tank"   – lento, mais HP, dano maior (azul)
+     */
+    this.spawnEnemy = (x, y, type = "normal") => {
+      const enemy = this.enemies.create(x, y, "enemy");
+      enemy.setOrigin(0.5, 0.61); // ancora no pé real do personagem
+      enemy.body.setSize(23, 31);
+      enemy.body.setOffset(76, 21);
       enemy.setCollideWorldBounds(true);
 
-      enemy.body.setSize(20, 28);
-      enemy.body.setOffset(10, 30);
+      const stats = {
+        normal: { scale: 4, health: 3, speed: 80, damage: 1, tint: 0xffffff },
+        fast: { scale: 4, health: 2, speed: 140, damage: 1, tint: 0xff6666 },
+        tank: { scale: 4, health: 6, speed: 50, damage: 2, tint: 0x6699ff },
+      };
+      const s = stats[type] || stats.normal;
 
-      enemy.health = 3;
-      enemy.speed = 80;
+      enemy.setScale(s.scale);
+      enemy.setTint(s.tint);
+      enemy.health = s.health;
+      enemy.maxHealth = s.health;
+      enemy.speed = s.speed;
+      enemy.damage = s.damage;
+      enemy.type = type;
       enemy.state = "idle";
 
       enemy.anims.play("enemy_idle");
-
       return enemy;
     };
 
-    // ===== SPAWN INICIAL =====
-    this.spawnEnemy(400, 650);
-    this.spawnEnemy(600, 650);
-
     this.physics.add.collider(this.player, this.enemies);
 
+    // ── CÂMERA & MUNDO ───────────────────────
     this.physics.world.setBounds(
       0,
       0,
@@ -296,17 +339,15 @@ class scene0 extends Phaser.Scene {
     this.cameras.main.startFollow(this.player);
     this.cameras.main.setZoom(0.5);
 
-    this.player.setCollideWorldBounds(true);
-
+    // ── COLISÕES TILEMAP ─────────────────────
     this.layercasas.setCollisionByProperty({ collides: true });
     this.physics.add.collider(this.player, this.layercasas);
-
     this.layerMarquinhosDojo.setCollisionByProperty({ collides: true });
     this.physics.add.collider(this.player, this.layerMarquinhosDojo);
-
     this.layerrua.setCollisionByProperty({ collides: true });
     this.physics.add.collider(this.player, this.layerrua);
 
+    // ── JOYSTICK ─────────────────────────────
     this.joystick = this.plugins.get("rexvirtualjoystickplugin").add(this, {
       x: -30,
       y: 480,
@@ -324,16 +365,17 @@ class scene0 extends Phaser.Scene {
           Math.cos(angle),
           Math.sin(angle),
         ).normalize();
+        let vx = dir.x * 200;
+        const vy = dir.y * 200;
 
-        const speed = 200;
-        const vx = dir.x * speed;
-        const vy = dir.y * speed;
+        // Trava avanço de câmera durante wave
+        if (this.cameraLocked && this.waveRightBound !== undefined) {
+          if (vx > 0 && this.player.x >= this.waveRightBound) vx = 0;
+        }
 
         this.player.setVelocity(vx, vy);
-
         if (vx < 0) this.player.flipX = true;
         else if (vx > 0) this.player.flipX = false;
-
         this.player.anims.play("running", true);
       } else {
         this.player.setVelocity(0, 0);
@@ -341,7 +383,7 @@ class scene0 extends Phaser.Scene {
       }
     });
 
-    // Punch button
+    // ── BOTÃO SOCO ───────────────────────────
     this.punchButton = this.add
       .image(980, 400, "botaosoco")
       .setScale(0.6)
@@ -355,99 +397,325 @@ class scene0 extends Phaser.Scene {
           this.player.setVelocity(0);
           this.player.anims.play("punching", true);
         }
-
-        // ===== DANO NOS INIMIGOS (SOCO) =====
-        this.enemies.children.iterate((enemy) => {
-          if (!enemy) return;
-
-          let distance = Phaser.Math.Distance.Between(
-            this.player.x,
-            this.player.y,
-            enemy.x,
-            enemy.y,
-          );
-
-          if (distance < 80) {
-            enemy.health -= 1;
-
-            let dir = enemy.x < this.player.x ? -1 : 1;
-            enemy.setVelocityX(150 * dir);
-
-            if (enemy.health <= 0) {
-              enemy.destroy();
-            }
-          }
-        });
+        this._dealDamage(60, 1, 150);
       })
-
-      .on("pointerup", () => {
-        this.punchButton.clearTint();
-      })
+      .on("pointerup", () => this.punchButton.clearTint())
       .setScrollFactor(0)
       .setDepth(10);
 
-    // Kick button
+    // ── BOTÃO CHUTE ──────────────────────────
     this.kickButton = this.add
       .image(880, 520, "botaochute")
       .setScale(0.6)
       .setInteractive()
       .on("pointerdown", () => {
         this.kickButton.setTint(0xcccccc);
-
         if (
           !this.player.anims.isPlaying ||
           this.player.anims.currentAnim.key !== "running"
         ) {
           this.player.setVelocity(0);
           this.player.anims.play("kicking", true);
-
-          // ===== DANO NOS INIMIGOS (CHUTE) =====
-          if (this.enemies) {
-            this.enemies.children.iterate((enemy) => {
-              if (!enemy) return;
-
-              const distance = Phaser.Math.Distance.Between(
-                this.player.x,
-                this.player.y,
-                enemy.x,
-                enemy.y,
-              );
-
-              if (distance < 90) {
-                enemy.health -= 2;
-
-                const dir = enemy.x < this.player.x ? -1 : 1;
-                enemy.setVelocityX(200 * dir);
-
-                if (enemy.health <= 0) {
-                  enemy.destroy();
-                }
-              }
-            });
-          }
+          this._dealDamage(80, 2, 200);
         }
       })
-      .on("pointerup", () => {
-        this.kickButton.clearTint();
-      })
+      .on("pointerup", () => this.kickButton.clearTint())
       .setScrollFactor(0)
       .setDepth(10);
+
+    // ── HUD ──────────────────────────────────
+    this._buildWaveHUD();
+
+    // ── PRIMEIRA WAVE ────────────────────────
+    this.time.delayedCall(800, () => this._startWave(0));
   }
 
+  // ═══════════════════════════════════════════
+  // WAVE SYSTEM
+  // ═══════════════════════════════════════════
+
+  /**
+   * Inicia a wave de índice `index`.
+   * - Trava scroll da câmera
+   * - Exibe banner "WAVE X"
+   * - Spawna os inimigos com stagger de 300ms
+   */
+  _startWave(index) {
+    if (index >= this.waveConfig.length) {
+      this._onAllWavesCleared();
+      return;
+    }
+
+    this.currentWave = index;
+    this.waveActive = true;
+    this.waveCleared = false;
+    this.cameraLocked = true;
+
+    // Guarda o X atual da câmera para travar o scroll
+    this.cameras.main.stopFollow();
+    this._lockCameraX = this.cameras.main.scrollX;
+
+    // Define o limite direito da arena (jogador não passa daqui enquanto há inimigos)
+    const visibleWidth = this.cameras.main.width / this.cameras.main.zoom;
+    this.waveRightBound = this._lockCameraX + visibleWidth - 60;
+
+    // Banner e HUD
+    this._showWaveBanner(index + 1);
+    this._updateWaveHUD(index + 1, this.waveConfig.length);
+
+    // Spawna cada inimigo com delay escalonado (efeito de chegada)
+    const waveDef = this.waveConfig[index];
+    waveDef.enemies.forEach((cfg, i) => {
+      this.time.delayedCall(500 + i * 350, () => {
+        if (!this.waveActive) return;
+
+        const enemy = this.spawnEnemy(cfg.x, cfg.y, cfg.type);
+
+        // Pequeno efeito de entrada: inimigo aparece correndo da borda direita
+        enemy.setAlpha(0);
+        this.tweens.add({
+          targets: enemy,
+          alpha: 1,
+          duration: 200,
+        });
+      });
+    });
+  }
+
+  /**
+   * Chamado após cada morte de inimigo.
+   * Se não restarem inimigos vivos, chama _clearWave().
+   */
+  _onEnemyKilled() {
+    if (!this.waveActive) return;
+
+    // Pequena espera para garantir que o destroy() propagou
+    this.time.delayedCall(50, () => {
+      const alive = this.enemies.countActive(true);
+      if (alive === 0) this._clearWave();
+    });
+  }
+
+  /**
+   * Wave limpa:
+   * - Destrava câmera
+   * - Flash de vitória
+   * - Inicia próxima wave após pausa
+   */
+  _clearWave() {
+    this.waveActive = false;
+    this.waveCleared = true;
+    this.cameraLocked = false;
+
+    this.cameras.main.flash(500, 200, 255, 150);
+    this._showClearBanner();
+
+    // Retoma follow suave
+    this.time.delayedCall(1000, () => {
+      this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
+    });
+
+    const nextIndex = this.currentWave + 1;
+    if (nextIndex < this.waveConfig.length) {
+      // Aguarda o player avançar um pouco ou usa delay fixo
+      this.time.delayedCall(3500, () => {
+        if (!this.waveActive) this._startWave(nextIndex);
+      });
+    } else {
+      this.time.delayedCall(2000, () => this._onAllWavesCleared());
+    }
+  }
+
+  /** Todas as waves da fase foram concluídas. */
+  _onAllWavesCleared() {
+    this._showVictoryBanner();
+    this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
+    // Para avançar de fase: this.scene.start("scene1");
+  }
+
+  // ═══════════════════════════════════════════
+  // DANO
+  // ═══════════════════════════════════════════
+
+  _dealDamage(range, dmg, knockback) {
+    if (!this.enemies) return;
+    this.enemies.children.iterate((enemy) => {
+      if (!enemy || !enemy.active) return;
+
+      const dist = Phaser.Math.Distance.Between(
+        this.player.x,
+        this.player.y,
+        enemy.x,
+        enemy.y,
+      );
+      if (dist > range) return;
+
+      enemy.health -= dmg;
+
+      // Flash branco de hit
+      enemy.setTint(0xffffff);
+      this.time.delayedCall(90, () => {
+        if (!enemy || !enemy.active) return;
+        const originalTint =
+          enemy.type === "fast"
+            ? 0xff6666
+            : enemy.type === "tank"
+              ? 0x6699ff
+              : 0xffffff;
+        enemy.setTint(originalTint);
+      });
+
+      // Knockback
+      const dir = enemy.x < this.player.x ? -1 : 1;
+      enemy.setVelocityX(knockback * dir);
+
+      if (enemy.health <= 0) this._killEnemy(enemy);
+    });
+  }
+
+  _killEnemy(enemy) {
+    if (!enemy || !enemy.active) return;
+
+    // Desativa colisão imediatamente
+    enemy.active = false;
+    enemy.body.enable = false;
+
+    // Toca animação de morte
+    enemy.anims.play("enemy_death", true);
+    enemy.setVelocity(0, 0);
+
+    // Remove após animação terminar
+    this.time.delayedCall(700, () => {
+      if (enemy && enemy.scene) enemy.destroy();
+      this._onEnemyKilled();
+    });
+  }
+
+  // ═══════════════════════════════════════════
+  // HUD
+  // ═══════════════════════════════════════════
+
+  _buildWaveHUD() {
+    // Indicador de wave no topo
+    this.waveText = this.add
+      .text(512, 18, "", {
+        fontFamily: "'Arial Black', Arial",
+        fontSize: "26px",
+        color: "#ffffff",
+        stroke: "#000000",
+        strokeThickness: 6,
+      })
+      .setOrigin(0.5, 0)
+      .setScrollFactor(0)
+      .setDepth(20);
+
+    // Banner central (animado)
+    this.waveBanner = this.add
+      .text(512, 280, "", {
+        fontFamily: "'Arial Black', Arial",
+        fontSize: "56px",
+        color: "#ffdd00",
+        stroke: "#000000",
+        strokeThickness: 10,
+      })
+      .setOrigin(0.5, 0.5)
+      .setScrollFactor(0)
+      .setDepth(21)
+      .setAlpha(0);
+  }
+
+  _updateWaveHUD(current, total) {
+    this.waveText.setText(`WAVE  ${current} / ${total}`);
+  }
+
+  _showWaveBanner(waveNum) {
+    this.waveBanner.setText(`— WAVE  ${waveNum} —`);
+    this.waveBanner.setColor("#ffdd00");
+    this.waveBanner.setScale(0.5);
+
+    this.tweens.add({
+      targets: this.waveBanner,
+      alpha: { from: 0, to: 1 },
+      scaleX: { from: 0.4, to: 1 },
+      scaleY: { from: 0.4, to: 1 },
+      duration: 300,
+      ease: "Back.Out",
+      onComplete: () => {
+        this.time.delayedCall(800, () => {
+          this.tweens.add({
+            targets: this.waveBanner,
+            alpha: 0,
+            duration: 300,
+          });
+        });
+      },
+    });
+  }
+
+  _showClearBanner() {
+    this.waveBanner.setText("WAVE  CLEAR!");
+    this.waveBanner.setColor("#44ff88");
+    this.waveBanner.setScale(1.3);
+
+    this.tweens.add({
+      targets: this.waveBanner,
+      alpha: { from: 0, to: 1 },
+      scaleX: { from: 1.4, to: 1 },
+      scaleY: { from: 1.4, to: 1 },
+      duration: 250,
+      ease: "Cubic.Out",
+      onComplete: () => {
+        this.time.delayedCall(1000, () => {
+          this.tweens.add({
+            targets: this.waveBanner,
+            alpha: 0,
+            duration: 400,
+          });
+        });
+      },
+    });
+  }
+
+  _showVictoryBanner() {
+    this.waveText.setText("✦  FASE CONCLUÍDA  ✦");
+    this.waveBanner.setText("VITÓRIA!");
+    this.waveBanner.setColor("#ffdd00");
+    this.tweens.add({
+      targets: this.waveBanner,
+      alpha: { from: 0, to: 1 },
+      duration: 600,
+      ease: "Sine.In",
+    });
+  }
+
+  // ═══════════════════════════════════════════
+  // UPDATE
+  // ═══════════════════════════════════════════
+
   update() {
-    // ===== LIMITE DA RUA =====
+    // Mantém câmera travada no X durante wave ativa
+    if (this.cameraLocked && this._lockCameraX !== undefined) {
+      this.cameras.main.scrollX = this._lockCameraX;
+    }
+
+    // Barreira superior da rua
     if (this.player.y < this.limitLineY) {
       this.player.y = this.limitLineY;
       this.player.body.velocity.y = Math.max(0, this.player.body.velocity.y);
-      this.player.body.blocked.up = true;
-      this.player.body.blocked.down = false;
     }
 
-    // ===== ANIMAÇÃO PARADO =====
+    // Y-sorting: sprites mais abaixo aparecem na frente
+    this.player.setDepth(this.player.y);
+    if (this.enemies) {
+      this.enemies.children.iterate((e) => {
+        if (e && e.active) e.setDepth(e.y);
+      });
+    }
+
+    // Animação idle quando parado
     if (
       this.player.body.velocity.x === 0 &&
       this.player.body.velocity.y === 0 &&
-      (this.player.body.blocked.down || this.player.body.blocked.up) &&
       this.player.anims.currentAnim &&
       this.player.anims.currentAnim.key !== "punching" &&
       this.player.anims.currentAnim.key !== "kicking" &&
@@ -456,82 +724,64 @@ class scene0 extends Phaser.Scene {
       this.player.anims.play("standing-still", true);
     }
 
-    // ===== IA DOS INIMIGOS =====
+    // ── IA DOS INIMIGOS ──────────────────────
     if (this.enemies && this.enemies.children) {
       this.enemies.children.iterate((enemy) => {
         if (!enemy || !enemy.active) return;
 
-        const distance = Phaser.Math.Distance.Between(
+        const dist = Phaser.Math.Distance.Between(
           enemy.x,
           enemy.y,
           this.player.x,
           this.player.y,
         );
-
         const attackRange = 60;
 
-        if (distance > attackRange) {
-          // PERSEGUIR
+        if (dist > attackRange) {
+          // Perseguir
           this.physics.moveToObject(enemy, this.player, enemy.speed);
-
           if (
             !enemy.anims.currentAnim ||
             enemy.anims.currentAnim.key !== "enemy_run"
           ) {
             enemy.anims.play("enemy_run", true);
           }
-
           enemy.flipX = this.player.x < enemy.x;
           enemy.state = "chasing";
         } else {
-          // PARAR
+          // Atacar
           enemy.setVelocity(0, 0);
-
           if (enemy.state !== "attacking") {
             enemy.state = "attacking";
 
-            enemy.anims.play("enemy_attack", true);
+            // Alterna aleatoriamente entre os dois ataques
+            const atkKey = Phaser.Math.Between(0, 1)
+              ? "enemy_attack"
+              : "enemy_attack2";
+            enemy.anims.play(atkKey, true);
 
-            // DANO NO PLAYER
             this.time.delayedCall(300, () => {
               if (!enemy || !enemy.active) return;
-
-              const dist = Phaser.Math.Distance.Between(
+              const d = Phaser.Math.Distance.Between(
                 enemy.x,
                 enemy.y,
                 this.player.x,
                 this.player.y,
               );
-
-              if (dist < attackRange) {
-                console.log("Player levou dano!");
+              if (d < attackRange) {
+                console.log(`Player levou ${enemy.damage} de dano!`);
+                // TODO: implementar HP do player aqui
               }
             });
 
-            // RESET
             this.time.delayedCall(800, () => {
-              if (enemy && enemy.active) {
-                enemy.state = "idle";
-              }
+              if (enemy && enemy.active) enemy.state = "idle";
             });
           }
         }
       });
     }
   }
-
-  // ===== FUNÇÃO DE PULO =====
-  jump(player, gravity) {
-    player.body.setAllowGravity(true);
-    player.setVelocityY(-300);
-    player.anims.play("jumping", true);
-
-    this.time.delayedCall(500, () => {
-      player.body.setAllowGravity(false);
-      player.body.velocity.y = 0;
-      player.anims.play("standing-still", true);
-    });
-  }
-} 
+}
 
 export default scene0;
