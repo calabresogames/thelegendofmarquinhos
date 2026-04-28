@@ -10,7 +10,7 @@ class start extends Phaser.Scene {
 
   create() {
     this.add
-      .image(400, 400, "start")
+      .image(230, 200, "start")
       .setInteractive()
       .on("pointerdown", () => {
         this.scene.start("scene0");
