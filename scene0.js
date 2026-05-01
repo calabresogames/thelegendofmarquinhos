@@ -7,35 +7,135 @@ class scene0 extends Phaser.Scene {
     this.direction = undefined;
 
     // ===== WAVE SYSTEM =====
+    // Mapa dividido em 5 seções de ~1152 pixels cada (5760 total)
+    this.mapSections = [
+      { start: 0, end: 1152 }, // Wave 1
+      { start: 1152, end: 2304 }, // Wave 2
+      { start: 2304, end: 3456 }, // Wave 3
+      { start: 3456, end: 4608 }, // Wave 4
+      { start: 4608, end: 5760 }, // Wave 5
+    ];
+
     this.waveConfig = [
-      // Wave 1 – introdução, 2 inimigos simples
+      // Wave 1 – Seção 1: 3 ordas
       {
-        enemies: [
-          { x: 500, y: 650, type: "normal" },
-          { x: 700, y: 650, type: "normal" },
+        section: 0,
+        hordes: [
+          // Orda 1
+          [
+            { x: 300, y: 650, type: "normal" },
+            { x: 500, y: 650, type: "normal" },
+          ],
+          // Orda 2
+          [
+            { x: 700, y: 640, type: "fast" },
+            { x: 900, y: 650, type: "normal" },
+          ],
+          // Orda 3
+          [
+            { x: 600, y: 655, type: "tank" },
+            { x: 800, y: 650, type: "normal" },
+          ],
         ],
       },
-      // Wave 2 – 3 inimigos, um rápido
+      // Wave 2 – Seção 2: 3 ordas
       {
-        enemies: [
-          { x: 400, y: 650, type: "normal" },
-          { x: 600, y: 640, type: "fast" },
-          { x: 800, y: 650, type: "normal" },
+        section: 1,
+        hordes: [
+          // Orda 1
+          [
+            { x: 1400, y: 650, type: "normal" },
+            { x: 1600, y: 650, type: "normal" },
+            { x: 1800, y: 640, type: "fast" },
+          ],
+          // Orda 2
+          [
+            { x: 1500, y: 655, type: "tank" },
+            { x: 1700, y: 650, type: "normal" },
+          ],
+          // Orda 3
+          [
+            { x: 1300, y: 650, type: "normal" },
+            { x: 1550, y: 640, type: "fast" },
+            { x: 1750, y: 650, type: "normal" },
+          ],
         ],
       },
-      // Wave 3 – 4 inimigos, um tanque
+      // Wave 3 – Seção 3: 3 ordas
       {
-        enemies: [
-          { x: 350, y: 650, type: "normal" },
-          { x: 550, y: 640, type: "fast" },
-          { x: 750, y: 650, type: "normal" },
-          { x: 650, y: 655, type: "tank" },
+        section: 2,
+        hordes: [
+          // Orda 1
+          [
+            { x: 2500, y: 650, type: "normal" },
+            { x: 2700, y: 650, type: "normal" },
+          ],
+          // Orda 2
+          [
+            { x: 2600, y: 640, type: "fast" },
+            { x: 2800, y: 650, type: "normal" },
+            { x: 2900, y: 655, type: "tank" },
+          ],
+          // Orda 3
+          [
+            { x: 2400, y: 650, type: "normal" },
+            { x: 2650, y: 640, type: "fast" },
+            { x: 2850, y: 650, type: "normal" },
+          ],
+        ],
+      },
+      // Wave 4 – Seção 4: 3 ordas
+      {
+        section: 3,
+        hordes: [
+          // Orda 1
+          [
+            { x: 3600, y: 650, type: "normal" },
+            { x: 3800, y: 650, type: "normal" },
+            { x: 4000, y: 640, type: "fast" },
+          ],
+          // Orda 2
+          [
+            { x: 3700, y: 655, type: "tank" },
+            { x: 3900, y: 650, type: "normal" },
+          ],
+          // Orda 3
+          [
+            { x: 3500, y: 650, type: "normal" },
+            { x: 3750, y: 640, type: "fast" },
+            { x: 3950, y: 650, type: "normal" },
+          ],
+        ],
+      },
+      // Wave 5 – Seção 5: 3 ordas
+      {
+        section: 4,
+        hordes: [
+          // Orda 1
+          [
+            { x: 4700, y: 650, type: "normal" },
+            { x: 4900, y: 650, type: "normal" },
+          ],
+          // Orda 2
+          [
+            { x: 4800, y: 640, type: "fast" },
+            { x: 5000, y: 650, type: "normal" },
+            { x: 5100, y: 655, type: "tank" },
+          ],
+          // Orda 3
+          [
+            { x: 4600, y: 650, type: "normal" },
+            { x: 4850, y: 640, type: "fast" },
+            { x: 5050, y: 650, type: "normal" },
+          ],
         ],
       },
     ];
 
     this.currentWave = 0;
+    this.currentHorde = 0;
     this.waveActive = false;
+    this.hordeActive = false;
     this.waveCleared = false;
     this.cameraLocked = false;
   }
@@ -368,9 +468,14 @@ class scene0 extends Phaser.Scene {
         let vx = dir.x * 200;
         const vy = dir.y * 200;
 
-        // Trava avanço de câmera durante wave
-        if (this.cameraLocked && this.waveRightBound !== undefined) {
+        // Trava movimento durante wave ativa
+        if (
+          this.waveActive &&
+          this.waveLeftBound !== undefined &&
+          this.waveRightBound !== undefined
+        ) {
           if (vx > 0 && this.player.x >= this.waveRightBound) vx = 0;
+          if (vx < 0 && this.player.x <= this.waveLeftBound) vx = 0;
         }
 
         this.player.setVelocity(vx, vy);
@@ -436,9 +541,9 @@ class scene0 extends Phaser.Scene {
 
   /**
    * Inicia a wave de índice `index`.
-   * - Trava scroll da câmera
+   * - Trava scroll da câmera na seção da wave
    * - Exibe banner "WAVE X"
-   * - Spawna os inimigos com stagger de 300ms
+   * - Inicia a primeira orda
    */
   _startWave(index) {
     if (index >= this.waveConfig.length) {
@@ -447,31 +552,71 @@ class scene0 extends Phaser.Scene {
     }
 
     this.currentWave = index;
+    this.currentHorde = 0;
     this.waveActive = true;
     this.waveCleared = false;
     this.cameraLocked = true;
 
-    // Guarda o X atual da câmera para travar o scroll
-    this.cameras.main.stopFollow();
-    this._lockCameraX = this.cameras.main.scrollX;
+    const waveDef = this.waveConfig[index];
+    const section = this.mapSections[waveDef.section];
 
-    // Define o limite direito da arena (jogador não passa daqui enquanto há inimigos)
-    const visibleWidth = this.cameras.main.width / this.cameras.main.zoom;
-    this.waveRightBound = this._lockCameraX + visibleWidth - 60;
+    // Guarda os limites da seção para travar a câmera
+    this.waveLeftBound = section.start;
+    this.waveRightBound = section.end;
+
+    // Para a câmera na posição inicial da seção
+    this.cameras.main.stopFollow();
+    this._lockCameraX = Math.max(
+      section.start,
+      Math.min(
+        section.end - this.cameras.main.width / this.cameras.main.zoom,
+        this.player.x - this.cameras.main.width / this.cameras.main.zoom / 2,
+      ),
+    );
+    this.cameras.main.scrollX = this._lockCameraX;
 
     // Banner e HUD
     this._showWaveBanner(index + 1);
-    this._updateWaveHUD(index + 1, this.waveConfig.length);
+    this._updateWaveHUD(
+      index + 1,
+      this.waveConfig.length,
+      1,
+      waveDef.hordes.length,
+    );
 
-    // Spawna cada inimigo com delay escalonado (efeito de chegada)
-    const waveDef = this.waveConfig[index];
-    waveDef.enemies.forEach((cfg, i) => {
+    // Inicia primeira orda
+    this._startHorde(0);
+  }
+
+  /**
+   * Inicia uma orda específica dentro da wave atual.
+   */
+  _startHorde(hordeIndex) {
+    if (hordeIndex >= this.waveConfig[this.currentWave].hordes.length) {
+      this._clearWave();
+      return;
+    }
+
+    this.currentHorde = hordeIndex;
+    this.hordeActive = true;
+
+    // Atualiza HUD
+    this._updateWaveHUD(
+      this.currentWave + 1,
+      this.waveConfig.length,
+      hordeIndex + 1,
+      this.waveConfig[this.currentWave].hordes.length,
+    );
+
+    // Spawna inimigos da orda com delay
+    const horde = this.waveConfig[this.currentWave].hordes[hordeIndex];
+    horde.forEach((cfg, i) => {
       this.time.delayedCall(500 + i * 350, () => {
-        if (!this.waveActive) return;
+        if (!this.waveActive || !this.hordeActive) return;
 
         const enemy = this.spawnEnemy(cfg.x, cfg.y, cfg.type);
 
-        // Pequeno efeito de entrada: inimigo aparece correndo da borda direita
+        // Efeito de entrada
         enemy.setAlpha(0);
         this.tweens.add({
           targets: enemy,
@@ -484,16 +629,34 @@ class scene0 extends Phaser.Scene {
 
   /**
    * Chamado após cada morte de inimigo.
-   * Se não restarem inimigos vivos, chama _clearWave().
+   * Se não restarem inimigos da orda atual, chama _clearHorde().
    */
   _onEnemyKilled() {
-    if (!this.waveActive) return;
+    if (!this.waveActive || !this.hordeActive) return;
 
     // Pequena espera para garantir que o destroy() propagou
     this.time.delayedCall(50, () => {
       const alive = this.enemies.countActive(true);
-      if (alive === 0) this._clearWave();
+      if (alive === 0) this._clearHorde();
     });
+  }
+
+  /**
+   * Orda limpa: avança para próxima orda ou wave.
+   */
+  _clearHorde() {
+    this.hordeActive = false;
+
+    const nextHordeIndex = this.currentHorde + 1;
+    if (nextHordeIndex < this.waveConfig[this.currentWave].hordes.length) {
+      // Próxima orda
+      this.time.delayedCall(1500, () => {
+        if (this.waveActive) this._startHorde(nextHordeIndex);
+      });
+    } else {
+      // Wave completa
+      this._clearWave();
+    }
   }
 
   /**
@@ -510,20 +673,13 @@ class scene0 extends Phaser.Scene {
     this.cameras.main.flash(500, 200, 255, 150);
     this._showClearBanner();
 
-    // Retoma follow suave
+    // Mostra "GO ->" para avançar
+    this._showGoIndicator();
+
+    // Retoma follow suave, mas permite avançar
     this.time.delayedCall(1000, () => {
       this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
     });
-
-    const nextIndex = this.currentWave + 1;
-    if (nextIndex < this.waveConfig.length) {
-      // Aguarda o player avançar um pouco ou usa delay fixo
-      this.time.delayedCall(3500, () => {
-        if (!this.waveActive) this._startWave(nextIndex);
-      });
-    } else {
-      this.time.delayedCall(2000, () => this._onAllWavesCleared());
-    }
   }
 
   /** Todas as waves da fase foram concluídas. */
@@ -624,8 +780,10 @@ class scene0 extends Phaser.Scene {
       .setAlpha(0);
   }
 
-  _updateWaveHUD(current, total) {
-    this.waveText.setText(`WAVE  ${current} / ${total}`);
+  _updateWaveHUD(currentWave, totalWaves, currentHorde, totalHordes) {
+    this.waveText.setText(
+      `WAVE ${currentWave}/${totalWaves} - ORDA ${currentHorde}/${totalHordes}`,
+    );
   }
 
   _showWaveBanner(waveNum) {
@@ -677,14 +835,54 @@ class scene0 extends Phaser.Scene {
   }
 
   _showVictoryBanner() {
+    if (this.goIndicator) {
+      this.goIndicator.destroy();
+      this.goIndicator = null;
+    }
+
     this.waveText.setText("✦  FASE CONCLUÍDA  ✦");
     this.waveBanner.setText("VITÓRIA!");
     this.waveBanner.setColor("#ffdd00");
+    this.waveBanner.setScale(1.2);
+
     this.tweens.add({
       targets: this.waveBanner,
       alpha: { from: 0, to: 1 },
+      scaleX: { from: 0.8, to: 1 },
+      scaleY: { from: 0.8, to: 1 },
       duration: 600,
-      ease: "Sine.In",
+      ease: "Sine.Out",
+    });
+  }
+
+  _showGoIndicator() {
+    // Indicador "GO ->" no canto superior direito da tela
+    const margin = 24;
+    const x = this.cameras.main.width - margin;
+    const y = margin;
+
+    this.goIndicator = this.add
+      .text(x, y, "GO →", {
+        fontFamily: "'Arial Black', Arial",
+        fontSize: "42px",
+        color: "#ff4444",
+        stroke: "#000000",
+        strokeThickness: 6,
+      })
+      .setOrigin(1, 0)
+      .setScrollFactor(0)
+      .setDepth(30)
+      .setAlpha(0);
+
+    this.tweens.add({
+      targets: this.goIndicator,
+      alpha: { from: 0, to: 1 },
+      scaleX: { from: 0.8, to: 1 },
+      scaleY: { from: 0.8, to: 1 },
+      duration: 500,
+      ease: "Back.Out",
+      yoyo: true,
+      repeat: -1,
     });
   }
 
@@ -696,6 +894,35 @@ class scene0 extends Phaser.Scene {
     // Mantém câmera travada no X durante wave ativa
     if (this.cameraLocked && this._lockCameraX !== undefined) {
       this.cameras.main.scrollX = this._lockCameraX;
+    }
+
+    // Detecta avanço para próxima wave após completar
+    if (this.waveCleared && !this.waveActive) {
+      const nextWaveIndex = this.currentWave + 1;
+      if (nextWaveIndex < this.waveConfig.length) {
+        const nextSection =
+          this.mapSections[this.waveConfig[nextWaveIndex].section];
+        if (this.player.x >= nextSection.start) {
+          // Remove indicador GO
+          if (this.goIndicator) {
+            this.goIndicator.destroy();
+            this.goIndicator = null;
+          }
+          // Inicia próxima wave
+          this.waveCleared = false;
+          this._startWave(nextWaveIndex);
+        }
+      } else if (
+        this.player.x >=
+        this.mapSections[this.mapSections.length - 1].end - 100
+      ) {
+        // Fim do mapa
+        if (this.goIndicator) {
+          this.goIndicator.destroy();
+          this.goIndicator = null;
+        }
+        this._onAllWavesCleared();
+      }
     }
 
     // Barreira superior da rua
