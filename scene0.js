@@ -6,54 +6,48 @@ class scene0 extends Phaser.Scene {
     this.speed = 100;
     this.direction = undefined;
 
-    // ===== WAVE SYSTEM =====
-    // Mapa dividido em 5 seções de ~1152 pixels cada (5760 total)
+    // ── Divisão do mapa em 5 seções ──────────────────────────
     this.mapSections = [
-      { start: 0, end: 1152 }, // Wave 1
-      { start: 1152, end: 2304 }, // Wave 2
-      { start: 2304, end: 3456 }, // Wave 3
-      { start: 3456, end: 4608 }, // Wave 4
-      { start: 4608, end: 5760 }, // Wave 5
+      { start: 0, end: 1152 },
+      { start: 1152, end: 2304 },
+      { start: 2304, end: 3456 },
+      { start: 3456, end: 4608 },
+      { start: 4608, end: 5760 },
     ];
 
+    // ── Configuração das waves (5 seções × 3 ordas) ──────────
     this.waveConfig = [
-      // Wave 1 – Seção 1: 3 ordas
+      // Wave 1 – Seção 0
       {
         section: 0,
         hordes: [
-          // Orda 1
           [
             { x: 300, y: 650, type: "normal" },
             { x: 500, y: 650, type: "normal" },
           ],
-          // Orda 2
           [
             { x: 700, y: 640, type: "fast" },
             { x: 900, y: 650, type: "normal" },
           ],
-          // Orda 3
           [
             { x: 600, y: 655, type: "tank" },
             { x: 800, y: 650, type: "normal" },
           ],
         ],
       },
-      // Wave 2 – Seção 2: 3 ordas
+      // Wave 2 – Seção 1
       {
         section: 1,
         hordes: [
-          // Orda 1
           [
             { x: 1400, y: 650, type: "normal" },
             { x: 1600, y: 650, type: "normal" },
             { x: 1800, y: 640, type: "fast" },
           ],
-          // Orda 2
           [
             { x: 1500, y: 655, type: "tank" },
             { x: 1700, y: 650, type: "normal" },
           ],
-          // Orda 3
           [
             { x: 1300, y: 650, type: "normal" },
             { x: 1550, y: 640, type: "fast" },
@@ -61,22 +55,19 @@ class scene0 extends Phaser.Scene {
           ],
         ],
       },
-      // Wave 3 – Seção 3: 3 ordas
+      // Wave 3 – Seção 2
       {
         section: 2,
         hordes: [
-          // Orda 1
           [
             { x: 2500, y: 650, type: "normal" },
             { x: 2700, y: 650, type: "normal" },
           ],
-          // Orda 2
           [
             { x: 2600, y: 640, type: "fast" },
             { x: 2800, y: 650, type: "normal" },
             { x: 2900, y: 655, type: "tank" },
           ],
-          // Orda 3
           [
             { x: 2400, y: 650, type: "normal" },
             { x: 2650, y: 640, type: "fast" },
@@ -84,22 +75,19 @@ class scene0 extends Phaser.Scene {
           ],
         ],
       },
-      // Wave 4 – Seção 4: 3 ordas
+      // Wave 4 – Seção 3
       {
         section: 3,
         hordes: [
-          // Orda 1
           [
             { x: 3600, y: 650, type: "normal" },
             { x: 3800, y: 650, type: "normal" },
             { x: 4000, y: 640, type: "fast" },
           ],
-          // Orda 2
           [
             { x: 3700, y: 655, type: "tank" },
             { x: 3900, y: 650, type: "normal" },
           ],
-          // Orda 3
           [
             { x: 3500, y: 650, type: "normal" },
             { x: 3750, y: 640, type: "fast" },
@@ -107,22 +95,19 @@ class scene0 extends Phaser.Scene {
           ],
         ],
       },
-      // Wave 5 – Seção 5: 3 ordas
+      // Wave 5 – Seção 4 (final)
       {
         section: 4,
         hordes: [
-          // Orda 1
           [
             { x: 4700, y: 650, type: "normal" },
             { x: 4900, y: 650, type: "normal" },
           ],
-          // Orda 2
           [
             { x: 4800, y: 640, type: "fast" },
             { x: 5000, y: 650, type: "normal" },
             { x: 5100, y: 655, type: "tank" },
           ],
-          // Orda 3
           [
             { x: 4600, y: 650, type: "normal" },
             { x: 4850, y: 640, type: "fast" },
@@ -132,45 +117,35 @@ class scene0 extends Phaser.Scene {
       },
     ];
 
+    // ── Estado da wave ────────────────────────────────────────
     this.currentWave = 0;
     this.currentHorde = 0;
     this.waveActive = false;
     this.hordeActive = false;
     this.waveCleared = false;
     this.cameraLocked = false;
+    this._transitioningWave = false; // [FIX 5] guard contra pular wave
   }
 
+  // ─────────────────────────────────────────────────────────────
   preload() {
     this.load.setPath("assets/");
 
     this.load.tilemapTiledJSON("MapaFase1", "MapaFase1.JSON");
 
     this.load.image("2", "2.png");
-
     this.load.image("3 (1)", "3.png");
-
     this.load.image("4", "4.png");
-
     this.load.image("6", "6.png");
-
     this.load.image("Arc", "Arc.png");
-
     this.load.image("houded2", "houded2.png");
-
     this.load.image("House Inside", "House Inside.png");
-
     this.load.image("House Outside", "House Outside.png");
-
     this.load.image("houses", "houses.png");
-
     this.load.image("houses1", "houses1.png");
-
     this.load.image("houses2", "houses2.png");
-
     this.load.image("road&lamps", "road&lamps.png");
-
     this.load.image("Sakura Tree", "Sakura Tree.gif");
-
     this.load.image("SCS_Background_Sunset_01", "SCS_Background_Sunset_01.png");
 
     this.load.spritesheet("vigilant_idle", "NES_Vigilante_Idle_1_strip4.png", {
@@ -181,17 +156,14 @@ class scene0 extends Phaser.Scene {
       frameWidth: 16,
       frameHeight: 32,
     });
-
-    // ===== INIMIGO =====
     this.load.spritesheet("enemy", "Machine_guy_sprite_sheet.png", {
       frameWidth: 180,
       frameHeight: 90,
     });
 
-    // Punch sprites
+    // [FIX 2] punch/kick carregados aqui, não em create()
     this.load.image("punch1", "NES_Vigilante_Punch_1.png");
     this.load.image("punch2", "NES_Vigilante_Punch_2.png");
-    // Kick sprites
     this.load.image("kick1", "NES_Vigilante_Kick_1.png");
     this.load.image("kick2", "NES_Vigilante_Kick_2.png");
     this.load.image("botaochute", "botaochute.png");
@@ -204,16 +176,16 @@ class scene0 extends Phaser.Scene {
     );
   }
 
+  // ─────────────────────────────────────────────────────────────
   create() {
+    // ── Tilemap ──────────────────────────────────────────────
     this.tilemap = this.make.tilemap({ key: "MapaFase1" });
 
     this.tileset2 = this.tilemap.addTilesetImage("2");
     this.tileset3 = this.tilemap.addTilesetImage("3 (1)");
     this.tileset4 = this.tilemap.addTilesetImage("4");
-
     this.tileset6 = this.tilemap.addTilesetImage("6");
     this.tilesetArc = this.tilemap.addTilesetImage("Arc");
-
     this.tilesetHouded2 = this.tilemap.addTilesetImage("houded2");
     this.tilesetHouseInside = this.tilemap.addTilesetImage("House Inside");
     this.tilesetHouseOutside = this.tilemap.addTilesetImage("House Outside");
@@ -226,33 +198,23 @@ class scene0 extends Phaser.Scene {
       "SCS_Background_Sunset_01",
     );
 
-    this.layerbackground0 = this.tilemap.createLayer("background 0", [
-      this.tilesetSunset,
-    ]);
-    this.layerbackground1 = this.tilemap.createLayer("background 1", [
-      this.tileset4,
-    ]);
-    this.layerbackground2 = this.tilemap.createLayer("background 2", [
+    this.tilemap.createLayer("background 0", [this.tilesetSunset]);
+    this.tilemap.createLayer("background 1", [this.tileset4]);
+    this.tilemap.createLayer("background 2", [this.tileset2, this.tileset4]);
+    this.tilemap.createLayer("background 3", [this.tileset3]);
+    this.tilemap.createLayer("background 4", [this.tileset2, this.tileset4]);
+
+    // [FIX 2] load.image() removido daqui
+    this.tilemap.createLayer("background 5", [
       this.tileset2,
       this.tileset4,
-    ]);
-    this.layerbackground3 = this.tilemap.createLayer("background 3", [
-      this.tileset3,
-    ]);
-    this.layerbackground4 = this.tilemap.createLayer("background 4", [
-      this.tileset2,
-      this.tileset4,
-    ]);
-    this.layerbackground5 = this.tilemap.createLayer("background 5", [
-      this.tileset2,
-      this.tileset4,
-      this.load.image("punch1", "NES_Vigilante_Punch_1.png"),
       this.tileset6,
       this.tilesetSakuraTree,
       this.tilesetHouses1,
       this.tilesetHouseOutside,
       this.tilesetHouseInside,
     ]);
+
     this.layercasas = this.tilemap.createLayer("casas", [
       this.tilesetHouseOutside,
       this.tilesetHouseInside,
@@ -267,32 +229,20 @@ class scene0 extends Phaser.Scene {
     this.layerrua = this.tilemap.createLayer("rua", [this.tilesetRoadLamps]);
     this.layerobjetos = this.tilemap.createLayer("objetos", [this.tilesetArc]);
 
+    // ── Player ───────────────────────────────────────────────
     this.player = this.physics.add.sprite(150, 656, "vigilant_idle", 0);
-
     this.player.setScale(4, 5);
     this.player.setOrigin(0.5, 1);
-
-    // Ajuste de corpo físico para beat’em-up (2D top-down na rua)
     this.player.body.setSize(10, 20);
     this.player.body.setOffset(3, 10);
     this.player.setBounce(0);
     this.physics.world.gravity.y = 0;
     this.player.body.setAllowGravity(false);
     this.player.setCollideWorldBounds(true);
-
     this.player.lastStreetPosition = { x: 150, y: 656 };
-
-    // Linha limite horizontal fixa (onde começa a calçada da rua)
     this.limitLineY = this.player.y - 40;
 
-    // Desenhar linha para visualização da barreira
-    this.limitLine = this.add.graphics();
-    this.limitLine.beginPath();
-    this.limitLine.moveTo(0, this.limitLineY);
-    this.limitLine.lineTo(this.tilemap.widthInPixels, this.limitLineY);
-    this.limitLine.closePath();
-    this.limitLine.strokePath();
-
+    // ── Animações do player ──────────────────────────────────
     this.anims.create({
       key: "standing-still",
       frames: this.anims.generateFrameNumbers("vigilant_idle", {
@@ -302,14 +252,12 @@ class scene0 extends Phaser.Scene {
       frameRate: 5,
       repeat: -1,
     });
-
     this.anims.create({
       key: "idle-frame0",
       frames: [{ key: "vigilant_idle", frame: 0 }],
       frameRate: 1,
       repeat: 0,
     });
-
     this.anims.create({
       key: "running",
       frames: this.anims.generateFrameNumbers("vigilant_run", {
@@ -319,8 +267,6 @@ class scene0 extends Phaser.Scene {
       frameRate: 10,
       repeat: -1,
     });
-
-    // Punch animation
     this.anims.create({
       key: "punching",
       frames: [
@@ -330,12 +276,8 @@ class scene0 extends Phaser.Scene {
       ],
       frameRate: 10,
       repeat: 0,
-      onComplete: () => {
-        this.player.anims.play("idle-frame0", true);
-      },
+      onComplete: () => this.player.anims.play("idle-frame0", true),
     });
-
-    // Kick animation
     this.anims.create({
       key: "kicking",
       frames: [
@@ -345,38 +287,38 @@ class scene0 extends Phaser.Scene {
       ],
       frameRate: 10,
       repeat: 0,
-      onComplete: () => {
-        this.player.anims.play("idle-frame0", true);
-      },
+      onComplete: () => this.player.anims.play("idle-frame0", true),
     });
 
-    // ===== ANIMAÇÕES DO INIMIGO =====
-
-    // IDLE
+    // ── Animações do inimigo ─────────────────────────────────
+    // [FIX 1] frames corretos por animação
     this.anims.create({
       key: "enemy_idle",
       frames: this.anims.generateFrameNumbers("enemy", { start: 0, end: 5 }),
       frameRate: 8,
       repeat: -1,
     });
-
-    // RUN
     this.anims.create({
       key: "enemy_run",
-      frames: this.anims.generateFrameNumbers("enemy", { start: 6, end: 14 }),
+      // [FIX 1] era 6-14, correto é 6-9
+      frames: this.anims.generateFrameNumbers("enemy", { start: 6, end: 9 }),
       frameRate: 10,
       repeat: -1,
     });
-
-    // ATTACK
     this.anims.create({
       key: "enemy_attack",
-      frames: this.anims.generateFrameNumbers("enemy", { start: 15, end: 22 }),
+      // [FIX 1] era 15-22, correto é 15-18
+      frames: this.anims.generateFrameNumbers("enemy", { start: 15, end: 18 }),
       frameRate: 10,
       repeat: 0,
     });
-
-    // DEATH
+    this.anims.create({
+      key: "enemy_attack2",
+      // [FIX 1] attack2 separado: frames 19-22
+      frames: this.anims.generateFrameNumbers("enemy", { start: 19, end: 22 }),
+      frameRate: 10,
+      repeat: 0,
+    });
     this.anims.create({
       key: "enemy_death",
       frames: this.anims.generateFrameNumbers("enemy", { start: 23, end: 27 }),
@@ -384,19 +326,13 @@ class scene0 extends Phaser.Scene {
       repeat: 0,
     });
 
-    // ===== GRUPO DE INIMIGOS =====
+    // ── Grupo de inimigos ────────────────────────────────────
     this.enemies = this.physics.add.group();
 
-    // ── SPAWN DE INIMIGO ─────────────────────
-    /**
-     * Tipos:
-     *   "normal" – padrão                    (branco)
-     *   "fast"   – mais veloz, menos HP      (vermelho)
-     *   "tank"   – lento, mais HP, dano maior (azul)
-     */
+    // ── Spawn de inimigo ─────────────────────────────────────
     this.spawnEnemy = (x, y, type = "normal") => {
       const enemy = this.enemies.create(x, y, "enemy");
-      enemy.setOrigin(0.5, 0.61); // ancora no pé real do personagem
+      enemy.setOrigin(0.5, 0.61);
       enemy.body.setSize(23, 31);
       enemy.body.setOffset(76, 21);
       enemy.setCollideWorldBounds(true);
@@ -416,6 +352,7 @@ class scene0 extends Phaser.Scene {
       enemy.damage = s.damage;
       enemy.type = type;
       enemy.state = "idle";
+      enemy._dying = false; // [FIX 3] flag de morte em andamento
 
       enemy.anims.play("enemy_idle");
       return enemy;
@@ -423,7 +360,7 @@ class scene0 extends Phaser.Scene {
 
     this.physics.add.collider(this.player, this.enemies);
 
-    // ── CÂMERA & MUNDO ───────────────────────
+    // ── Câmera & mundo ───────────────────────────────────────
     this.physics.world.setBounds(
       0,
       0,
@@ -439,7 +376,7 @@ class scene0 extends Phaser.Scene {
     this.cameras.main.startFollow(this.player);
     this.cameras.main.setZoom(0.5);
 
-    // ── COLISÕES TILEMAP ─────────────────────
+    // ── Colisões tilemap ─────────────────────────────────────
     this.layercasas.setCollisionByProperty({ collides: true });
     this.physics.add.collider(this.player, this.layercasas);
     this.layerMarquinhosDojo.setCollisionByProperty({ collides: true });
@@ -447,7 +384,7 @@ class scene0 extends Phaser.Scene {
     this.layerrua.setCollisionByProperty({ collides: true });
     this.physics.add.collider(this.player, this.layerrua);
 
-    // ── JOYSTICK ─────────────────────────────
+    // ── Joystick ─────────────────────────────────────────────
     this.joystick = this.plugins.get("rexvirtualjoystickplugin").add(this, {
       x: -30,
       y: 480,
@@ -468,7 +405,6 @@ class scene0 extends Phaser.Scene {
         let vx = dir.x * 200;
         const vy = dir.y * 200;
 
-        // Trava movimento durante wave ativa
         if (
           this.waveActive &&
           this.waveLeftBound !== undefined &&
@@ -488,7 +424,7 @@ class scene0 extends Phaser.Scene {
       }
     });
 
-    // ── BOTÃO SOCO ───────────────────────────
+    // ── Botão soco ───────────────────────────────────────────
     this.punchButton = this.add
       .image(980, 400, "botaosoco")
       .setScale(0.6)
@@ -508,7 +444,7 @@ class scene0 extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(10);
 
-    // ── BOTÃO CHUTE ──────────────────────────
+    // ── Botão chute ──────────────────────────────────────────
     this.kickButton = this.add
       .image(880, 520, "botaochute")
       .setScale(0.6)
@@ -528,22 +464,20 @@ class scene0 extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(10);
 
-    // ── HUD ──────────────────────────────────
+    // ── HUD ──────────────────────────────────────────────────
     this._buildWaveHUD();
 
-    // ── PRIMEIRA WAVE ────────────────────────
+    // ── Inicia primeira wave ─────────────────────────────────
     this.time.delayedCall(800, () => this._startWave(0));
   }
 
-  // ═══════════════════════════════════════════
-  // WAVE SYSTEM
-  // ═══════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════
+  //  WAVE SYSTEM
+  // ═══════════════════════════════════════════════════════════
 
   /**
    * Inicia a wave de índice `index`.
-   * - Trava scroll da câmera na seção da wave
-   * - Exibe banner "WAVE X"
-   * - Inicia a primeira orda
+   * Trava câmera no início exato da seção e começa a primeira orda.
    */
   _startWave(index) {
     if (index >= this.waveConfig.length) {
@@ -556,26 +490,20 @@ class scene0 extends Phaser.Scene {
     this.waveActive = true;
     this.waveCleared = false;
     this.cameraLocked = true;
+    this._transitioningWave = false; // [FIX 5] libera guard
 
     const waveDef = this.waveConfig[index];
     const section = this.mapSections[waveDef.section];
 
-    // Guarda os limites da seção para travar a câmera
     this.waveLeftBound = section.start;
     this.waveRightBound = section.end;
 
-    // Para a câmera na posição inicial da seção
+    // [FIX 4] câmera trava no início exato da seção (não depende de player.x)
     this.cameras.main.stopFollow();
-    this._lockCameraX = Math.max(
-      section.start,
-      Math.min(
-        section.end - this.cameras.main.width / this.cameras.main.zoom,
-        this.player.x - this.cameras.main.width / this.cameras.main.zoom / 2,
-      ),
-    );
-    this.cameras.main.scrollX = this._lockCameraX;
+    this._lockCameraX = section.start;
+    this.cameras.main.scrollX = section.start;
 
-    // Banner e HUD
+    // Banner de wave e HUD
     this._showWaveBanner(index + 1);
     this._updateWaveHUD(
       index + 1,
@@ -589,10 +517,12 @@ class scene0 extends Phaser.Scene {
   }
 
   /**
-   * Inicia uma orda específica dentro da wave atual.
+   * Inicia a orda `hordeIndex` da wave atual.
    */
   _startHorde(hordeIndex) {
-    if (hordeIndex >= this.waveConfig[this.currentWave].hordes.length) {
+    const waveDef = this.waveConfig[this.currentWave];
+
+    if (hordeIndex >= waveDef.hordes.length) {
       this._clearWave();
       return;
     }
@@ -600,70 +530,64 @@ class scene0 extends Phaser.Scene {
     this.currentHorde = hordeIndex;
     this.hordeActive = true;
 
-    // Atualiza HUD
     this._updateWaveHUD(
       this.currentWave + 1,
       this.waveConfig.length,
       hordeIndex + 1,
-      this.waveConfig[this.currentWave].hordes.length,
+      waveDef.hordes.length,
     );
 
-    // Spawna inimigos da orda com delay
-    const horde = this.waveConfig[this.currentWave].hordes[hordeIndex];
+    // [FIX 9] Banner de orda animado
+    this._showOrdaBanner(hordeIndex + 1, waveDef.hordes.length);
+
+    const horde = waveDef.hordes[hordeIndex];
     horde.forEach((cfg, i) => {
       this.time.delayedCall(500 + i * 350, () => {
+        // [FIX 7] verifica hordeActive antes de spawnar
         if (!this.waveActive || !this.hordeActive) return;
 
         const enemy = this.spawnEnemy(cfg.x, cfg.y, cfg.type);
-
-        // Efeito de entrada
         enemy.setAlpha(0);
-        this.tweens.add({
-          targets: enemy,
-          alpha: 1,
-          duration: 200,
-        });
+        this.tweens.add({ targets: enemy, alpha: 1, duration: 200 });
       });
     });
   }
 
   /**
    * Chamado após cada morte de inimigo.
-   * Se não restarem inimigos da orda atual, chama _clearHorde().
+   * Usa flag _dying para evitar race condition com mortes simultâneas.
    */
   _onEnemyKilled() {
     if (!this.waveActive || !this.hordeActive) return;
 
-    // Pequena espera para garantir que o destroy() propagou
-    this.time.delayedCall(50, () => {
-      const alive = this.enemies.countActive(true);
+    this.time.delayedCall(80, () => {
+      // [FIX 3] conta apenas inimigos vivos E não em animação de morte
+      const alive = this.enemies
+        .getChildren()
+        .filter((e) => e.active && !e._dying).length;
+
       if (alive === 0) this._clearHorde();
     });
   }
 
   /**
-   * Orda limpa: avança para próxima orda ou wave.
+   * Orda limpa: avança para próxima orda ou encerra a wave.
    */
   _clearHorde() {
     this.hordeActive = false;
 
     const nextHordeIndex = this.currentHorde + 1;
     if (nextHordeIndex < this.waveConfig[this.currentWave].hordes.length) {
-      // Próxima orda
       this.time.delayedCall(1500, () => {
         if (this.waveActive) this._startHorde(nextHordeIndex);
       });
     } else {
-      // Wave completa
       this._clearWave();
     }
   }
 
   /**
-   * Wave limpa:
-   * - Destrava câmera
-   * - Flash de vitória
-   * - Inicia próxima wave após pausa
+   * Wave limpa: flash, banner, "GO →" e retoma follow da câmera.
    */
   _clearWave() {
     this.waveActive = false;
@@ -672,31 +596,29 @@ class scene0 extends Phaser.Scene {
 
     this.cameras.main.flash(500, 200, 255, 150);
     this._showClearBanner();
-
-    // Mostra "GO ->" para avançar
     this._showGoIndicator();
 
-    // Retoma follow suave, mas permite avançar
+    // [FIX 8] câmera retoma follow com lerp suave
     this.time.delayedCall(1000, () => {
       this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
     });
   }
 
-  /** Todas as waves da fase foram concluídas. */
+  /** Todas as waves concluídas. */
   _onAllWavesCleared() {
     this._showVictoryBanner();
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
-    // Para avançar de fase: this.scene.start("scene1");
+    // this.time.delayedCall(3000, () => this.scene.start("scene1"));
   }
 
-  // ═══════════════════════════════════════════
-  // DANO
-  // ═══════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════
+  //  DANO
+  // ═══════════════════════════════════════════════════════════
 
   _dealDamage(range, dmg, knockback) {
     if (!this.enemies) return;
     this.enemies.children.iterate((enemy) => {
-      if (!enemy || !enemy.active) return;
+      if (!enemy || !enemy.active || enemy._dying) return;
 
       const dist = Phaser.Math.Distance.Between(
         this.player.x,
@@ -708,17 +630,17 @@ class scene0 extends Phaser.Scene {
 
       enemy.health -= dmg;
 
-      // Flash branco de hit
+      // Flash de hit
       enemy.setTint(0xffffff);
       this.time.delayedCall(90, () => {
         if (!enemy || !enemy.active) return;
-        const originalTint =
+        const tint =
           enemy.type === "fast"
             ? 0xff6666
             : enemy.type === "tank"
               ? 0x6699ff
               : 0xffffff;
-        enemy.setTint(originalTint);
+        enemy.setTint(tint);
       });
 
       // Knockback
@@ -730,29 +652,27 @@ class scene0 extends Phaser.Scene {
   }
 
   _killEnemy(enemy) {
-    if (!enemy || !enemy.active) return;
+    if (!enemy || !enemy.active || enemy._dying) return;
 
-    // Desativa colisão imediatamente
+    // [FIX 3] marca como morrendo imediatamente para evitar duplo disparo
+    enemy._dying = true;
     enemy.active = false;
     enemy.body.enable = false;
-
-    // Toca animação de morte
-    enemy.anims.play("enemy_death", true);
     enemy.setVelocity(0, 0);
+    enemy.anims.play("enemy_death", true);
 
-    // Remove após animação terminar
     this.time.delayedCall(700, () => {
+      // [FIX 9] checa enemy.scene antes de destruir (evita erro se já foi removido)
       if (enemy && enemy.scene) enemy.destroy();
       this._onEnemyKilled();
     });
   }
 
-  // ═══════════════════════════════════════════
-  // HUD
-  // ═══════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════
+  //  HUD
+  // ═══════════════════════════════════════════════════════════
 
   _buildWaveHUD() {
-    // Indicador de wave no topo
     this.waveText = this.add
       .text(512, 18, "", {
         fontFamily: "'Arial Black', Arial",
@@ -765,7 +685,7 @@ class scene0 extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(20);
 
-    // Banner central (animado)
+    // Banner central (wave / orda / clear / vitória)
     this.waveBanner = this.add
       .text(512, 280, "", {
         fontFamily: "'Arial Black', Arial",
@@ -778,11 +698,25 @@ class scene0 extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(21)
       .setAlpha(0);
+
+    // Sub-banner para orda (menor, abaixo do banner principal)
+    this.ordaBanner = this.add
+      .text(512, 350, "", {
+        fontFamily: "'Arial Black', Arial",
+        fontSize: "30px",
+        color: "#ffffff",
+        stroke: "#000000",
+        strokeThickness: 6,
+      })
+      .setOrigin(0.5, 0.5)
+      .setScrollFactor(0)
+      .setDepth(21)
+      .setAlpha(0);
   }
 
   _updateWaveHUD(currentWave, totalWaves, currentHorde, totalHordes) {
     this.waveText.setText(
-      `WAVE ${currentWave}/${totalWaves} - ORDA ${currentHorde}/${totalHordes}`,
+      `WAVE ${currentWave}/${totalWaves}  ·  ORDA ${currentHorde}/${totalHordes}`,
     );
   }
 
@@ -790,6 +724,7 @@ class scene0 extends Phaser.Scene {
     this.waveBanner.setText(`— WAVE  ${waveNum} —`);
     this.waveBanner.setColor("#ffdd00");
     this.waveBanner.setScale(0.5);
+    this.ordaBanner.setAlpha(0);
 
     this.tweens.add({
       targets: this.waveBanner,
@@ -802,6 +737,33 @@ class scene0 extends Phaser.Scene {
         this.time.delayedCall(800, () => {
           this.tweens.add({
             targets: this.waveBanner,
+            alpha: 0,
+            duration: 300,
+          });
+        });
+      },
+    });
+  }
+
+  // [FIX 9] Banner animado por orda
+  _showOrdaBanner(ordaNum, totalOrdas) {
+    // Só exibe a partir da orda 2 (orda 1 já é coberta pelo banner de wave)
+    if (ordaNum === 1) return;
+
+    this.ordaBanner.setText(`ORDA  ${ordaNum} / ${totalOrdas}`);
+    this.ordaBanner.setScale(0.6);
+
+    this.tweens.add({
+      targets: this.ordaBanner,
+      alpha: { from: 0, to: 1 },
+      scaleX: { from: 0.5, to: 1 },
+      scaleY: { from: 0.5, to: 1 },
+      duration: 250,
+      ease: "Back.Out",
+      onComplete: () => {
+        this.time.delayedCall(700, () => {
+          this.tweens.add({
+            targets: this.ordaBanner,
             alpha: 0,
             duration: 300,
           });
@@ -835,10 +797,8 @@ class scene0 extends Phaser.Scene {
   }
 
   _showVictoryBanner() {
-    if (this.goIndicator) {
-      this.goIndicator.destroy();
-      this.goIndicator = null;
-    }
+    // [FIX 6] garante que goIndicator é destruído antes
+    this._destroyGoIndicator();
 
     this.waveText.setText("✦  FASE CONCLUÍDA  ✦");
     this.waveBanner.setText("VITÓRIA!");
@@ -856,10 +816,11 @@ class scene0 extends Phaser.Scene {
   }
 
   _showGoIndicator() {
-    // Indicador "GO ->" no canto superior direito da tela
-    const margin = 24;
-    const x = this.cameras.main.width - margin;
-    const y = margin;
+    // [FIX 6] destrói qualquer goIndicator anterior antes de criar um novo
+    this._destroyGoIndicator();
+
+    const x = this.cameras.main.width - 24;
+    const y = 24;
 
     this.goIndicator = this.add
       .text(x, y, "GO →", {
@@ -881,57 +842,82 @@ class scene0 extends Phaser.Scene {
       scaleY: { from: 0.8, to: 1 },
       duration: 500,
       ease: "Back.Out",
-      yoyo: true,
-      repeat: -1,
+      onComplete: () => {
+        // Pulsa para chamar atenção
+        this.tweens.add({
+          targets: this.goIndicator,
+          alpha: { from: 1, to: 0.5 },
+          duration: 600,
+          ease: "Sine.InOut",
+          yoyo: true,
+          repeat: -1,
+        });
+      },
     });
   }
 
-  // ═══════════════════════════════════════════
-  // UPDATE
-  // ═══════════════════════════════════════════
+  // [FIX 6] Helper para destruir goIndicator com segurança
+  _destroyGoIndicator() {
+    if (this.goIndicator) {
+      this.tweens.killTweensOf(this.goIndicator);
+      this.goIndicator.destroy();
+      this.goIndicator = null;
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  //  UPDATE
+  // ═══════════════════════════════════════════════════════════
 
   update() {
-    // Mantém câmera travada no X durante wave ativa
+    // Câmera travada durante wave
     if (this.cameraLocked && this._lockCameraX !== undefined) {
       this.cameras.main.scrollX = this._lockCameraX;
     }
 
-    // Detecta avanço para próxima wave após completar
-    if (this.waveCleared && !this.waveActive) {
+    // ── Detecta avanço para próxima wave ─────────────────────
+    // [FIX 5] guard _transitioningWave evita disparar duas vezes
+    if (this.waveCleared && !this.waveActive && !this._transitioningWave) {
       const nextWaveIndex = this.currentWave + 1;
+
       if (nextWaveIndex < this.waveConfig.length) {
         const nextSection =
           this.mapSections[this.waveConfig[nextWaveIndex].section];
+
         if (this.player.x >= nextSection.start) {
-          // Remove indicador GO
-          if (this.goIndicator) {
-            this.goIndicator.destroy();
-            this.goIndicator = null;
-          }
-          // Inicia próxima wave
+          this._transitioningWave = true; // trava o guard
+          this._destroyGoIndicator();
           this.waveCleared = false;
-          this._startWave(nextWaveIndex);
+
+          // [FIX 8] Tween suave de câmera até a nova seção antes de iniciar wave
+          this.cameras.main.stopFollow();
+          this.tweens.add({
+            targets: this.cameras.main,
+            scrollX: nextSection.start,
+            duration: 600,
+            ease: "Cubic.InOut",
+            onComplete: () => {
+              this._startWave(nextWaveIndex);
+            },
+          });
         }
       } else if (
         this.player.x >=
         this.mapSections[this.mapSections.length - 1].end - 100
       ) {
-        // Fim do mapa
-        if (this.goIndicator) {
-          this.goIndicator.destroy();
-          this.goIndicator = null;
-        }
+        this._transitioningWave = true;
+        this._destroyGoIndicator();
         this._onAllWavesCleared();
       }
     }
 
-    // Barreira superior da rua
+    // ── Barreira superior da rua ─────────────────────────────
     if (this.player.y < this.limitLineY) {
       this.player.y = this.limitLineY;
       this.player.body.velocity.y = Math.max(0, this.player.body.velocity.y);
     }
 
-    // Y-sorting: sprites mais abaixo aparecem na frente
+    // ── Y-sorting ────────────────────────────────────────────
     this.player.setDepth(this.player.y);
     if (this.enemies) {
       this.enemies.children.iterate((e) => {
@@ -939,7 +925,7 @@ class scene0 extends Phaser.Scene {
       });
     }
 
-    // Animação idle quando parado
+    // ── Animação idle ────────────────────────────────────────
     if (
       this.player.body.velocity.x === 0 &&
       this.player.body.velocity.y === 0 &&
@@ -951,10 +937,10 @@ class scene0 extends Phaser.Scene {
       this.player.anims.play("standing-still", true);
     }
 
-    // ── IA DOS INIMIGOS ──────────────────────
+    // ── IA dos inimigos ──────────────────────────────────────
     if (this.enemies && this.enemies.children) {
       this.enemies.children.iterate((enemy) => {
-        if (!enemy || !enemy.active) return;
+        if (!enemy || !enemy.active || enemy._dying) return;
 
         const dist = Phaser.Math.Distance.Between(
           enemy.x,
@@ -981,14 +967,14 @@ class scene0 extends Phaser.Scene {
           if (enemy.state !== "attacking") {
             enemy.state = "attacking";
 
-            // Alterna aleatoriamente entre os dois ataques
+            // Alterna entre attack e attack2 aleatoriamente
             const atkKey = Phaser.Math.Between(0, 1)
               ? "enemy_attack"
               : "enemy_attack2";
             enemy.anims.play(atkKey, true);
 
             this.time.delayedCall(300, () => {
-              if (!enemy || !enemy.active) return;
+              if (!enemy || !enemy.active || enemy._dying) return;
               const d = Phaser.Math.Distance.Between(
                 enemy.x,
                 enemy.y,
@@ -997,12 +983,12 @@ class scene0 extends Phaser.Scene {
               );
               if (d < attackRange) {
                 console.log(`Player levou ${enemy.damage} de dano!`);
-                // TODO: implementar HP do player aqui
+                // TODO: implementar HP do player
               }
             });
 
             this.time.delayedCall(800, () => {
-              if (enemy && enemy.active) enemy.state = "idle";
+              if (enemy && enemy.active && !enemy._dying) enemy.state = "idle";
             });
           }
         }
