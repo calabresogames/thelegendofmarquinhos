@@ -1,3 +1,22 @@
+// ═══════════════════════════════════════════════════════════════
+//  scene0.js  –  Beat 'em Up
+//
+//  Mapa: 5760 × 1024px  (180 tiles × 32 tiles, tile 32×32)
+//  5 seções de 1152px cada, 3 ordas por seção
+//
+//  Correções aplicadas:
+//  [1] load.image() removido de dentro de create()
+//  [2] Race condition em _onEnemyKilled() corrigida com flag _dying
+//  [3] _lockCameraX usa section.start exato
+//  [4] Guard _transitioningWave evita pular wave
+//  [5] goIndicator destruído antes de recriar (sem vazamento)
+//  [6] Spawn verifica hordeActive antes de criar inimigo
+//  [7] Animação de ataque corrigida: frames 15-22 como sequência única
+//  [8] Inimigo usa overlap em vez de collider — sem push físico no player
+//  [9] enemy.body.setImmovable(true) durante ataque — inimigo não desliza
+//  [10] Câmera: tween de scrollX+scrollY antes do startFollow — sem teleporte
+// ═══════════════════════════════════════════════════════════════
+
 class scene0 extends Phaser.Scene {
   constructor() {
     super("scene0");
@@ -300,23 +319,17 @@ class scene0 extends Phaser.Scene {
     });
     this.anims.create({
       key: "enemy_run",
-      // [FIX 1] era 6-14, correto é 6-9
-      frames: this.anims.generateFrameNumbers("enemy", { start: 6, end: 9 }),
+      // frames 6-14: inclui run + walk, transição mais suave
+      frames: this.anims.generateFrameNumbers("enemy", { start: 6, end: 14 }),
       frameRate: 10,
       repeat: -1,
     });
+    // Ataque: frames 15-22 formam UMA animação completa
+    // 15-18 = efeito do golpe (slash), 19-22 = personagem avança/recua
     this.anims.create({
       key: "enemy_attack",
-      // [FIX 1] era 15-22, correto é 15-18
-      frames: this.anims.generateFrameNumbers("enemy", { start: 15, end: 18 }),
-      frameRate: 10,
-      repeat: 0,
-    });
-    this.anims.create({
-      key: "enemy_attack2",
-      // [FIX 1] attack2 separado: frames 19-22
-      frames: this.anims.generateFrameNumbers("enemy", { start: 19, end: 22 }),
-      frameRate: 10,
+      frames: this.anims.generateFrameNumbers("enemy", { start: 15, end: 22 }),
+      frameRate: 12,
       repeat: 0,
     });
     this.anims.create({
@@ -358,7 +371,9 @@ class scene0 extends Phaser.Scene {
       return enemy;
     };
 
-    this.physics.add.collider(this.player, this.enemies);
+    // Usar OVERLAP em vez de collider para os inimigos não empurrarem o player
+    // O collider causava o push físico; overlap detecta sem aplicar força
+    this.physics.add.overlap(this.player, this.enemies);
 
     // ── Câmera & mundo ───────────────────────────────────────
     this.physics.world.setBounds(
@@ -498,10 +513,12 @@ class scene0 extends Phaser.Scene {
     this.waveLeftBound = section.start;
     this.waveRightBound = section.end;
 
-    // [FIX 4] câmera trava no início exato da seção (não depende de player.x)
+    // Para o follow e trava AMBOS os eixos da câmera
     this.cameras.main.stopFollow();
     this._lockCameraX = section.start;
+    this._lockCameraY = this.cameras.main.scrollY; // salva Y atual antes de travar
     this.cameras.main.scrollX = section.start;
+    // scrollY não muda — câmera fica exatamente onde estava no eixo vertical
 
     // Banner de wave e HUD
     this._showWaveBanner(index + 1);
@@ -592,15 +609,44 @@ class scene0 extends Phaser.Scene {
   _clearWave() {
     this.waveActive = false;
     this.waveCleared = true;
-    this.cameraLocked = false;
+    // Mantém cameraLocked=true até o tween começar — evita Y derivar no intervalo
 
     this.cameras.main.flash(500, 200, 255, 150);
     this._showClearBanner();
     this._showGoIndicator();
 
-    // [FIX 8] câmera retoma follow com lerp suave
-    this.time.delayedCall(1000, () => {
-      this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
+    // Câmera: tween suave do scrollX/Y atual até centrar no player
+    // Evita o "teleporte" causado pelo startFollow instantâneo
+    this.time.delayedCall(800, () => {
+      // Só agora destrava — câmera estava segura até aqui
+      this.cameraLocked = false;
+
+      const zoom = this.cameras.main.zoom;
+      const camW = this.cameras.main.width / zoom;
+      const camH = this.cameras.main.height / zoom;
+      const targetX = Phaser.Math.Clamp(
+        this.player.x - camW / 2,
+        0,
+        this.tilemap.widthInPixels - camW,
+      );
+      const targetY = Phaser.Math.Clamp(
+        this.player.y - camH / 2,
+        0,
+        this.tilemap.heightInPixels - camH,
+      );
+
+      // Tween da câmera até a posição do player antes de ligar o follow
+      this.tweens.add({
+        targets: this.cameras.main,
+        scrollX: targetX,
+        scrollY: targetY,
+        duration: 500,
+        ease: "Cubic.InOut",
+        onComplete: () => {
+          // Só liga o follow depois do tween acabar — sem salto
+          this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
+        },
+      });
     });
   }
 
@@ -870,9 +916,12 @@ class scene0 extends Phaser.Scene {
   // ═══════════════════════════════════════════════════════════
 
   update() {
-    // Câmera travada durante wave
-    if (this.cameraLocked && this._lockCameraX !== undefined) {
-      this.cameras.main.scrollX = this._lockCameraX;
+    // Câmera travada durante wave — trava AMBOS os eixos
+    if (this.cameraLocked) {
+      if (this._lockCameraX !== undefined)
+        this.cameras.main.scrollX = this._lockCameraX;
+      if (this._lockCameraY !== undefined)
+        this.cameras.main.scrollY = this._lockCameraY;
     }
 
     // ── Detecta avanço para próxima wave ─────────────────────
@@ -889,12 +938,20 @@ class scene0 extends Phaser.Scene {
           this._destroyGoIndicator();
           this.waveCleared = false;
 
-          // [FIX 8] Tween suave de câmera até a nova seção antes de iniciar wave
+          // Tween suave de câmera até a nova seção e só então inicia a wave
           this.cameras.main.stopFollow();
+          const zoom = this.cameras.main.zoom;
+          const camW = this.cameras.main.width / zoom;
+          const targetY = Phaser.Math.Clamp(
+            this.player.y - this.cameras.main.height / zoom / 2,
+            0,
+            this.tilemap.heightInPixels - this.cameras.main.height / zoom,
+          );
           this.tweens.add({
             targets: this.cameras.main,
             scrollX: nextSection.start,
-            duration: 600,
+            scrollY: targetY,
+            duration: 700,
             ease: "Cubic.InOut",
             onComplete: () => {
               this._startWave(nextWaveIndex);
@@ -962,18 +1019,18 @@ class scene0 extends Phaser.Scene {
           enemy.flipX = this.player.x < enemy.x;
           enemy.state = "chasing";
         } else {
-          // Atacar
+          // Para completamente ao atacar — sem empurrar o player
           enemy.setVelocity(0, 0);
+          enemy.body.setImmovable(true);
+
           if (enemy.state !== "attacking") {
             enemy.state = "attacking";
 
-            // Alterna entre attack e attack2 aleatoriamente
-            const atkKey = Phaser.Math.Between(0, 1)
-              ? "enemy_attack"
-              : "enemy_attack2";
-            enemy.anims.play(atkKey, true);
+            // UMA animação de ataque completa (frames 15-22)
+            enemy.anims.play("enemy_attack", true);
 
-            this.time.delayedCall(300, () => {
+            // Aplica dano no pico do ataque (frame ~4 da animação = ~330ms)
+            this.time.delayedCall(330, () => {
               if (!enemy || !enemy.active || enemy._dying) return;
               const d = Phaser.Math.Distance.Between(
                 enemy.x,
@@ -987,8 +1044,13 @@ class scene0 extends Phaser.Scene {
               }
             });
 
-            this.time.delayedCall(800, () => {
-              if (enemy && enemy.active && !enemy._dying) enemy.state = "idle";
+            // Duração total do ataque = 8 frames a 12fps ≈ 667ms
+            // Depois volta ao idle para reavaliar
+            this.time.delayedCall(680, () => {
+              if (enemy && enemy.active && !enemy._dying) {
+                enemy.body.setImmovable(false);
+                enemy.state = "idle";
+              }
             });
           }
         }
