@@ -2,6 +2,10 @@ var config = {
   type: Phaser.AUTO,
   width: 800,
   height: 450,
+  fps: {
+    target: 30,
+    forceSetTimeOut: true,
+  },
   parent: "game-container",
   physics: {
     default: "arcade",

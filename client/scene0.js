@@ -484,6 +484,13 @@ class scene0 extends Phaser.Scene {
 
     // ── Inicia primeira wave ─────────────────────────────────
     this.time.delayedCall(800, () => this._startWave(0));
+
+    this.game.socket.on("scene0", (state) => {
+      if (state.player) {
+        // ...
+      }
+    });
+
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -916,6 +923,21 @@ class scene0 extends Phaser.Scene {
   // ═══════════════════════════════════════════════════════════
 
   update() {
+
+
+    try {
+      this.game.socket.emit("scene0", this.game.room, {
+        player: {
+          x: this.player.x,
+          y: this.player.y,
+          key: this.player.anims.currentAnim.key,
+          frame: this.player.anims.currentFrame.index,
+        },
+      });
+    } catch (e) {
+      console.error("Error updating player:", e);
+    }
+
     // Câmera travada durante wave — trava AMBOS os eixos
     if (this.cameraLocked) {
       if (this._lockCameraX !== undefined)
