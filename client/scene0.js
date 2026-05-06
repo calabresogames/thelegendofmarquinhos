@@ -1,22 +1,3 @@
-// ═══════════════════════════════════════════════════════════════
-//  scene0.js  –  Beat 'em Up
-//
-//  Mapa: 5760 × 1024px  (180 tiles × 32 tiles, tile 32×32)
-//  5 seções de 1152px cada, 3 ordas por seção
-//
-//  Correções aplicadas:
-//  [1] load.image() removido de dentro de create()
-//  [2] Race condition em _onEnemyKilled() corrigida com flag _dying
-//  [3] _lockCameraX usa section.start exato
-//  [4] Guard _transitioningWave evita pular wave
-//  [5] goIndicator destruído antes de recriar (sem vazamento)
-//  [6] Spawn verifica hordeActive antes de criar inimigo
-//  [7] Animação de ataque corrigida: frames 15-22 como sequência única
-//  [8] Inimigo usa overlap em vez de collider — sem push físico no player
-//  [9] enemy.body.setImmovable(true) durante ataque — inimigo não desliza
-//  [10] Câmera: tween de scrollX+scrollY antes do startFollow — sem teleporte
-// ═══════════════════════════════════════════════════════════════
-
 class scene0 extends Phaser.Scene {
   constructor() {
     super("scene0");
@@ -167,14 +148,54 @@ class scene0 extends Phaser.Scene {
     this.load.image("Sakura Tree", "Sakura Tree.gif");
     this.load.image("SCS_Background_Sunset_01", "SCS_Background_Sunset_01.png");
 
-    this.load.spritesheet("vigilant_idle", "NES_Vigilante_Idle_1_strip4.png", {
-      frameWidth: 16,
-      frameHeight: 32,
-    });
-    this.load.spritesheet("vigilant_run", "NES_Vigilante_Run_strip4.png", {
-      frameWidth: 16,
-      frameHeight: 32,
-    });
+    this.load.spritesheet(
+      "marquinhos_idle",
+      "marquinho sprite/marquinhosparado.png",
+      {
+        frameWidth: 96,
+        frameHeight: 224,
+      },
+    );
+    this.load.spritesheet(
+      "marquinhos_run",
+      "marquinho sprite/marquinhoscorre.png",
+      {
+        frameWidth: 96,
+        frameHeight: 224,
+      },
+    );
+    this.load.spritesheet(
+      "marquinhos_punch1",
+      "marquinho sprite/marquinhossoco1.png",
+      {
+        frameWidth: 192,
+        frameHeight: 224,
+      },
+    );
+    this.load.spritesheet(
+      "marquinhos_punch2",
+      "marquinho sprite/marquinhossoco2.png",
+      {
+        frameWidth: 192,
+        frameHeight: 224,
+      },
+    );
+    this.load.spritesheet(
+      "marquinhos_kick1",
+      "marquinho sprite/marquinhoschute1.png",
+      {
+        frameWidth: 192,
+        frameHeight: 224,
+      },
+    );
+    this.load.spritesheet(
+      "marquinhos_kick2",
+      "marquinho sprite/marquinhoschute2.png",
+      {
+        frameWidth: 32,
+        frameHeight: 32,
+      },
+    );
     this.load.spritesheet("enemy", "Machine_guy_sprite_sheet.png", {
       frameWidth: 180,
       frameHeight: 90,
@@ -249,11 +270,11 @@ class scene0 extends Phaser.Scene {
     this.layerobjetos = this.tilemap.createLayer("objetos", [this.tilesetArc]);
 
     // ── Player ───────────────────────────────────────────────
-    this.player = this.physics.add.sprite(150, 656, "vigilant_idle", 0);
-    this.player.setScale(4, 5);
+    this.player = this.physics.add.sprite(150, 656, "marquinhos_idle", 0);
+    this.player.setScale(0.25, 0.25);
     this.player.setOrigin(0.5, 1);
-    this.player.body.setSize(10, 20);
-    this.player.body.setOffset(3, 10);
+    this.player.body.setSize(30, 60);
+    this.player.body.setOffset(33, 130);
     this.player.setBounce(0);
     this.physics.world.gravity.y = 0;
     this.player.body.setAllowGravity(false);
@@ -264,7 +285,7 @@ class scene0 extends Phaser.Scene {
     // ── Animações do player ──────────────────────────────────
     this.anims.create({
       key: "standing-still",
-      frames: this.anims.generateFrameNumbers("vigilant_idle", {
+      frames: this.anims.generateFrameNumbers("marquinhos_idle", {
         start: 0,
         end: 3,
       }),
@@ -273,13 +294,13 @@ class scene0 extends Phaser.Scene {
     });
     this.anims.create({
       key: "idle-frame0",
-      frames: [{ key: "vigilant_idle", frame: 0 }],
+      frames: [{ key: "marquinhos_idle", frame: 0 }],
       frameRate: 1,
       repeat: 0,
     });
     this.anims.create({
       key: "running",
-      frames: this.anims.generateFrameNumbers("vigilant_run", {
+      frames: this.anims.generateFrameNumbers("marquinhos_run", {
         start: 0,
         end: 3,
       }),
@@ -289,9 +310,11 @@ class scene0 extends Phaser.Scene {
     this.anims.create({
       key: "punching",
       frames: [
-        { key: "punch1", frame: 0 },
-        { key: "punch2", frame: 0 },
-        { key: "vigilant_idle", frame: 0 },
+        { key: "marquinhos_punch1", frame: 0 },
+        { key: "marquinhos_punch1", frame: 1 },
+        { key: "marquinhos_punch1", frame: 0 },
+        { key: "marquinhos_punch2", frame: 1 },
+        { key: "marquinhos_idle", frame: 0 },
       ],
       frameRate: 10,
       repeat: 0,
@@ -300,9 +323,10 @@ class scene0 extends Phaser.Scene {
     this.anims.create({
       key: "kicking",
       frames: [
-        { key: "kick1", frame: 0 },
-        { key: "kick2", frame: 0 },
-        { key: "vigilant_idle", frame: 0 },
+   
+        { key: "marquinhos_kick1", frame: 0 },
+        { key: "marquinhos_kick1", frame: 1 },
+        { key: "marquinhos_idle", frame: 0 },
       ],
       frameRate: 10,
       repeat: 0,
@@ -451,6 +475,7 @@ class scene0 extends Phaser.Scene {
           this.player.anims.currentAnim.key !== "running"
         ) {
           this.player.setVelocity(0);
+          this.player.setTexture("marquinhos_punch1");
           this.player.anims.play("punching", true);
         }
         this._dealDamage(60, 1, 150);
@@ -471,6 +496,7 @@ class scene0 extends Phaser.Scene {
           this.player.anims.currentAnim.key !== "running"
         ) {
           this.player.setVelocity(0);
+          this.player.setTexture("marquinhos_kick1");
           this.player.anims.play("kicking", true);
           this._dealDamage(80, 2, 200);
         }
@@ -490,7 +516,6 @@ class scene0 extends Phaser.Scene {
         // ...
       }
     });
-
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -923,8 +948,6 @@ class scene0 extends Phaser.Scene {
   // ═══════════════════════════════════════════════════════════
 
   update() {
-
-
     try {
       this.game.socket.emit("scene0", this.game.room, {
         player: {
