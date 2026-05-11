@@ -152,48 +152,48 @@ class scene0 extends Phaser.Scene {
       "marquinhos_idle",
       "marquinho sprite/marquinhosparado.png",
       {
-        frameWidth: 96,
-        frameHeight: 224,
+        frameWidth: 32,
+        frameHeight: 64,
       },
     );
     this.load.spritesheet(
       "marquinhos_run",
       "marquinho sprite/marquinhoscorre.png",
       {
-        frameWidth: 96,
-        frameHeight: 224,
+        frameWidth: 32,
+        frameHeight: 64,
       },
     );
     this.load.spritesheet(
       "marquinhos_punch1",
       "marquinho sprite/marquinhossoco1.png",
       {
-        frameWidth: 96,
-        frameHeight: 224,
+        frameWidth: 32,
+        frameHeight: 64,
       },
     );
     this.load.spritesheet(
       "marquinhos_punch2",
       "marquinho sprite/marquinhossoco2.png",
       {
-        frameWidth: 96,
-        frameHeight: 224,
+        frameWidth: 32,
+        frameHeight: 64,
       },
     );
     this.load.spritesheet(
       "marquinhos_kick1",
       "marquinho sprite/marquinhoschute1.png",
       {
-        frameWidth: 96,
-        frameHeight: 224,
+        frameWidth: 32,
+        frameHeight: 64,
       },
     );
     this.load.spritesheet(
       "marquinhos_kick2",
       "marquinho sprite/marquinhoschute2.png",
       {
-        frameWidth: 96,
-        frameHeight: 224,
+        frameWidth: 32,
+        frameHeight: 64,
       },
     );
     this.load.spritesheet("enemy", "Machine_guy_sprite_sheet.png", {
