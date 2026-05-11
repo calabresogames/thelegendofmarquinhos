@@ -168,7 +168,7 @@ class scene0 extends Phaser.Scene {
       "marquinhos_punch1",
       "marquinho sprite/marquinhossoco1.png",
       {
-        frameWidth: 192,
+        frameWidth: 96,
         frameHeight: 224,
       },
     );
@@ -176,7 +176,7 @@ class scene0 extends Phaser.Scene {
       "marquinhos_punch2",
       "marquinho sprite/marquinhossoco2.png",
       {
-        frameWidth: 192,
+        frameWidth: 96,
         frameHeight: 224,
       },
     );
@@ -184,7 +184,7 @@ class scene0 extends Phaser.Scene {
       "marquinhos_kick1",
       "marquinho sprite/marquinhoschute1.png",
       {
-        frameWidth: 192,
+        frameWidth: 96,
         frameHeight: 224,
       },
     );
@@ -192,8 +192,8 @@ class scene0 extends Phaser.Scene {
       "marquinhos_kick2",
       "marquinho sprite/marquinhoschute2.png",
       {
-        frameWidth: 32,
-        frameHeight: 32,
+        frameWidth: 96,
+        frameHeight: 224,
       },
     );
     this.load.spritesheet("enemy", "Machine_guy_sprite_sheet.png", {
@@ -271,24 +271,33 @@ class scene0 extends Phaser.Scene {
 
     // ── Player ───────────────────────────────────────────────
     this.player = this.physics.add.sprite(150, 656, "marquinhos_idle", 0);
-    this.player.setScale(0.25, 0.25);
+    this.player.setScale(4.5);
     this.player.setOrigin(0.5, 1);
-    this.player.body.setSize(30, 60);
-    this.player.body.setOffset(33, 130);
+    this.player.body.setSize(10, 27);
+    this.player.body.setOffset(3, 1);
     this.player.setBounce(0);
     this.physics.world.gravity.y = 0;
     this.player.body.setAllowGravity(false);
     this.player.setCollideWorldBounds(true);
     this.player.lastStreetPosition = { x: 150, y: 656 };
     this.limitLineY = this.player.y - 40;
+    // Desenhar linha para visualização da barreira
+    this.limitLine = this.add.graphics();
+    this.limitLine.beginPath();
+    this.limitLine.moveTo(0, this.limitLineY);
+    this.limitLine.lineTo(this.tilemap.widthInPixels, this.limitLineY);
+    this.limitLine.closePath();
+    this.limitLine.strokePath();
 
     // ── Animações do player ──────────────────────────────────
     this.anims.create({
       key: "standing-still",
-      frames: this.anims.generateFrameNumbers("marquinhos_idle", {
-        start: 0,
-        end: 3,
-      }),
+      frames: [
+        { key: "marquinhos_idle", frame: 1 }, // frame 1 do Phaser = x=96..191 (tem conteúdo)
+        { key: "marquinhos_idle", frame: 1 }, // repete pois os 4 personagens estão nos frames 1 e 2
+        { key: "marquinhos_idle", frame: 2 },
+        { key: "marquinhos_idle", frame: 2 },
+    ],
       frameRate: 5,
       repeat: -1,
     });
@@ -323,7 +332,6 @@ class scene0 extends Phaser.Scene {
     this.anims.create({
       key: "kicking",
       frames: [
-   
         { key: "marquinhos_kick1", frame: 0 },
         { key: "marquinhos_kick1", frame: 1 },
         { key: "marquinhos_idle", frame: 0 },
@@ -475,7 +483,6 @@ class scene0 extends Phaser.Scene {
           this.player.anims.currentAnim.key !== "running"
         ) {
           this.player.setVelocity(0);
-          this.player.setTexture("marquinhos_punch1");
           this.player.anims.play("punching", true);
         }
         this._dealDamage(60, 1, 150);
@@ -496,7 +503,6 @@ class scene0 extends Phaser.Scene {
           this.player.anims.currentAnim.key !== "running"
         ) {
           this.player.setVelocity(0);
-          this.player.setTexture("marquinhos_kick1");
           this.player.anims.play("kicking", true);
           this._dealDamage(80, 2, 200);
         }
