@@ -693,12 +693,6 @@ this.game.socket.on("scene0", (state) => {
 
       const zoom = this.cameras.main.zoom;
       const camW = this.cameras.main.width / zoom;
-      const camH = this.cameras.main.height / zoom;
-      const targetX = Phaser.Math.Clamp(
-        this.player.x - camW / 2,
-        0,
-        this.tilemap.widthInPixels - camW,
-      );
       const targetY = Phaser.Math.Clamp(
         this.player.y - camH / 2,
         0,
@@ -709,7 +703,6 @@ this.game.socket.on("scene0", (state) => {
       this.tweens.add({
         targets: this.cameras.main,
         scrollX: targetX,
-        scrollY: targetY,
         duration: 500,
         ease: "Cubic.InOut",
         onComplete: () => {
@@ -1039,13 +1032,7 @@ this.game.socket.on("scene0", (state) => {
 
           // Tween suave de câmera até a nova seção e só então inicia a wave
           this.cameras.main.stopFollow();
-          const zoom = this.cameras.main.zoom;
-          const camW = this.cameras.main.width / zoom;
-          const targetY = Phaser.Math.Clamp(
-            this.player.y - this.cameras.main.height / zoom / 2,
-            0,
-            this.tilemap.heightInPixels - this.cameras.main.height / zoom,
-          );
+         
           this.tweens.add({
             targets: this.cameras.main,
             scrollX: nextSection.start,
