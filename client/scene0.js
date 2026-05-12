@@ -580,8 +580,11 @@ this.game.socket.on("scene0", (state) => {
     const waveDef = this.waveConfig[index];
     const section = this.mapSections[waveDef.section];
 
+    // Limites = exatamente as bordas do que a câmera mostra
+    const zoom = this.cameras.main.zoom;
+    const visibleW = this.cameras.main.width / zoom;
     this.waveLeftBound = section.start;
-    this.waveRightBound = section.end;
+    this.waveRightBound = section.start + visibleW;
 
     // Para o follow e trava AMBOS os eixos da câmera
     this.cameras.main.stopFollow();
