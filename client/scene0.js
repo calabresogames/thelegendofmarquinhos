@@ -330,7 +330,7 @@ this.game.socket.on("scene0", (state) => {
         start: 0,
         end: 3,
       }),
-      frameRate: 8,
+      frameRate: 6,
       repeat: -1,
     });
     this.anims.create({
@@ -368,7 +368,7 @@ this.game.socket.on("scene0", (state) => {
         { key: "marquinhos_kick1", frame: 1 },
         { key: "marquinhos_idle", frame: 0 },
       ],
-      frameRate: 10,
+      frameRate: 12,
       repeat: 0,
       onComplete: () => this.player.anims.play("idle-frame0", true),
     });
@@ -726,7 +726,6 @@ this.game.socket.on("scene0", (state) => {
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
     // this.time.delayedCall(3000, () => this.scene.start("scene1"));
   }
-
   // ═══════════════════════════════════════════════════════════
   //  DANO
   // ═══════════════════════════════════════════════════════════
@@ -1050,7 +1049,6 @@ this.game.socket.on("scene0", (state) => {
           this.tweens.add({
             targets: this.cameras.main,
             scrollX: nextSection.start,
-            scrollY: targetY,
             duration: 700,
             ease: "Cubic.InOut",
             onComplete: () => {
