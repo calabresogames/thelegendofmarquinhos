@@ -5,6 +5,7 @@ class scene0 extends Phaser.Scene {
     this.threshold = 0.1;
     this.speed = 100;
     this.direction = undefined;
+    this.remotePlayers = [];
 
     // ── Divisão do mapa em 5 seções ──────────────────────────
     this.mapSections = [
@@ -152,48 +153,40 @@ class scene0 extends Phaser.Scene {
       "marquinhos_idle",
       "marquinho sprite/marquinhosparado.png",
       {
-        frameWidth: 32,
-        frameHeight: 64,
+        frameWidth: 16,
+        frameHeight: 32,
       },
     );
     this.load.spritesheet(
       "marquinhos_run",
       "marquinho sprite/marquinhoscorre.png",
       {
-        frameWidth: 32,
-        frameHeight: 64,
+        frameWidth: 16,
+        frameHeight: 32,
       },
     );
     this.load.spritesheet(
       "marquinhos_punch1",
-      "marquinho sprite/marquinhossoco1.png",
+      "marquinho sprite/marquinhossoco1-1.png",
       {
-        frameWidth: 32,
-        frameHeight: 64,
+        frameWidth: 22,
+        frameHeight: 32,
       },
     );
     this.load.spritesheet(
       "marquinhos_punch2",
       "marquinho sprite/marquinhossoco2.png",
       {
-        frameWidth: 32,
-        frameHeight: 64,
+        frameWidth: 22,
+        frameHeight: 32,
       },
     );
     this.load.spritesheet(
       "marquinhos_kick1",
       "marquinho sprite/marquinhoschute1.png",
       {
-        frameWidth: 32,
-        frameHeight: 64,
-      },
-    );
-    this.load.spritesheet(
-      "marquinhos_kick2",
-      "marquinho sprite/marquinhoschute2.png",
-      {
-        frameWidth: 32,
-        frameHeight: 64,
+        frameWidth: 25,
+        frameHeight: 32,
       },
     );
     this.load.spritesheet("enemy", "Machine_guy_sprite_sheet.png", {
@@ -218,6 +211,40 @@ class scene0 extends Phaser.Scene {
 
   // ─────────────────────────────────────────────────────────────
   create() {
+
+this.game.socket.on("scene0", (state) => {
+
+  if (state.player) {
+    try {
+      if (state.player.id === this.game.socket.id) return;
+
+      let remotePlayer = this.remotePlayers.find(
+        (p) => p.id === state.player.id,
+      );
+
+      if (!remotePlayer) {
+        remotePlayer = this.add
+          .sprite(state.player.x, state.player.y, "character", 0)
+          .setPipeline("Light2D");
+        this.remotePlayers.push({
+          id: state.player.id,
+          sprite: remotePlayer,
+        });
+      }
+
+      remotePlayer.sprite.setPosition(state.player.x, state.player.y);
+
+      if (state.player.animation)
+        remotePlayer.sprite.anims.play(state.player.animation, true);
+      else if (state.player.texture)
+        remotePlayer.sprite.setTexture(state.player.texture);
+    } catch (e) {
+      console.error("Error updating remote player:", e);
+    }
+  }
+});
+
+
     // ── Tilemap ──────────────────────────────────────────────
     this.tilemap = this.make.tilemap({ key: "MapaFase1" });
 
@@ -238,6 +265,12 @@ class scene0 extends Phaser.Scene {
       "SCS_Background_Sunset_01",
     );
 
+    this.load.spritesheet("enemy", "Machine_guy_sprite_sheet.png", {
+      frameWidth: 180,
+      frameHeight: 90,
+    });
+
+    // [FIX 2] punch/kick carregados aqui, não em create()
     this.tilemap.createLayer("background 0", [this.tilesetSunset]);
     this.tilemap.createLayer("background 1", [this.tileset4]);
     this.tilemap.createLayer("background 2", [this.tileset2, this.tileset4]);
@@ -273,14 +306,15 @@ class scene0 extends Phaser.Scene {
     this.player = this.physics.add.sprite(150, 656, "marquinhos_idle", 0);
     this.player.setScale(4.5);
     this.player.setOrigin(0.5, 1);
-    this.player.body.setSize(10, 27);
-    this.player.body.setOffset(3, 1);
+    this.player.body.setSize(15, 30);
+    this.player.body.setOffset(1, 1);
     this.player.setBounce(0);
     this.physics.world.gravity.y = 0;
     this.player.body.setAllowGravity(false);
     this.player.setCollideWorldBounds(true);
     this.player.lastStreetPosition = { x: 150, y: 656 };
     this.limitLineY = this.player.y - 40;
+
     // Desenhar linha para visualização da barreira
     this.limitLine = this.add.graphics();
     this.limitLine.beginPath();
@@ -292,13 +326,11 @@ class scene0 extends Phaser.Scene {
     // ── Animações do player ──────────────────────────────────
     this.anims.create({
       key: "standing-still",
-      frames: [
-        { key: "marquinhos_idle", frame: 1 }, // frame 1 do Phaser = x=96..191 (tem conteúdo)
-        { key: "marquinhos_idle", frame: 1 }, // repete pois os 4 personagens estão nos frames 1 e 2
-        { key: "marquinhos_idle", frame: 2 },
-        { key: "marquinhos_idle", frame: 2 },
-    ],
-      frameRate: 5,
+      frames: this.anims.generateFrameNumbers("marquinhos_idle", {
+        start: 0,
+        end: 3,
+      }),
+      frameRate: 8,
       repeat: -1,
     });
     this.anims.create({
@@ -321,7 +353,7 @@ class scene0 extends Phaser.Scene {
       frames: [
         { key: "marquinhos_punch1", frame: 0 },
         { key: "marquinhos_punch1", frame: 1 },
-        { key: "marquinhos_punch1", frame: 0 },
+        { key: "marquinhos_punch2", frame: 0 },
         { key: "marquinhos_punch2", frame: 1 },
         { key: "marquinhos_idle", frame: 0 },
       ],
@@ -361,7 +393,7 @@ class scene0 extends Phaser.Scene {
     this.anims.create({
       key: "enemy_attack",
       frames: this.anims.generateFrameNumbers("enemy", { start: 15, end: 22 }),
-      frameRate: 12,
+      frameRate: 8,
       repeat: 0,
     });
     this.anims.create({
@@ -954,6 +986,23 @@ class scene0 extends Phaser.Scene {
   // ═══════════════════════════════════════════════════════════
 
   update() {
+
+    try {
+      this.game.socket.emit("scene0", this.game.room, {
+        player: {
+          id: this.game.socket.id,
+          x: this.player.x,
+          y: this.player.y,
+          texture: "character",
+          animation: this.player.anims.currentAnim
+            ? this.player.anims.currentAnim.key
+            : null,
+        },
+      });
+    } catch (e) {
+      console.error("Error updating player:", e);
+    }
+
     try {
       this.game.socket.emit("scene0", this.game.room, {
         player: {
