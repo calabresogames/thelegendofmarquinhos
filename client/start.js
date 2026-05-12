@@ -5,12 +5,12 @@ class start extends Phaser.Scene {
 
   preload() {
     this.load.setPath("assets/");
-    this.load.image("start", "start0.png");
+    this.load.image("start", "tela inicial jogo.png");
   }
 
   create() {
     this.add
-      .image(230, 200, "start")
+      .image(400, 225, "start")
       .setInteractive()
       .on("pointerdown", () => {
         this.scene.start("scene0");
