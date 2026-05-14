@@ -211,39 +211,36 @@ class scene0 extends Phaser.Scene {
 
   // ─────────────────────────────────────────────────────────────
   create() {
+    this.game.socket.on("scene0", (state) => {
+      if (state.player) {
+        try {
+          if (state.player.id === this.game.socket.id) return;
 
-this.game.socket.on("scene0", (state) => {
+          let remotePlayer = this.remotePlayers.find(
+            (p) => p.id === state.player.id,
+          );
 
-  if (state.player) {
-    try {
-      if (state.player.id === this.game.socket.id) return;
+          if (!remotePlayer) {
+            remotePlayer = this.add
+              .sprite(state.player.x, state.player.y, "character", 0)
+              .setPipeline("Light2D");
+            this.remotePlayers.push({
+              id: state.player.id,
+              sprite: remotePlayer,
+            });
+          }
 
-      let remotePlayer = this.remotePlayers.find(
-        (p) => p.id === state.player.id,
-      );
+          remotePlayer.sprite.setPosition(state.player.x, state.player.y);
 
-      if (!remotePlayer) {
-        remotePlayer = this.add
-          .sprite(state.player.x, state.player.y, "character", 0)
-          .setPipeline("Light2D");
-        this.remotePlayers.push({
-          id: state.player.id,
-          sprite: remotePlayer,
-        });
+          if (state.player.animation)
+            remotePlayer.sprite.anims.play(state.player.animation, true);
+          else if (state.player.texture)
+            remotePlayer.sprite.setTexture(state.player.texture);
+        } catch (e) {
+          console.error("Error updating remote player:", e);
+        }
       }
-
-      remotePlayer.sprite.setPosition(state.player.x, state.player.y);
-
-      if (state.player.animation)
-        remotePlayer.sprite.anims.play(state.player.animation, true);
-      else if (state.player.texture)
-        remotePlayer.sprite.setTexture(state.player.texture);
-    } catch (e) {
-      console.error("Error updating remote player:", e);
-    }
-  }
-});
-
+    });
 
     // ── Tilemap ──────────────────────────────────────────────
     this.tilemap = this.make.tilemap({ key: "MapaFase1" });
@@ -430,15 +427,38 @@ this.game.socket.on("scene0", (state) => {
       enemy.type = type;
       enemy.state = "idle";
       enemy._dying = false; // [FIX 3] flag de morte em andamento
+      enemy._knockbackTimer = 0;
 
       enemy.anims.play("enemy_idle");
+
+      enemy.body.setImmovable(false);
+      
+
       return enemy;
     };
 
-    // Usar OVERLAP em vez de collider para os inimigos não empurrarem o player
-    // O collider causava o push físico; overlap detecta sem aplicar força
-    this.physics.add.overlap(this.player, this.enemies);
-
+    this.physics.add.overlap(this.player, this.enemies, () => {
+      // Separa o player do inimigo manualmente sem aplicar força
+      this.enemies.children.iterate((enemy) => {
+        if (!enemy || !enemy.active || enemy._dying) return;
+        const dist = Phaser.Math.Distance.Between(
+          this.player.x,
+          this.player.y,
+          enemy.x,
+          enemy.y,
+        );
+        if (dist < 40) {
+          const angle = Phaser.Math.Angle.Between(
+            enemy.x,
+            enemy.y,
+            this.player.x,
+            this.player.y,
+          );
+          this.player.x += Math.cos(angle) * 2;
+          this.player.y += Math.sin(angle) * 2;
+        }
+      });
+    });
     // ── Câmera & mundo ───────────────────────────────────────
     this.physics.world.setBounds(
       0,
@@ -580,11 +600,9 @@ this.game.socket.on("scene0", (state) => {
     const waveDef = this.waveConfig[index];
     const section = this.mapSections[waveDef.section];
 
-    // Limites = exatamente as bordas do que a câmera mostra
-    const zoom = this.cameras.main.zoom;
-    const visibleW = this.cameras.main.width / zoom;
+    // Limites = exatamente as bordas da seção do mapa (1152px cada)
     this.waveLeftBound = section.start;
-    this.waveRightBound = section.start + visibleW;
+    this.waveRightBound = section.end;
 
     // Para o follow e trava AMBOS os eixos da câmera
     this.cameras.main.stopFollow();
@@ -728,12 +746,17 @@ this.game.socket.on("scene0", (state) => {
 
   _dealDamage(range, dmg, knockback) {
     if (!this.enemies) return;
+
+    const punchOffsetX = this.player.flipX ? -range : range;
+    const punchX = this.player.x + punchOffsetX;
+    const punchY = this.player.y - 40;
+
     this.enemies.children.iterate((enemy) => {
       if (!enemy || !enemy.active || enemy._dying) return;
 
       const dist = Phaser.Math.Distance.Between(
-        this.player.x,
-        this.player.y,
+        punchX,
+        punchY,
         enemy.x,
         enemy.y,
       );
@@ -754,9 +777,25 @@ this.game.socket.on("scene0", (state) => {
         enemy.setTint(tint);
       });
 
-      // Knockback
-      const dir = enemy.x < this.player.x ? -1 : 1;
+      // Knockback — empurra para longe do player
+      const dir = enemy.x >= this.player.x ? 1 : -1;
+      enemy.body.setImmovable(false);
+      enemy.state = "knockback";
+      enemy._knockbackTimer = 500;
+
       enemy.setVelocityX(knockback * dir);
+
+      this.tweens.add({
+        targets: enemy,
+        x: enemy.x + knockback * dir * 0.8,
+        duration: 300,
+        ease: "Cubic.Out",
+        onComplete: () => {
+          if (enemy && enemy.active && !enemy._dying) {
+            enemy.setVelocity(0, 0);
+          }
+        },
+      });
 
       if (enemy.health <= 0) this._killEnemy(enemy);
     });
@@ -981,7 +1020,6 @@ this.game.socket.on("scene0", (state) => {
   // ═══════════════════════════════════════════════════════════
 
   update() {
-
     try {
       this.game.socket.emit("scene0", this.game.room, {
         player: {
@@ -1035,7 +1073,7 @@ this.game.socket.on("scene0", (state) => {
 
           // Tween suave de câmera até a nova seção e só então inicia a wave
           this.cameras.main.stopFollow();
-         
+
           this.tweens.add({
             targets: this.cameras.main,
             scrollX: nextSection.start,
@@ -1087,37 +1125,45 @@ this.game.socket.on("scene0", (state) => {
       this.enemies.children.iterate((enemy) => {
         if (!enemy || !enemy.active || enemy._dying) return;
 
+        // Se está em knockback, só decrementa o timer e pula
+         if (enemy._knockbackTimer > 0) {
+           enemy._knockbackTimer -= this.game.loop.delta;
+           if (enemy._knockbackTimer <= 0) {
+             enemy.state = "idle";
+             enemy.setVelocity(0, 0);
+           }
+           return;
+         }
+
         const dist = Phaser.Math.Distance.Between(
           enemy.x,
           enemy.y,
           this.player.x,
           this.player.y,
         );
-        const attackRange = 60;
+        const attackRange = 80; // distância para parar e atacar
+        const stopRange = 60; // distância mínima — não encosta na hitbox
 
         if (dist > attackRange) {
-          // Perseguir
+          // ── Perseguir ──
+          enemy.body.setImmovable(false);
           this.physics.moveToObject(enemy, this.player, enemy.speed);
           if (
             !enemy.anims.currentAnim ||
             enemy.anims.currentAnim.key !== "enemy_run"
-          ) {
+          )
             enemy.anims.play("enemy_run", true);
-          }
           enemy.flipX = this.player.x < enemy.x;
           enemy.state = "chasing";
-        } else {
-          // Para completamente ao atacar — sem empurrar o player
+        } else if (dist <= attackRange && dist > stopRange) {
+          // ── Zona de ataque: para e ataca ──
           enemy.setVelocity(0, 0);
           enemy.body.setImmovable(true);
 
           if (enemy.state !== "attacking") {
             enemy.state = "attacking";
-
-            // UMA animação de ataque completa (frames 15-22)
             enemy.anims.play("enemy_attack", true);
 
-            // Aplica dano no pico do ataque (frame ~4 da animação = ~330ms)
             this.time.delayedCall(330, () => {
               if (!enemy || !enemy.active || enemy._dying) return;
               const d = Phaser.Math.Distance.Between(
@@ -1126,14 +1172,12 @@ this.game.socket.on("scene0", (state) => {
                 this.player.x,
                 this.player.y,
               );
-              if (d < attackRange) {
+              if (d <= attackRange) {
+                // TODO: aplicar dano ao player
                 console.log(`Player levou ${enemy.damage} de dano!`);
-                // TODO: implementar HP do player
               }
             });
 
-            // Duração total do ataque = 8 frames a 12fps ≈ 667ms
-            // Depois volta ao idle para reavaliar
             this.time.delayedCall(680, () => {
               if (enemy && enemy.active && !enemy._dying) {
                 enemy.body.setImmovable(false);
@@ -1141,6 +1185,20 @@ this.game.socket.on("scene0", (state) => {
               }
             });
           }
+        } else {
+          // ── Muito perto: recua levemente para não sobrepor ──
+          enemy.body.setImmovable(false);
+          const angle = Phaser.Math.Angle.Between(
+            this.player.x,
+            this.player.y,
+            enemy.x,
+            enemy.y,
+          );
+          enemy.setVelocity(
+            Math.cos(angle) * enemy.speed * 0.5,
+            Math.sin(angle) * enemy.speed * 0.5,
+          );
+          enemy.state = "chasing";
         }
       });
     }
