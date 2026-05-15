@@ -3,6 +3,14 @@ class start extends Phaser.Scene {
     super("start");
   }
 
+  init() {
+    let room = new URLSearchParams(location.search).get("room");
+    if (room) {
+      this.game.room = room;
+      this.game.socket.emit("join-room", this.game.room);
+    }
+  }
+
   preload() {
     this.load.setPath("assets/");
     this.load.image("start", "tela inicial jogo.png");
@@ -13,7 +21,7 @@ class start extends Phaser.Scene {
       .image(400, 225, "start")
       .setInteractive()
       .on("pointerdown", () => {
-        this.scene.start("scene0");
+        this.scene.start("preloader");
       });
   }
 }

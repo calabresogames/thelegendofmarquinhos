@@ -128,86 +128,7 @@ class scene0 extends Phaser.Scene {
     this._transitioningWave = false; // [FIX 5] guard contra pular wave
   }
 
-  // ─────────────────────────────────────────────────────────────
-  preload() {
-    this.load.setPath("assets/");
-
-    this.load.tilemapTiledJSON("MapaFase1", "MapaFase1.JSON");
-
-    this.load.image("2", "2.png");
-    this.load.image("3 (1)", "3.png");
-    this.load.image("4", "4.png");
-    this.load.image("6", "6.png");
-    this.load.image("Arc", "Arc.png");
-    this.load.image("houded2", "houded2.png");
-    this.load.image("House Inside", "House Inside.png");
-    this.load.image("House Outside", "House Outside.png");
-    this.load.image("houses", "houses.png");
-    this.load.image("houses1", "houses1.png");
-    this.load.image("houses2", "houses2.png");
-    this.load.image("road&lamps", "road&lamps.png");
-    this.load.image("Sakura Tree", "Sakura Tree.gif");
-    this.load.image("SCS_Background_Sunset_01", "SCS_Background_Sunset_01.png");
-
-    this.load.spritesheet(
-      "marquinhos_idle",
-      "marquinho sprite/marquinhosparado.png",
-      {
-        frameWidth: 16,
-        frameHeight: 32,
-      },
-    );
-    this.load.spritesheet(
-      "marquinhos_run",
-      "marquinho sprite/marquinhoscorre.png",
-      {
-        frameWidth: 16,
-        frameHeight: 32,
-      },
-    );
-    this.load.spritesheet(
-      "marquinhos_punch1",
-      "marquinho sprite/marquinhossoco1-1.png",
-      {
-        frameWidth: 22,
-        frameHeight: 32,
-      },
-    );
-    this.load.spritesheet(
-      "marquinhos_punch2",
-      "marquinho sprite/marquinhossoco2.png",
-      {
-        frameWidth: 22,
-        frameHeight: 32,
-      },
-    );
-    this.load.spritesheet(
-      "marquinhos_kick1",
-      "marquinho sprite/marquinhoschute1.png",
-      {
-        frameWidth: 25,
-        frameHeight: 32,
-      },
-    );
-    this.load.spritesheet("enemy", "Machine_guy_sprite_sheet.png", {
-      frameWidth: 180,
-      frameHeight: 90,
-    });
-
-    // [FIX 2] punch/kick carregados aqui, não em create()
-    this.load.image("punch1", "NES_Vigilante_Punch_1.png");
-    this.load.image("punch2", "NES_Vigilante_Punch_2.png");
-    this.load.image("kick1", "NES_Vigilante_Kick_1.png");
-    this.load.image("kick2", "NES_Vigilante_Kick_2.png");
-    this.load.image("botaochute", "botaochute.png");
-    this.load.image("botaosoco", "botaosoco.png");
-
-    this.load.plugin(
-      "rexvirtualjoystickplugin",
-      "../rexvirtualjoystickplugin.min.js",
-      true,
-    );
-  }
+ 
 
   // ─────────────────────────────────────────────────────────────
   create() {
@@ -262,11 +183,7 @@ class scene0 extends Phaser.Scene {
       "SCS_Background_Sunset_01",
     );
 
-    this.load.spritesheet("enemy", "Machine_guy_sprite_sheet.png", {
-      frameWidth: 180,
-      frameHeight: 90,
-    });
-
+   
     // [FIX 2] punch/kick carregados aqui, não em create()
     this.tilemap.createLayer("background 0", [this.tilesetSunset]);
     this.tilemap.createLayer("background 1", [this.tileset4]);
@@ -299,7 +216,20 @@ class scene0 extends Phaser.Scene {
     this.layerrua = this.tilemap.createLayer("rua", [this.tilesetRoadLamps]);
     this.layerobjetos = this.tilemap.createLayer("objetos", [this.tilesetArc]);
 
-    // ── Player ───────────────────────────────────────────────
+   // ── Player sergio ───────────────────────────────────────────────
+    this.sergio = this.physics.add.sprite(150, 656, "sergio_idle", 0);
+    this.sergio.setScale(4.5);
+    this.sergio.setOrigin(0.5, 1);
+    this.sergio.body.setSize(15, 30);
+    this.sergio.body.setOffset(1, 1);
+    this.sergio.setBounce(0);
+    this.physics.world.gravity.y = 0;
+    this.sergio.body.setAllowGravity(false);
+    this.sergio.setCollideWorldBounds(true);
+    this.sergio.lastStreetPosition = { x: 150, y: 656 };
+    this.limitLineY = this.sergio.y - 40;
+
+    // ── Player marquinhos ───────────────────────────────────────────────
     this.player = this.physics.add.sprite(150, 656, "marquinhos_idle", 0);
     this.player.setScale(4.5);
     this.player.setOrigin(0.5, 1);
@@ -320,7 +250,57 @@ class scene0 extends Phaser.Scene {
     this.limitLine.closePath();
     this.limitLine.strokePath();
 
-    // ── Animações do player ──────────────────────────────────
+    // ── Animações do segio ──────────────────────────────────
+    this.anims.create({
+      key: "standing-still1",
+      frames: this.anims.generateFrameNumbers("sergio_idle", {
+        start: 0,
+        end: 3,
+      }),
+      frameRate: 6,
+      repeat: -1,
+    });
+    this.anims.create({
+      key: "idle-frame01",
+      frames: [{ key: "sergio_idle", frame: 0 }],
+      frameRate: 1,
+      repeat: 0,
+    });
+    this.anims.create({
+      key: "running1",
+      frames: this.anims.generateFrameNumbers("sergio_run", {
+        start: 0,
+        end: 3,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    this.anims.create({
+      key: "punching1",
+      frames: [
+        { key: "sergio_punch1", frame: 0 },
+        { key: "sergio_punch1", frame: 1 },
+        { key: "sergio_punch2", frame: 0 },
+        { key: "sergio_punch2", frame: 1 },
+        { key: "sergio_idle", frame: 0 },
+      ],
+      frameRate: 10,
+      repeat: 0,
+      onComplete: () => this.player.anims.play("idle-frame01", true),
+    });
+    this.anims.create({
+      key: "kicking1",
+      frames: [
+        { key: "sergio_kick1", frame: 0 },
+        { key: "sergio_kick1", frame: 1 },
+        { key: "sergio_idle", frame: 0 },
+      ],
+      frameRate: 12,
+      repeat: 0,
+      onComplete: () => this.player.anims.play("idle-frame01", true),
+    });
+
+    // ── Animações do marquinhos ──────────────────────────────────
     this.anims.create({
       key: "standing-still",
       frames: this.anims.generateFrameNumbers("marquinhos_idle", {
