@@ -43,7 +43,7 @@ class room extends Phaser.Scene {
           //y: Math.random(),
         //});
       //}
-      //this.scene.start("scene0", artifacts);
+      this.scene.start("scene0");
     });
   }
 }
