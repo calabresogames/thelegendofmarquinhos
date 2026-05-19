@@ -126,9 +126,14 @@ class scene0 extends Phaser.Scene {
     this.waveCleared = false;
     this.cameraLocked = false;
     this._transitioningWave = false; // [FIX 5] guard contra pular wave
-  }
 
- 
+    // ── Sistema de vida do player ─────────────────────────
+    this.playerTotalLives = 3;
+    this.playerLives = 3;
+    this.playerHitsPerLife = 3;
+    this.playerHits = 0;
+    this.playerDead = false;
+  }
 
   // ─────────────────────────────────────────────────────────────
   create() {
@@ -183,7 +188,6 @@ class scene0 extends Phaser.Scene {
       "SCS_Background_Sunset_01",
     );
 
-   
     // [FIX 2] punch/kick carregados aqui, não em create()
     this.tilemap.createLayer("background 0", [this.tilesetSunset]);
     this.tilemap.createLayer("background 1", [this.tileset4]);
@@ -216,7 +220,7 @@ class scene0 extends Phaser.Scene {
     this.layerrua = this.tilemap.createLayer("rua", [this.tilesetRoadLamps]);
     this.layerobjetos = this.tilemap.createLayer("objetos", [this.tilesetArc]);
 
-   // ── Player sergio ───────────────────────────────────────────────
+    // ── Player sergio ───────────────────────────────────────────────
     this.sergio = this.physics.add.sprite(150, 656, "sergio_idle", 0);
     this.sergio.setScale(4.5);
     this.sergio.setOrigin(0.5, 1);
@@ -412,7 +416,6 @@ class scene0 extends Phaser.Scene {
       enemy.anims.play("enemy_idle");
 
       enemy.body.setImmovable(false);
-      
 
       return enemy;
     };
@@ -545,6 +548,7 @@ class scene0 extends Phaser.Scene {
 
     // ── HUD ──────────────────────────────────────────────────
     this._buildWaveHUD();
+    this._buildPlayerHUD();
 
     // ── Inicia primeira wave ─────────────────────────────────
     this.time.delayedCall(800, () => this._startWave(0));
@@ -802,6 +806,101 @@ class scene0 extends Phaser.Scene {
   //  HUD
   // ═══════════════════════════════════════════════════════════
 
+  _buildPlayerHUD() {
+    const slotSize = 72;
+    const slotX = 16;
+    const slotY = 16;
+    const heartScale = 4;
+    const heartSpacing = 38;
+
+    this.hudSlot = this.add
+      .image(slotX, slotY, "hud_slot")
+      .setOrigin(0, 0)
+      .setDisplaySize(slotSize, slotSize)
+      .setScrollFactor(0)
+      .setDepth(22);
+
+    this.hudRosto = this.add
+      .image(slotX + 8, slotY + 8, "hud_rosto")
+      .setOrigin(0, 0)
+      .setDisplaySize(slotSize * 0.6, slotSize * 0.6)
+      .setScrollFactor(0)
+      .setDepth(23);
+
+    const heartStartX = slotX + slotSize + 12;
+    const heartY = slotY + slotSize / 2;
+    this.hudHearts = [];
+
+    // Cada coração usa um frame do spritesheet hud_coracao:
+    // 0 = cheio, 1 = 3/4, 2 = metade, 3 = vazio.
+    for (let i = 0; i < this.playerTotalLives; i += 1) {
+      const heart = this.add
+        .sprite(heartStartX + i * heartSpacing, heartY, "hud_coracao", 0)
+        .setOrigin(0.5, 0.5)
+        .setScale(heartScale)
+        .setScrollFactor(0)
+        .setDepth(23);
+      this.hudHearts.push(heart);
+    }
+  }
+
+  _applyPlayerDamage() {
+    if (this.playerDead) return;
+
+    this.playerHits += 1;
+    const heartIndex = this.playerTotalLives - this.playerLives;
+    const frame = Math.min(this.playerHits, 3);
+
+    if (this.hudHearts[heartIndex]) {
+      this.hudHearts[heartIndex].setFrame(frame);
+    }
+
+    this.player.setTint(0xff4444);
+    this.time.delayedCall(150, () => {
+      if (this.player && this.player.active) this.player.clearTint();
+    });
+
+    if (this.playerHits >= this.playerHitsPerLife) {
+      this.playerHits = 0;
+      if (this.hudHearts[heartIndex]) {
+        this.hudHearts[heartIndex].setFrame(3).setAlpha(0.3);
+      }
+
+      this.playerLives -= 1;
+      if (this.playerLives <= 0) {
+        this._onPlayerDeath();
+      }
+    }
+  }
+
+  _onPlayerDeath() {
+    if (this.playerDead) return;
+    this.playerDead = true;
+    this.waveActive = false;
+    this.hordeActive = false;
+    this.player.setVelocity(0, 0);
+    this.player.setTint(0xff0000);
+
+    if (this.enemies) {
+      this.enemies.children.iterate((e) => {
+        if (e && e.active) e.setVelocity(0, 0);
+      });
+    }
+
+    this.waveBanner.setText("GAME OVER");
+    this.waveBanner.setColor("#ff2222");
+    this.waveBanner.setAlpha(0);
+    this.waveBanner.setScale(1.2);
+    this.tweens.add({
+      targets: this.waveBanner,
+      alpha: { from: 0, to: 1 },
+      scaleX: { from: 0.8, to: 1 },
+      scaleY: { from: 0.8, to: 1 },
+      duration: 800,
+      ease: "Sine.Out",
+    });
+  }
+
   _buildWaveHUD() {
     this.waveText = this.add
       .text(512, 18, "", {
@@ -1029,6 +1128,9 @@ class scene0 extends Phaser.Scene {
       console.error("Error updating player:", e);
     }
 
+    // Se o player já morreu, para o update do jogo
+    if (this.playerDead) return;
+
     // Câmera travada durante wave — trava AMBOS os eixos
     if (this.cameraLocked) {
       if (this._lockCameraX !== undefined)
@@ -1106,14 +1208,14 @@ class scene0 extends Phaser.Scene {
         if (!enemy || !enemy.active || enemy._dying) return;
 
         // Se está em knockback, só decrementa o timer e pula
-         if (enemy._knockbackTimer > 0) {
-           enemy._knockbackTimer -= this.game.loop.delta;
-           if (enemy._knockbackTimer <= 0) {
-             enemy.state = "idle";
-             enemy.setVelocity(0, 0);
-           }
-           return;
-         }
+        if (enemy._knockbackTimer > 0) {
+          enemy._knockbackTimer -= this.game.loop.delta;
+          if (enemy._knockbackTimer <= 0) {
+            enemy.state = "idle";
+            enemy.setVelocity(0, 0);
+          }
+          return;
+        }
 
         const dist = Phaser.Math.Distance.Between(
           enemy.x,
@@ -1153,8 +1255,7 @@ class scene0 extends Phaser.Scene {
                 this.player.y,
               );
               if (d <= attackRange) {
-                // TODO: aplicar dano ao player
-                console.log(`Player levou ${enemy.damage} de dano!`);
+                this._applyPlayerDamage();
               }
             });
 

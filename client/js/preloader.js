@@ -36,47 +36,27 @@ class preloader extends Phaser.Scene {
 
     // sergio spritesheets
 
-    this.load.spritesheet(
-      "sergio_idle",
-      "sergio sprite/sergioparado.png",
-      {
-        frameWidth: 16,
-        frameHeight: 32,
-      },
-    );
-    this.load.spritesheet(
-      "sergio_run",
-      "sergio sprite/sergiocorre.png",
-      {
-        frameWidth: 16,
-        frameHeight: 32,
-      },
-    );
-    this.load.spritesheet(
-      "sergio_punch1",
-      "sergio sprite/sergiossoco1.png",
-      {
-        frameWidth: 22,
-        frameHeight: 32,
-      },
-    );
-    this.load.spritesheet(
-      "sergio_punch2",
-      "sergio sprite/sergiossoco2.png",
-      {
-        frameWidth: 22,
-        frameHeight: 32,
-      },
-    );
-    this.load.spritesheet(
-      "sergio_kick1",
-      "sergio sprite/sergiochute1.png",
-      {
-        frameWidth: 25,
-        frameHeight: 32,
-      },
-    );
-    
+    this.load.spritesheet("sergio_idle", "sergio sprite/sergioparado.png", {
+      frameWidth: 16,
+      frameHeight: 32,
+    });
+    this.load.spritesheet("sergio_run", "sergio sprite/sergiocorre.png", {
+      frameWidth: 16,
+      frameHeight: 32,
+    });
+    this.load.spritesheet("sergio_punch1", "sergio sprite/sergiossoco1.png", {
+      frameWidth: 22,
+      frameHeight: 32,
+    });
+    this.load.spritesheet("sergio_punch2", "sergio sprite/sergiossoco2.png", {
+      frameWidth: 22,
+      frameHeight: 32,
+    });
+    this.load.spritesheet("sergio_kick1", "sergio sprite/sergiochute1.png", {
+      frameWidth: 25,
+      frameHeight: 32,
+    });
+
     // marquinhos spritesheets
 
     this.load.spritesheet(
@@ -128,7 +108,16 @@ class preloader extends Phaser.Scene {
 
     this.load.image("botaochute", "botaochute.png");
     this.load.image("botaosoco", "botaosoco.png");
-
+    this.load.image("hud_slot", "jogaço/slotface.png");
+    this.load.image("hud_rosto", "jogaço/marcosrosto.png");
+    this.load.spritesheet(
+      "hud_coracao",
+      "marquinho sprite/marquinhocoracao.png",
+      {
+        frameWidth: 8,
+        frameHeight: 32,
+      },
+    );
 
     // AUDIO
     //this.load.audio("music", "music.mp3");
