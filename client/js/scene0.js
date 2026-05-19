@@ -130,7 +130,8 @@ class scene0 extends Phaser.Scene {
     // ── Sistema de vida do player ─────────────────────────
     this.playerTotalLives = 3;
     this.playerLives = 3;
-    this.playerHitsPerLife = 3;
+    // cada vida tem 4 estágios (1/4 perdido por hit)
+    this.playerHitsPerLife = 4;
     this.playerHits = 0;
     this.playerDead = false;
   }
@@ -557,7 +558,43 @@ class scene0 extends Phaser.Scene {
       if (state.player) {
         // ...
       }
+
+      if (state.player) {
+        try {
+          if (state.player.id === this.game.socket.id) return;
+
+          let remotePlayer = this.remotePlayers.find(
+            (p) => p.id === state.player.id,
+          );
+
+          if (!remotePlayer) {
+            remotePlayer = this.add.sprite(
+              state.player.x,
+              state.player.y,
+              "character",
+              0,
+            );
+
+            this.remotePlayers.push({
+              id: state.player.id,
+              sprite: remotePlayer,
+            });
+          }
+
+          remotePlayer.sprite.setFlipX(state.player.flip.x);
+          remotePlayer.sprite.setFlipY(state.player.flip.y);
+          remotePlayer.sprite.setPosition(state.player.x, state.player.y);
+          if (state.player.animation)
+            remotePlayer.sprite.anims.play(state.player.animation, true);
+          else if (state.player.texture)
+            remotePlayer.sprite.setTexture(state.player.texture);
+        } catch (e) {
+          console.error("Error updating remote player:", e);
+        }
+      }
+
     });
+
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -807,33 +844,34 @@ class scene0 extends Phaser.Scene {
   // ═══════════════════════════════════════════════════════════
 
   _buildPlayerHUD() {
-    const slotSize = 72;
-    const slotX = 16;
-    const slotY = 16;
-    const heartScale = 4;
-    const heartSpacing = 38;
+    const slotSize = 48;
+    const slotX = 12;
+    const slotY = 12;
+    const heartScale = 2;
+    const heartSpacing = 28;
 
+    // Slot circular
     this.hudSlot = this.add
-      .image(slotX, slotY, "hud_slot")
-      .setOrigin(0, 0)
+      .image(slotX + slotSize / 2, slotY + slotSize / 2, "hud_slot")
       .setDisplaySize(slotSize, slotSize)
+      .setOrigin(0.5, 0.5)
       .setScrollFactor(0)
       .setDepth(22);
 
+    // Rosto centralizado dentro do slot
     this.hudRosto = this.add
-      .image(slotX + 8, slotY + 8, "hud_rosto")
-      .setOrigin(0, 0)
-      .setDisplaySize(slotSize * 0.6, slotSize * 0.6)
+      .image(slotX + slotSize / 2, slotY + slotSize / 2, "hud_rosto")
+      .setDisplaySize(slotSize * 0.7, slotSize * 0.7)
+      .setOrigin(0.5, 0.5)
       .setScrollFactor(0)
       .setDepth(23);
 
-    const heartStartX = slotX + slotSize + 12;
+    // Corações ao lado do slot, alinhados verticalmente ao centro
+    const heartStartX = slotX + slotSize + 16;
     const heartY = slotY + slotSize / 2;
-    this.hudHearts = [];
 
-    // Cada coração usa um frame do spritesheet hud_coracao:
-    // 0 = cheio, 1 = 3/4, 2 = metade, 3 = vazio.
-    for (let i = 0; i < this.playerTotalLives; i += 1) {
+    this.hudHearts = [];
+    for (let i = 0; i < this.playerTotalLives; i++) {
       const heart = this.add
         .sprite(heartStartX + i * heartSpacing, heartY, "hud_coracao", 0)
         .setOrigin(0.5, 0.5)
@@ -849,10 +887,21 @@ class scene0 extends Phaser.Scene {
 
     this.playerHits += 1;
     const heartIndex = this.playerTotalLives - this.playerLives;
+    // frames 0..3 representam 0%..75% de dano (0 cheio, 3 quase vazio)
     const frame = Math.min(this.playerHits, 3);
 
-    if (this.hudHearts[heartIndex]) {
-      this.hudHearts[heartIndex].setFrame(frame);
+    const heart = this.hudHearts[heartIndex];
+    if (heart) {
+      heart.setFrame(frame);
+      // animação 'pop' ao levar hit (pequena escala)
+      this.tweens.add({
+        targets: heart,
+        scaleX: heart.scaleX * 1.2,
+        scaleY: heart.scaleY * 1.2,
+        duration: 100,
+        yoyo: true,
+        ease: "Power1",
+      });
     }
 
     this.player.setTint(0xff4444);
