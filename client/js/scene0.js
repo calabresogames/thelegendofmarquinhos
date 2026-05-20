@@ -385,6 +385,44 @@ class scene0 extends Phaser.Scene {
       repeat: 0,
     });
 
+    // ── Animações dos corações ────────────────────────────────
+    // cheio → vazio (toca ao tomar dano, para no frame certo)
+    this.anims.create({
+      key: "heart_full",
+      frames: [{ key: "hud_coracao", frame: 0 }],
+      frameRate: 1,
+      repeat: 0,
+    });
+    this.anims.create({
+      key: "heart_hit1",
+      frames: [{ key: "hud_coracao", frame: 3 }],
+      frameRate: 1,
+      repeat: 0,
+    });
+    this.anims.create({
+      key: "heart_hit2",
+      frames: [{ key: "hud_coracao", frame: 2 }],
+      frameRate: 1,
+      repeat: 0,
+    });
+    this.anims.create({
+      key: "heart_empty",
+      frames: [{ key: "hud_coracao", frame: 1 }],
+      frameRate: 1,
+      repeat: 0,
+    });
+
+    // Animação de pulso ao levar hit (frames 0→1 rápido, volta)
+    this.anims.create({
+      key: "heart_damage",
+      frames: this.anims.generateFrameNumbers("hud_coracao", {
+        start: 0,
+        end: 3,
+      }),
+      frameRate: 12, // ← velocidade da transição ao tomar dano
+      repeat: 0,
+    });
+
     // ── Grupo de inimigos ────────────────────────────────────
     this.enemies = this.physics.add.group();
 
@@ -592,9 +630,7 @@ class scene0 extends Phaser.Scene {
           console.error("Error updating remote player:", e);
         }
       }
-
     });
-
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -844,27 +880,26 @@ class scene0 extends Phaser.Scene {
   // ═══════════════════════════════════════════════════════════
 
   _buildPlayerHUD() {
-    const slotSize = 48;
-    const slotX = 12;
-    const slotY = 12;
-    const heartScale = 2;
-    const heartSpacing = 28;
+    const slotSize = 80;
+    const slotX = -310;
+    const slotY = -200;
+    const heartScale = 4;
+    const heartSpacing = 32;
 
-    // Slot circular
+    // Slot circular no canto superior esquerdo da tela
     this.hudSlot = this.add
       .image(slotX + slotSize / 2, slotY + slotSize / 2, "hud_slot")
       .setDisplaySize(slotSize, slotSize)
       .setOrigin(0.5, 0.5)
       .setScrollFactor(0)
-      .setDepth(22);
+      .setDepth(100);
 
-    // Rosto centralizado dentro do slot
     this.hudRosto = this.add
       .image(slotX + slotSize / 2, slotY + slotSize / 2, "hud_rosto")
-      .setDisplaySize(slotSize * 0.7, slotSize * 0.7)
+      .setDisplaySize(slotSize * 0.95, slotSize * 0.95)
       .setOrigin(0.5, 0.5)
       .setScrollFactor(0)
-      .setDepth(23);
+      .setDepth(101);
 
     // Corações ao lado do slot, alinhados verticalmente ao centro
     const heartStartX = slotX + slotSize + 16;
@@ -873,11 +908,17 @@ class scene0 extends Phaser.Scene {
     this.hudHearts = [];
     for (let i = 0; i < this.playerTotalLives; i++) {
       const heart = this.add
-        .sprite(heartStartX + i * heartSpacing, heartY, "hud_coracao", 0)
+        .sprite(
+          heartStartX + i * (8 * heartScale + heartSpacing),
+          heartY,
+          "hud_coracao",
+        )
         .setOrigin(0.5, 0.5)
         .setScale(heartScale)
         .setScrollFactor(0)
         .setDepth(23);
+
+      heart.anims.play("heart_full");
       this.hudHearts.push(heart);
     }
   }
@@ -892,15 +933,23 @@ class scene0 extends Phaser.Scene {
 
     const heart = this.hudHearts[heartIndex];
     if (heart) {
-      heart.setFrame(frame);
-      // animação 'pop' ao levar hit (pequena escala)
+      const damageKeys = [
+        "heart_full",
+        "heart_hit1",
+        "heart_hit2",
+        "heart_empty",
+      ];
+
       this.tweens.add({
         targets: heart,
-        scaleX: heart.scaleX * 1.2,
-        scaleY: heart.scaleY * 1.2,
-        duration: 100,
+        scaleX: heart.scaleX * 1.3,
+        scaleY: heart.scaleY * 1.3,
+        duration: 80,
         yoyo: true,
-        ease: "Power1",
+        ease: "Power2",
+        onComplete: () => {
+          heart.anims.play(damageKeys[frame]);
+        },
       });
     }
 
@@ -1293,10 +1342,15 @@ class scene0 extends Phaser.Scene {
 
           if (enemy.state !== "attacking") {
             enemy.state = "attacking";
+            enemy._hasHitThisAttack = false; // guard de hit único
             enemy.anims.play("enemy_attack", true);
 
-            this.time.delayedCall(330, () => {
+            // Dano só no último frame da animação (frame 7 de 8, ~875ms)
+            this.time.delayedCall(875, () => {
               if (!enemy || !enemy.active || enemy._dying) return;
+              if (enemy._hasHitThisAttack) return;
+              if (enemy.state !== "attacking") return; // cancelado se saiu do estado
+
               const d = Phaser.Math.Distance.Between(
                 enemy.x,
                 enemy.y,
@@ -1304,31 +1358,20 @@ class scene0 extends Phaser.Scene {
                 this.player.y,
               );
               if (d <= attackRange) {
+                enemy._hasHitThisAttack = true;
                 this._applyPlayerDamage();
               }
             });
 
-            this.time.delayedCall(680, () => {
+            // Reset após animação completa + margem
+            this.time.delayedCall(1100, () => {
               if (enemy && enemy.active && !enemy._dying) {
                 enemy.body.setImmovable(false);
+                enemy._hasHitThisAttack = false;
                 enemy.state = "idle";
               }
             });
           }
-        } else {
-          // ── Muito perto: recua levemente para não sobrepor ──
-          enemy.body.setImmovable(false);
-          const angle = Phaser.Math.Angle.Between(
-            this.player.x,
-            this.player.y,
-            enemy.x,
-            enemy.y,
-          );
-          enemy.setVelocity(
-            Math.cos(angle) * enemy.speed * 0.5,
-            Math.sin(angle) * enemy.speed * 0.5,
-          );
-          enemy.state = "chasing";
         }
       });
     }

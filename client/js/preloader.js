@@ -114,8 +114,8 @@ class preloader extends Phaser.Scene {
       "hud_coracao",
       "marquinho sprite/marquinhocoracao.png",
       {
-        frameWidth: 16,
-        frameHeight: 32,
+        frameWidth: 8,
+        frameHeight: 8,
       },
     );
 
