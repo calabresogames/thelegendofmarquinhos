@@ -1362,7 +1362,7 @@ class scene0 extends Phaser.Scene {
 
              // Frame 19 da animação completa (frames 15-22 a 8fps)
              // Frame 19 = 4º frame da animação = (19-15)/8 * 1000 = 500ms
-             this.time.delayedCall(500, () => {
+             this.time.delayedCall(250, () => {
                if (!enemy || !enemy.active || enemy._dying) return;
                if (enemy._hasHitThisAttack) return;
                if (enemy.state !== "attacking") return;
