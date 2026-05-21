@@ -372,12 +372,27 @@ class scene0 extends Phaser.Scene {
     });
     // Ataque: frames 15-22 formam UMA animação completa
     // 15-18 = efeito do golpe (slash), 19-22 = personagem avança/recua
+    
     this.anims.create({
-      key: "enemy_attack",
+     key: "enemy_attack",
       frames: this.anims.generateFrameNumbers("enemy", { start: 15, end: 22 }),
       frameRate: 8,
       repeat: 0,
     });
+
+    //this.anims.create({
+    //  key: "enemy_attack",
+    //  frames: [
+       // { key: "enemy", frame: 15 },
+       // { key: "enemy", frame: 19 },
+       // { key: "enemy", frame: 20 },
+       // { key: "enemy", frame: 21 },
+       // { key: "enemy", frame: 22 },
+     // ],
+     // frameRate: 6,
+     // repeat: 0,
+    //});
+
     this.anims.create({
       key: "enemy_death",
       frames: this.anims.generateFrameNumbers("enemy", { start: 23, end: 27 }),
@@ -896,7 +911,7 @@ class scene0 extends Phaser.Scene {
 
     this.hudRosto = this.add
       .image(slotX + slotSize / 2, slotY + slotSize / 2, "hud_rosto")
-      .setDisplaySize(slotSize * 0.95, slotSize * 0.95)
+      .setDisplaySize(slotSize * 2, slotSize * 2)
       .setOrigin(0.5, 0.5)
       .setScrollFactor(0)
       .setDepth(101);
@@ -1340,38 +1355,40 @@ class scene0 extends Phaser.Scene {
           enemy.setVelocity(0, 0);
           enemy.body.setImmovable(true);
 
-          if (enemy.state !== "attacking") {
-            enemy.state = "attacking";
-            enemy._hasHitThisAttack = false; // guard de hit único
-            enemy.anims.play("enemy_attack", true);
+           if (enemy.state !== "attacking") {
+             enemy.state = "attacking";
+             enemy._hasHitThisAttack = false;
+             enemy.anims.play("enemy_attack", true);
 
-            // Dano só no último frame da animação (frame 7 de 8, ~875ms)
-            this.time.delayedCall(875, () => {
-              if (!enemy || !enemy.active || enemy._dying) return;
-              if (enemy._hasHitThisAttack) return;
-              if (enemy.state !== "attacking") return; // cancelado se saiu do estado
+             // Frame 19 da animação completa (frames 15-22 a 8fps)
+             // Frame 19 = 4º frame da animação = (19-15)/8 * 1000 = 500ms
+             this.time.delayedCall(500, () => {
+               if (!enemy || !enemy.active || enemy._dying) return;
+               if (enemy._hasHitThisAttack) return;
+               if (enemy.state !== "attacking") return;
 
-              const d = Phaser.Math.Distance.Between(
-                enemy.x,
-                enemy.y,
-                this.player.x,
-                this.player.y,
-              );
-              if (d <= attackRange) {
-                enemy._hasHitThisAttack = true;
-                this._applyPlayerDamage();
-              }
-            });
+               const d = Phaser.Math.Distance.Between(
+                 enemy.x,
+                 enemy.y,
+                 this.player.x,
+                 this.player.y,
+               );
+               if (d <= attackRange) {
+                 enemy._hasHitThisAttack = true;
+                 this._applyPlayerDamage();
+               }
+             });
 
-            // Reset após animação completa + margem
-            this.time.delayedCall(1100, () => {
-              if (enemy && enemy.active && !enemy._dying) {
-                enemy.body.setImmovable(false);
-                enemy._hasHitThisAttack = false;
-                enemy.state = "idle";
-              }
-            });
-          }
+             // Animação termina em ~1000ms (8 frames a 8fps)
+             // + 1000ms de pausa antes do próximo ataque
+             this.time.delayedCall(1500, () => {
+               if (enemy && enemy.active && !enemy._dying) {
+                 enemy.body.setImmovable(false);
+                 enemy._hasHitThisAttack = false;
+                 enemy.state = "idle";
+               }
+             });
+           }
         }
       });
     }
