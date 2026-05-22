@@ -148,13 +148,17 @@ class scene0 extends Phaser.Scene {
           );
 
           if (!remotePlayer) {
-            remotePlayer = this.add
-              .sprite(state.player.x, state.player.y, "character", 0)
+            sprite = this.add
+              .sprite(state.player.x, state.player.y, (this.localPlayer === "sergio") ? "marquinhos_idle" : "sergio_idle", 0)
               .setPipeline("Light2D");
             this.remotePlayers.push({
               id: state.player.id,
-              sprite: remotePlayer,
+              sprite: sprite,
             });
+
+            remotePlayer = this.remotePlayers.find(
+              (p) => p.id === state.player.id,
+            );
           }
 
           remotePlayer.sprite.setPosition(state.player.x, state.player.y);
@@ -221,31 +225,18 @@ class scene0 extends Phaser.Scene {
     this.layerrua = this.tilemap.createLayer("rua", [this.tilesetRoadLamps]);
     this.layerobjetos = this.tilemap.createLayer("objetos", [this.tilesetArc]);
 
-    // ── Player sergio ───────────────────────────────────────────────
-    this.sergio = this.physics.add.sprite(150, 656, "sergio_idle", 0);
-    this.sergio.setScale(4.5);
-    this.sergio.setOrigin(0.5, 1);
-    this.sergio.body.setSize(15, 30);
-    this.sergio.body.setOffset(1, 1);
-    this.sergio.setBounce(0);
+    // ── Player ───────────────────────────────────────────────
+    this.localPlayer = this.physics.add.sprite(150, 656, this.game.localPlayer + "_idle", 0);
+    this.localPlayer.setScale(4.5);
+    this.localPlayer.setOrigin(0.5, 1);
+    this.localPlayer.body.setSize(15, 30);
+    this.localPlayer.body.setOffset(1, 1);
+    this.localPlayer.setBounce(0);
     this.physics.world.gravity.y = 0;
-    this.sergio.body.setAllowGravity(false);
-    this.sergio.setCollideWorldBounds(true);
-    this.sergio.lastStreetPosition = { x: 150, y: 656 };
-    this.limitLineY = this.sergio.y - 40;
-
-    // ── Player marquinhos ───────────────────────────────────────────────
-    this.player = this.physics.add.sprite(150, 656, "marquinhos_idle", 0);
-    this.player.setScale(4.5);
-    this.player.setOrigin(0.5, 1);
-    this.player.body.setSize(15, 30);
-    this.player.body.setOffset(1, 1);
-    this.player.setBounce(0);
-    this.physics.world.gravity.y = 0;
-    this.player.body.setAllowGravity(false);
-    this.player.setCollideWorldBounds(true);
-    this.player.lastStreetPosition = { x: 150, y: 656 };
-    this.limitLineY = this.player.y - 40;
+    this.localPlayer.body.setAllowGravity(false);
+    this.localPlayer.setCollideWorldBounds(true);
+    this.localPlayer.lastStreetPosition = { x: 150, y: 656 };
+    this.limitLineY = this.localPlayer.y - 40;
 
     // Desenhar linha para visualização da barreira
     this.limitLine = this.add.graphics();
@@ -257,7 +248,7 @@ class scene0 extends Phaser.Scene {
 
     // ── Animações do segio ──────────────────────────────────
     this.anims.create({
-      key: "standing-still1",
+      key: "sergio-standing-still",
       frames: this.anims.generateFrameNumbers("sergio_idle", {
         start: 0,
         end: 3,
@@ -266,13 +257,13 @@ class scene0 extends Phaser.Scene {
       repeat: -1,
     });
     this.anims.create({
-      key: "idle-frame01",
+      key: "sergio-idle-frame0",
       frames: [{ key: "sergio_idle", frame: 0 }],
       frameRate: 1,
       repeat: 0,
     });
     this.anims.create({
-      key: "running1",
+      key: "sergio-running",
       frames: this.anims.generateFrameNumbers("sergio_run", {
         start: 0,
         end: 3,
@@ -281,7 +272,7 @@ class scene0 extends Phaser.Scene {
       repeat: -1,
     });
     this.anims.create({
-      key: "punching1",
+      key: "sergio-punching",
       frames: [
         { key: "sergio_punch1", frame: 0 },
         { key: "sergio_punch1", frame: 1 },
@@ -294,7 +285,7 @@ class scene0 extends Phaser.Scene {
       onComplete: () => this.player.anims.play("idle-frame01", true),
     });
     this.anims.create({
-      key: "kicking1",
+      key: "sergio-kicking",
       frames: [
         { key: "sergio_kick1", frame: 0 },
         { key: "sergio_kick1", frame: 1 },
@@ -307,7 +298,7 @@ class scene0 extends Phaser.Scene {
 
     // ── Animações do marquinhos ──────────────────────────────────
     this.anims.create({
-      key: "standing-still",
+      key: "marquinhos-standing-still",
       frames: this.anims.generateFrameNumbers("marquinhos_idle", {
         start: 0,
         end: 3,
@@ -316,13 +307,13 @@ class scene0 extends Phaser.Scene {
       repeat: -1,
     });
     this.anims.create({
-      key: "idle-frame0",
+      key: "marquinhos-idle-frame0",
       frames: [{ key: "marquinhos_idle", frame: 0 }],
       frameRate: 1,
       repeat: 0,
     });
     this.anims.create({
-      key: "running",
+      key: "marquinhos-running",
       frames: this.anims.generateFrameNumbers("marquinhos_run", {
         start: 0,
         end: 3,
@@ -331,7 +322,7 @@ class scene0 extends Phaser.Scene {
       repeat: -1,
     });
     this.anims.create({
-      key: "punching",
+      key: "marquinhos-punching",
       frames: [
         { key: "marquinhos_punch1", frame: 0 },
         { key: "marquinhos_punch1", frame: 1 },
@@ -344,7 +335,7 @@ class scene0 extends Phaser.Scene {
       onComplete: () => this.player.anims.play("idle-frame0", true),
     });
     this.anims.create({
-      key: "kicking",
+      key: "marquinhos-kicking",
       frames: [
         { key: "marquinhos_kick1", frame: 0 },
         { key: "marquinhos_kick1", frame: 1 },
@@ -372,9 +363,9 @@ class scene0 extends Phaser.Scene {
     });
     // Ataque: frames 15-22 formam UMA animação completa
     // 15-18 = efeito do golpe (slash), 19-22 = personagem avança/recua
-    
+
     this.anims.create({
-     key: "enemy_attack",
+      key: "enemy_attack",
       frames: this.anims.generateFrameNumbers("enemy", { start: 15, end: 22 }),
       frameRate: 8,
       repeat: 0,
@@ -383,14 +374,14 @@ class scene0 extends Phaser.Scene {
     //this.anims.create({
     //  key: "enemy_attack",
     //  frames: [
-       // { key: "enemy", frame: 15 },
-       // { key: "enemy", frame: 19 },
-       // { key: "enemy", frame: 20 },
-       // { key: "enemy", frame: 21 },
-       // { key: "enemy", frame: 22 },
-     // ],
-     // frameRate: 6,
-     // repeat: 0,
+    // { key: "enemy", frame: 15 },
+    // { key: "enemy", frame: 19 },
+    // { key: "enemy", frame: 20 },
+    // { key: "enemy", frame: 21 },
+    // { key: "enemy", frame: 22 },
+    // ],
+    // frameRate: 6,
+    // repeat: 0,
     //});
 
     this.anims.create({
@@ -634,8 +625,8 @@ class scene0 extends Phaser.Scene {
             });
           }
 
-          remotePlayer.sprite.setFlipX(state.player.flip.x);
-          remotePlayer.sprite.setFlipY(state.player.flip.y);
+          if (state.player.flip)
+            remotePlayer.sprite.setFlipX(state.player.flip.x);
           remotePlayer.sprite.setPosition(state.player.x, state.player.y);
           if (state.player.animation)
             remotePlayer.sprite.anims.play(state.player.animation, true);
@@ -1218,6 +1209,7 @@ class scene0 extends Phaser.Scene {
           id: this.game.socket.id,
           x: this.player.x,
           y: this.player.y,
+          flipx: this.player.flipX,
           texture: "character",
           animation: this.player.anims.currentAnim
             ? this.player.anims.currentAnim.key
@@ -1355,40 +1347,40 @@ class scene0 extends Phaser.Scene {
           enemy.setVelocity(0, 0);
           enemy.body.setImmovable(true);
 
-           if (enemy.state !== "attacking") {
-             enemy.state = "attacking";
-             enemy._hasHitThisAttack = false;
-             enemy.anims.play("enemy_attack", true);
+          if (enemy.state !== "attacking") {
+            enemy.state = "attacking";
+            enemy._hasHitThisAttack = false;
+            enemy.anims.play("enemy_attack", true);
 
-             // Frame 19 da animação completa (frames 15-22 a 8fps)
-             // Frame 19 = 4º frame da animação = (19-15)/8 * 1000 = 500ms
-             this.time.delayedCall(250, () => {
-               if (!enemy || !enemy.active || enemy._dying) return;
-               if (enemy._hasHitThisAttack) return;
-               if (enemy.state !== "attacking") return;
+            // Frame 19 da animação completa (frames 15-22 a 8fps)
+            // Frame 19 = 4º frame da animação = (19-15)/8 * 1000 = 500ms
+            this.time.delayedCall(250, () => {
+              if (!enemy || !enemy.active || enemy._dying) return;
+              if (enemy._hasHitThisAttack) return;
+              if (enemy.state !== "attacking") return;
 
-               const d = Phaser.Math.Distance.Between(
-                 enemy.x,
-                 enemy.y,
-                 this.player.x,
-                 this.player.y,
-               );
-               if (d <= attackRange) {
-                 enemy._hasHitThisAttack = true;
-                 this._applyPlayerDamage();
-               }
-             });
+              const d = Phaser.Math.Distance.Between(
+                enemy.x,
+                enemy.y,
+                this.player.x,
+                this.player.y,
+              );
+              if (d <= attackRange) {
+                enemy._hasHitThisAttack = true;
+                this._applyPlayerDamage();
+              }
+            });
 
-             // Animação termina em ~1000ms (8 frames a 8fps)
-             // + 1000ms de pausa antes do próximo ataque
-             this.time.delayedCall(1500, () => {
-               if (enemy && enemy.active && !enemy._dying) {
-                 enemy.body.setImmovable(false);
-                 enemy._hasHitThisAttack = false;
-                 enemy.state = "idle";
-               }
-             });
-           }
+            // Animação termina em ~1000ms (8 frames a 8fps)
+            // + 1000ms de pausa antes do próximo ataque
+            this.time.delayedCall(1500, () => {
+              if (enemy && enemy.active && !enemy._dying) {
+                enemy.body.setImmovable(false);
+                enemy._hasHitThisAttack = false;
+                enemy.state = "idle";
+              }
+            });
+          }
         }
       });
     }

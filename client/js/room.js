@@ -10,7 +10,7 @@ class room extends Phaser.Scene {
     this.add.text(50, 50, this.game.room, {
       fontFamily: "pixelify-sans",
       fontSize: "32px",
-      fill: "#000000",
+      fill: "#ffffff",
     });
 
     new QRCode(this.qrcodeContainer, {
