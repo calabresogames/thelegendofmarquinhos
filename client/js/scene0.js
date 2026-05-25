@@ -347,7 +347,7 @@ class scene0 extends Phaser.Scene {
     });
 
     // ── Animações do inimigo ─────────────────────────────────
-    // [FIX 1] frames corretos por animação
+    
     this.anims.create({
       key: "enemy_idle",
       frames: this.anims.generateFrameNumbers("enemy", { start: 0, end: 5 }),
@@ -356,7 +356,6 @@ class scene0 extends Phaser.Scene {
     });
     this.anims.create({
       key: "enemy_run",
-      // frames 6-14: inclui run + walk, transição mais suave
       frames: this.anims.generateFrameNumbers("enemy", { start: 6, end: 14 }),
       frameRate: 10,
       repeat: -1,
@@ -371,19 +370,7 @@ class scene0 extends Phaser.Scene {
       repeat: 0,
     });
 
-    //this.anims.create({
-    //  key: "enemy_attack",
-    //  frames: [
-    // { key: "enemy", frame: 15 },
-    // { key: "enemy", frame: 19 },
-    // { key: "enemy", frame: 20 },
-    // { key: "enemy", frame: 21 },
-    // { key: "enemy", frame: 22 },
-    // ],
-    // frameRate: 6,
-    // repeat: 0,
-    //});
-
+    
     this.anims.create({
       key: "enemy_death",
       frames: this.anims.generateFrameNumbers("enemy", { start: 23, end: 27 }),
@@ -392,7 +379,7 @@ class scene0 extends Phaser.Scene {
     });
 
     // ── Animações dos corações ────────────────────────────────
-    // cheio → vazio (toca ao tomar dano, para no frame certo)
+   
     this.anims.create({
       key: "heart_full",
       frames: [{ key: "hud_coracao", frame: 0 }],
