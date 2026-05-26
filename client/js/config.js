@@ -6,6 +6,12 @@ var config = {
     target: 30,
     forceSetTimeOut: true,
   },
+  input: { 
+    magepad: true,
+    activepointers: 3,
+  
+  
+  },
   parent: "game-container",
   physics: {
     default: "arcade",

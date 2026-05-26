@@ -36,23 +36,23 @@ class preloader extends Phaser.Scene {
 
     // sergio spritesheets
 
-    this.load.spritesheet("sergio_idle", "sergio sprite/sergioparado.png", {
+    this.load.spritesheet("sergio_idle", "sergio_sprite/sergioparado.png", {
       frameWidth: 16,
       frameHeight: 32,
     });
-    this.load.spritesheet("sergio_run", "sergio sprite/sergiocorre.png", {
+    this.load.spritesheet("sergio_run", "sergio_sprite/sergiocorre.png", {
       frameWidth: 16,
       frameHeight: 32,
     });
-    this.load.spritesheet("sergio_punch1", "sergio sprite/sergiossoco1.png", {
+    this.load.spritesheet("sergio_punch1", "sergio_sprite/sergiosoco1.png", {
       frameWidth: 22,
       frameHeight: 32,
     });
-    this.load.spritesheet("sergio_punch2", "sergio sprite/sergiossoco2.png", {
+    this.load.spritesheet("sergio_punch2", "sergio_sprite/sergiosoco2.png", {
       frameWidth: 22,
       frameHeight: 32,
     });
-    this.load.spritesheet("sergio_kick1", "sergio sprite/sergiochute1.png", {
+    this.load.spritesheet("sergio_kick1", "sergio_sprite/sergiochute1.png", {
       frameWidth: 25,
       frameHeight: 32,
     });
@@ -61,7 +61,7 @@ class preloader extends Phaser.Scene {
 
     this.load.spritesheet(
       "marquinhos_idle",
-      "marquinho sprite/marquinhosparado.png",
+      "marquinho_sprite/marquinhosparado.png",
       {
         frameWidth: 16,
         frameHeight: 32,
@@ -69,7 +69,7 @@ class preloader extends Phaser.Scene {
     );
     this.load.spritesheet(
       "marquinhos_run",
-      "marquinho sprite/marquinhoscorre.png",
+      "marquinho_sprite/marquinhoscorre.png",
       {
         frameWidth: 16,
         frameHeight: 32,
@@ -77,7 +77,7 @@ class preloader extends Phaser.Scene {
     );
     this.load.spritesheet(
       "marquinhos_punch1",
-      "marquinho sprite/marquinhossoco1-1.png",
+      "marquinho_sprite/marquinhossoco1-1.png",
       {
         frameWidth: 22,
         frameHeight: 32,
@@ -85,7 +85,7 @@ class preloader extends Phaser.Scene {
     );
     this.load.spritesheet(
       "marquinhos_punch2",
-      "marquinho sprite/marquinhossoco2.png",
+      "marquinho_sprite/marquinhossoco2.png",
       {
         frameWidth: 22,
         frameHeight: 32,
@@ -93,7 +93,7 @@ class preloader extends Phaser.Scene {
     );
     this.load.spritesheet(
       "marquinhos_kick1",
-      "marquinho sprite/marquinhoschute1.png",
+      "marquinho_sprite/marquinhoschute1.png",
       {
         frameWidth: 25,
         frameHeight: 32,
@@ -112,7 +112,7 @@ class preloader extends Phaser.Scene {
     this.load.image("hud_rosto", "jogaço/marcosrosto.png");
     this.load.spritesheet(
       "hud_coracao",
-      "marquinho sprite/marquinhocoracao.png",
+      "marquinho_sprite/marquinhocoracao.png",
       {
         frameWidth: 8,
         frameHeight: 8,

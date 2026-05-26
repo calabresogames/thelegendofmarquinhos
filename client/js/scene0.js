@@ -128,12 +128,26 @@ class scene0 extends Phaser.Scene {
     this._transitioningWave = false; // [FIX 5] guard contra pular wave
 
     // ── Sistema de vida do player ─────────────────────────
-    this.playerTotalLives = 3;
-    this.playerLives = 3;
+    this.localPlayerTotalLives = 3;
+    this.localPlayerLives = 3;
     // cada vida tem 4 estágios (1/4 perdido por hit)
-    this.playerHitsPerLife = 4;
-    this.playerHits = 0;
-    this.playerDead = false;
+    this.localPlayerHitsPerLife = 4;
+    this.localPlayerHits = 0;
+    this.localPlayerDead = false;
+  }
+
+  _getLocalPlayerPrefix() {
+    const playerKey =
+      this.localPlayer && this.localPlayer.texture
+        ? this.localPlayer.texture.key
+        : this.game.localPlayer;
+    return playerKey && playerKey.startsWith("sergio")
+      ? "sergio"
+      : "marquinhos";
+  }
+
+  _getLocalPlayerAnimKey(action) {
+    return `${this._getLocalPlayerPrefix()}-${action}`;
   }
 
   // ─────────────────────────────────────────────────────────────
@@ -148,12 +162,16 @@ class scene0 extends Phaser.Scene {
           );
 
           if (!remotePlayer) {
-            sprite = this.add
-              .sprite(state.player.x, state.player.y, (this.localPlayer === "sergio") ? "marquinhos_idle" : "sergio_idle", 0)
+            const remoteTexture =
+              this.game.localPlayer === "sergio"
+                ? "marquinhos_idle"
+                : "sergio_idle";
+            const sprite = this.add
+              .sprite(state.player.x, state.player.y, remoteTexture, 0)
               .setPipeline("Light2D");
             this.remotePlayers.push({
               id: state.player.id,
-              sprite: sprite,
+              sprite,
             });
 
             remotePlayer = this.remotePlayers.find(
@@ -226,7 +244,12 @@ class scene0 extends Phaser.Scene {
     this.layerobjetos = this.tilemap.createLayer("objetos", [this.tilesetArc]);
 
     // ── Player ───────────────────────────────────────────────
-    this.localPlayer = this.physics.add.sprite(150, 656, this.game.localPlayer + "_idle", 0);
+    this.localPlayer = this.physics.add.sprite(
+      150,
+      656,
+      this.game.localPlayer + "_idle",
+      0,
+    );
     this.localPlayer.setScale(4.5);
     this.localPlayer.setOrigin(0.5, 1);
     this.localPlayer.body.setSize(15, 30);
@@ -282,7 +305,11 @@ class scene0 extends Phaser.Scene {
       ],
       frameRate: 10,
       repeat: 0,
-      onComplete: () => this.player.anims.play("idle-frame01", true),
+      onComplete: () =>
+        this.localPlayer.anims.play(
+          this._getLocalPlayerAnimKey("idle-frame0"),
+          true,
+        ),
     });
     this.anims.create({
       key: "sergio-kicking",
@@ -293,7 +320,11 @@ class scene0 extends Phaser.Scene {
       ],
       frameRate: 12,
       repeat: 0,
-      onComplete: () => this.player.anims.play("idle-frame01", true),
+      onComplete: () =>
+        this.localPlayer.anims.play(
+          this._getLocalPlayerAnimKey("idle-frame0"),
+          true,
+        ),
     });
 
     // ── Animações do marquinhos ──────────────────────────────────
@@ -332,7 +363,11 @@ class scene0 extends Phaser.Scene {
       ],
       frameRate: 10,
       repeat: 0,
-      onComplete: () => this.player.anims.play("idle-frame0", true),
+      onComplete: () =>
+        this.localPlayer.anims.play(
+          this._getLocalPlayerAnimKey("idle-frame0"),
+          true,
+        ),
     });
     this.anims.create({
       key: "marquinhos-kicking",
@@ -343,11 +378,15 @@ class scene0 extends Phaser.Scene {
       ],
       frameRate: 12,
       repeat: 0,
-      onComplete: () => this.player.anims.play("idle-frame0", true),
+      onComplete: () =>
+        this.localPlayer.anims.play(
+          this._getLocalPlayerAnimKey("idle-frame0"),
+          true,
+        ),
     });
 
     // ── Animações do inimigo ─────────────────────────────────
-    
+
     this.anims.create({
       key: "enemy_idle",
       frames: this.anims.generateFrameNumbers("enemy", { start: 0, end: 5 }),
@@ -370,7 +409,6 @@ class scene0 extends Phaser.Scene {
       repeat: 0,
     });
 
-    
     this.anims.create({
       key: "enemy_death",
       frames: this.anims.generateFrameNumbers("enemy", { start: 23, end: 27 }),
@@ -379,7 +417,7 @@ class scene0 extends Phaser.Scene {
     });
 
     // ── Animações dos corações ────────────────────────────────
-   
+
     this.anims.create({
       key: "heart_full",
       frames: [{ key: "hud_coracao", frame: 0 }],
@@ -452,13 +490,13 @@ class scene0 extends Phaser.Scene {
       return enemy;
     };
 
-    this.physics.add.overlap(this.player, this.enemies, () => {
+    this.physics.add.overlap(this.localPlayer, this.enemies, () => {
       // Separa o player do inimigo manualmente sem aplicar força
       this.enemies.children.iterate((enemy) => {
         if (!enemy || !enemy.active || enemy._dying) return;
         const dist = Phaser.Math.Distance.Between(
-          this.player.x,
-          this.player.y,
+          this.localPlayer.x,
+          this.localPlayer.y,
           enemy.x,
           enemy.y,
         );
@@ -466,11 +504,11 @@ class scene0 extends Phaser.Scene {
           const angle = Phaser.Math.Angle.Between(
             enemy.x,
             enemy.y,
-            this.player.x,
-            this.player.y,
+            this.localPlayer.x,
+            this.localPlayer.y,
           );
-          this.player.x += Math.cos(angle) * 2;
-          this.player.y += Math.sin(angle) * 2;
+          this.localPlayer.x += Math.cos(angle) * 2;
+          this.localPlayer.y += Math.sin(angle) * 2;
         }
       });
     });
@@ -487,16 +525,16 @@ class scene0 extends Phaser.Scene {
       this.tilemap.widthInPixels,
       this.tilemap.heightInPixels,
     );
-    this.cameras.main.startFollow(this.player);
+    this.cameras.main.startFollow(this.localPlayer);
     this.cameras.main.setZoom(0.5);
 
     // ── Colisões tilemap ─────────────────────────────────────
     this.layercasas.setCollisionByProperty({ collides: true });
-    this.physics.add.collider(this.player, this.layercasas);
+    this.physics.add.collider(this.localPlayer, this.layercasas);
     this.layerMarquinhosDojo.setCollisionByProperty({ collides: true });
-    this.physics.add.collider(this.player, this.layerMarquinhosDojo);
+    this.physics.add.collider(this.localPlayer, this.layerMarquinhosDojo);
     this.layerrua.setCollisionByProperty({ collides: true });
-    this.physics.add.collider(this.player, this.layerrua);
+    this.physics.add.collider(this.localPlayer, this.layerrua);
 
     // ── Joystick ─────────────────────────────────────────────
     this.joystick = this.plugins.get("rexvirtualjoystickplugin").add(this, {
@@ -524,17 +562,23 @@ class scene0 extends Phaser.Scene {
           this.waveLeftBound !== undefined &&
           this.waveRightBound !== undefined
         ) {
-          if (vx > 0 && this.player.x >= this.waveRightBound) vx = 0;
-          if (vx < 0 && this.player.x <= this.waveLeftBound) vx = 0;
+          if (vx > 0 && this.localPlayer.x >= this.waveRightBound) vx = 0;
+          if (vx < 0 && this.localPlayer.x <= this.waveLeftBound) vx = 0;
         }
 
-        this.player.setVelocity(vx, vy);
-        if (vx < 0) this.player.flipX = true;
-        else if (vx > 0) this.player.flipX = false;
-        this.player.anims.play("running", true);
+        this.localPlayer.setVelocity(vx, vy);
+        if (vx < 0) this.localPlayer.flipX = true;
+        else if (vx > 0) this.localPlayer.flipX = false;
+        this.localPlayer.anims.play(
+          this._getLocalPlayerAnimKey("running"),
+          true,
+        );
       } else {
-        this.player.setVelocity(0, 0);
-        this.player.anims.play("standing-still", true);
+        this.localPlayer.setVelocity(0, 0);
+        this.localPlayer.anims.play(
+          this._getLocalPlayerAnimKey("standing-still"),
+          true,
+        );
       }
     });
 
@@ -546,11 +590,15 @@ class scene0 extends Phaser.Scene {
       .on("pointerdown", () => {
         this.punchButton.setTint(0xcccccc);
         if (
-          !this.player.anims.isPlaying ||
-          this.player.anims.currentAnim.key !== "running"
+          !this.localPlayer.anims.isPlaying ||
+          this.localPlayer.anims.currentAnim.key !==
+            this._getLocalPlayerAnimKey("running")
         ) {
-          this.player.setVelocity(0);
-          this.player.anims.play("punching", true);
+          this.localPlayer.setVelocity(0);
+          this.localPlayer.anims.play(
+            this._getLocalPlayerAnimKey("punching"),
+            true,
+          );
         }
         this._dealDamage(60, 1, 150);
       })
@@ -566,11 +614,15 @@ class scene0 extends Phaser.Scene {
       .on("pointerdown", () => {
         this.kickButton.setTint(0xcccccc);
         if (
-          !this.player.anims.isPlaying ||
-          this.player.anims.currentAnim.key !== "running"
+          !this.localPlayer.anims.isPlaying ||
+          this.localPlayer.anims.currentAnim.key !==
+            this._getLocalPlayerAnimKey("running")
         ) {
-          this.player.setVelocity(0);
-          this.player.anims.play("kicking", true);
+          this.localPlayer.setVelocity(0);
+          this.localPlayer.anims.play(
+            this._getLocalPlayerAnimKey("kicking"),
+            true,
+          );
           this._dealDamage(80, 2, 200);
         }
       })
@@ -765,7 +817,7 @@ class scene0 extends Phaser.Scene {
       const zoom = this.cameras.main.zoom;
       const camW = this.cameras.main.width / zoom;
       const targetY = Phaser.Math.Clamp(
-        this.player.y - camH / 2,
+        this.localPlayer.y - camH / 2,
         0,
         this.tilemap.heightInPixels - camH,
       );
@@ -778,7 +830,7 @@ class scene0 extends Phaser.Scene {
         ease: "Cubic.InOut",
         onComplete: () => {
           // Só liga o follow depois do tween acabar — sem salto
-          this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
+          this.cameras.main.startFollow(this.localPlayer, true, 0.1, 0.1);
         },
       });
     });
@@ -787,7 +839,7 @@ class scene0 extends Phaser.Scene {
   /** Todas as waves concluídas. */
   _onAllWavesCleared() {
     this._showVictoryBanner();
-    this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
+    this.cameras.main.startFollow(this.localPlayer, true, 0.08, 0.08);
     // this.time.delayedCall(3000, () => this.scene.start("scene1"));
   }
   // ═══════════════════════════════════════════════════════════
@@ -797,9 +849,9 @@ class scene0 extends Phaser.Scene {
   _dealDamage(range, dmg, knockback) {
     if (!this.enemies) return;
 
-    const punchOffsetX = this.player.flipX ? -range : range;
-    const punchX = this.player.x + punchOffsetX;
-    const punchY = this.player.y - 40;
+    const punchOffsetX = this.localPlayer.flipX ? -range : range;
+    const punchX = this.localPlayer.x + punchOffsetX;
+    const punchY = this.localPlayer.y - 40;
 
     this.enemies.children.iterate((enemy) => {
       if (!enemy || !enemy.active || enemy._dying) return;
@@ -828,7 +880,7 @@ class scene0 extends Phaser.Scene {
       });
 
       // Knockback — empurra para longe do player
-      const dir = enemy.x >= this.player.x ? 1 : -1;
+      const dir = enemy.x >= this.localPlayer.x ? 1 : -1;
       enemy.body.setImmovable(false);
       enemy.state = "knockback";
       enemy._knockbackTimer = 500;
@@ -899,7 +951,7 @@ class scene0 extends Phaser.Scene {
     const heartY = slotY + slotSize / 2;
 
     this.hudHearts = [];
-    for (let i = 0; i < this.playerTotalLives; i++) {
+    for (let i = 0; i < this.localPlayerTotalLives; i++) {
       const heart = this.add
         .sprite(
           heartStartX + i * (8 * heartScale + heartSpacing),
@@ -917,12 +969,12 @@ class scene0 extends Phaser.Scene {
   }
 
   _applyPlayerDamage() {
-    if (this.playerDead) return;
+    if (this.localPlayerDead) return;
 
-    this.playerHits += 1;
-    const heartIndex = this.playerTotalLives - this.playerLives;
+    this.localPlayerHits += 1;
+    const heartIndex = this.localPlayerTotalLives - this.localPlayerLives;
     // frames 0..3 representam 0%..75% de dano (0 cheio, 3 quase vazio)
-    const frame = Math.min(this.playerHits, 3);
+    const frame = Math.min(this.localPlayerHits, 3);
 
     const heart = this.hudHearts[heartIndex];
     if (heart) {
@@ -946,31 +998,32 @@ class scene0 extends Phaser.Scene {
       });
     }
 
-    this.player.setTint(0xff4444);
+    this.localPlayer.setTint(0xff4444);
     this.time.delayedCall(150, () => {
-      if (this.player && this.player.active) this.player.clearTint();
+      if (this.localPlayer && this.localPlayer.active)
+        this.localPlayer.clearTint();
     });
 
-    if (this.playerHits >= this.playerHitsPerLife) {
-      this.playerHits = 0;
+    if (this.localPlayerHits >= this.localPlayerHitsPerLife) {
+      this.localPlayerHits = 0;
       if (this.hudHearts[heartIndex]) {
         this.hudHearts[heartIndex].setFrame(3).setAlpha(0.3);
       }
 
-      this.playerLives -= 1;
-      if (this.playerLives <= 0) {
+      this.localPlayerLives -= 1;
+      if (this.localPlayerLives <= 0) {
         this._onPlayerDeath();
       }
     }
   }
 
   _onPlayerDeath() {
-    if (this.playerDead) return;
-    this.playerDead = true;
+    if (this.localPlayerDead) return;
+    this.localPlayerDead = true;
     this.waveActive = false;
     this.hordeActive = false;
-    this.player.setVelocity(0, 0);
-    this.player.setTint(0xff0000);
+    this.localPlayer.setVelocity(0, 0);
+    this.localPlayer.setTint(0xff0000);
 
     if (this.enemies) {
       this.enemies.children.iterate((e) => {
@@ -1191,29 +1244,17 @@ class scene0 extends Phaser.Scene {
 
   update() {
     try {
+      const currentAnim = this.localPlayer.anims.currentAnim;
+      const currentFrame = this.localPlayer.anims.currentFrame;
       this.game.socket.emit("scene0", this.game.room, {
         player: {
           id: this.game.socket.id,
-          x: this.player.x,
-          y: this.player.y,
-          flipx: this.player.flipX,
-          texture: "character",
-          animation: this.player.anims.currentAnim
-            ? this.player.anims.currentAnim.key
-            : null,
-        },
-      });
-    } catch (e) {
-      console.error("Error updating player:", e);
-    }
-
-    try {
-      this.game.socket.emit("scene0", this.game.room, {
-        player: {
-          x: this.player.x,
-          y: this.player.y,
-          key: this.player.anims.currentAnim.key,
-          frame: this.player.anims.currentFrame.index,
+          x: this.localPlayer.x,
+          y: this.localPlayer.y,
+          flipx: this.localPlayer.flipX,
+          texture: this.localPlayer.texture.key,
+          animation: currentAnim ? currentAnim.key : null,
+          frame: currentFrame ? currentFrame.index : null,
         },
       });
     } catch (e) {
@@ -1221,7 +1262,7 @@ class scene0 extends Phaser.Scene {
     }
 
     // Se o player já morreu, para o update do jogo
-    if (this.playerDead) return;
+    if (this.localPlayerDead) return;
 
     // Câmera travada durante wave — trava AMBOS os eixos
     if (this.cameraLocked) {
@@ -1240,7 +1281,7 @@ class scene0 extends Phaser.Scene {
         const nextSection =
           this.mapSections[this.waveConfig[nextWaveIndex].section];
 
-        if (this.player.x >= nextSection.start) {
+        if (this.localPlayer.x >= nextSection.start) {
           this._transitioningWave = true; // trava o guard
           this._destroyGoIndicator();
           this.waveCleared = false;
@@ -1259,7 +1300,7 @@ class scene0 extends Phaser.Scene {
           });
         }
       } else if (
-        this.player.x >=
+        this.localPlayer.x >=
         this.mapSections[this.mapSections.length - 1].end - 100
       ) {
         this._transitioningWave = true;
@@ -1269,13 +1310,16 @@ class scene0 extends Phaser.Scene {
     }
 
     // ── Barreira superior da rua ─────────────────────────────
-    if (this.player.y < this.limitLineY) {
-      this.player.y = this.limitLineY;
-      this.player.body.velocity.y = Math.max(0, this.player.body.velocity.y);
+    if (this.localPlayer.y < this.limitLineY) {
+      this.localPlayer.y = this.limitLineY;
+      this.localPlayer.body.velocity.y = Math.max(
+        0,
+        this.localPlayer.body.velocity.y,
+      );
     }
 
     // ── Y-sorting ────────────────────────────────────────────
-    this.player.setDepth(this.player.y);
+    this.localPlayer.setDepth(this.localPlayer.y);
     if (this.enemies) {
       this.enemies.children.iterate((e) => {
         if (e && e.active) e.setDepth(e.y);
@@ -1284,14 +1328,20 @@ class scene0 extends Phaser.Scene {
 
     // ── Animação idle ────────────────────────────────────────
     if (
-      this.player.body.velocity.x === 0 &&
-      this.player.body.velocity.y === 0 &&
-      this.player.anims.currentAnim &&
-      this.player.anims.currentAnim.key !== "punching" &&
-      this.player.anims.currentAnim.key !== "kicking" &&
-      this.player.anims.currentAnim.key !== "idle-frame0"
+      this.localPlayer.body.velocity.x === 0 &&
+      this.localPlayer.body.velocity.y === 0 &&
+      this.localPlayer.anims.currentAnim &&
+      this.localPlayer.anims.currentAnim.key !==
+        this._getLocalPlayerAnimKey("punching") &&
+      this.localPlayer.anims.currentAnim.key !==
+        this._getLocalPlayerAnimKey("kicking") &&
+      this.localPlayer.anims.currentAnim.key !==
+        this._getLocalPlayerAnimKey("idle-frame0")
     ) {
-      this.player.anims.play("standing-still", true);
+      this.localPlayer.anims.play(
+        this._getLocalPlayerAnimKey("standing-still"),
+        true,
+      );
     }
 
     // ── IA dos inimigos ──────────────────────────────────────
@@ -1312,8 +1362,8 @@ class scene0 extends Phaser.Scene {
         const dist = Phaser.Math.Distance.Between(
           enemy.x,
           enemy.y,
-          this.player.x,
-          this.player.y,
+          this.localPlayer.x,
+          this.localPlayer.y,
         );
         const attackRange = 80; // distância para parar e atacar
         const stopRange = 60; // distância mínima — não encosta na hitbox
@@ -1321,13 +1371,13 @@ class scene0 extends Phaser.Scene {
         if (dist > attackRange) {
           // ── Perseguir ──
           enemy.body.setImmovable(false);
-          this.physics.moveToObject(enemy, this.player, enemy.speed);
+          this.physics.moveToObject(enemy, this.localPlayer, enemy.speed);
           if (
             !enemy.anims.currentAnim ||
             enemy.anims.currentAnim.key !== "enemy_run"
           )
             enemy.anims.play("enemy_run", true);
-          enemy.flipX = this.player.x < enemy.x;
+          enemy.flipX = this.localPlayer.x < enemy.x;
           enemy.state = "chasing";
         } else if (dist <= attackRange && dist > stopRange) {
           // ── Zona de ataque: para e ataca ──
@@ -1349,8 +1399,8 @@ class scene0 extends Phaser.Scene {
               const d = Phaser.Math.Distance.Between(
                 enemy.x,
                 enemy.y,
-                this.player.x,
-                this.player.y,
+                this.localPlayer.x,
+                this.localPlayer.y,
               );
               if (d <= attackRange) {
                 enemy._hasHitThisAttack = true;
