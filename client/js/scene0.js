@@ -152,45 +152,6 @@ class scene0 extends Phaser.Scene {
 
   // ─────────────────────────────────────────────────────────────
   create() {
-    this.game.socket.on("scene0", (state) => {
-      if (state.player) {
-        try {
-          if (state.player.id === this.game.socket.id) return;
-
-          let remotePlayer = this.remotePlayers.find(
-            (p) => p.id === state.player.id,
-          );
-
-          if (!remotePlayer) {
-            const remoteTexture =
-              this.game.localPlayer === "sergio"
-                ? "marquinhos_idle"
-                : "sergio_idle";
-            const sprite = this.add
-              .sprite(state.player.x, state.player.y, remoteTexture, 0)
-              .setPipeline("Light2D");
-            this.remotePlayers.push({
-              id: state.player.id,
-              sprite,
-            });
-
-            remotePlayer = this.remotePlayers.find(
-              (p) => p.id === state.player.id,
-            );
-          }
-
-          remotePlayer.sprite.setPosition(state.player.x, state.player.y);
-
-          if (state.player.animation)
-            remotePlayer.sprite.anims.play(state.player.animation, true);
-          else if (state.player.texture)
-            remotePlayer.sprite.setTexture(state.player.texture);
-        } catch (e) {
-          console.error("Error updating remote player:", e);
-        }
-      }
-    });
-
     // ── Tilemap ──────────────────────────────────────────────
     this.tilemap = this.make.tilemap({ key: "MapaFase1" });
 
@@ -664,13 +625,62 @@ class scene0 extends Phaser.Scene {
             });
           }
 
-          if (state.player.flip)
-            remotePlayer.sprite.setFlipX(state.player.flip.x);
+          if (state.player.flipX)
+            remotePlayer.sprite.setFlipX(state.player.flipX);
           remotePlayer.sprite.setPosition(state.player.x, state.player.y);
           if (state.player.animation)
             remotePlayer.sprite.anims.play(state.player.animation, true);
           else if (state.player.texture)
             remotePlayer.sprite.setTexture(state.player.texture);
+        } catch (e) {
+          console.error("Error updating remote player:", e);
+        }
+      }
+    });
+
+    this.game.socket.on("scene0", (state) => {
+      if (state.player) {
+        try {
+          if (state.player.id === this.game.socket.id) return;
+
+          let remotePlayer = this.remotePlayers.find(
+            (p) => p.id === state.player.id,
+          );
+
+          if (!remotePlayer) {
+            const remoteTexture =
+              this.game.localPlayer === "sergio"
+                ? "marquinhos_idle"
+                : "sergio_idle";
+
+            const sprite = this.add.sprite(
+              state.player.x,
+              state.player.y,
+              remoteTexture,
+              0,
+            );
+
+            this.remotePlayers.push({
+              id: state.player.id,
+              sprite,
+            });
+
+            remotePlayer = this.remotePlayers.find(
+              (p) => p.id === state.player.id,
+            );
+          }
+
+          remotePlayer.sprite.setPosition(state.player.x, state.player.y);
+
+          if (state.player.flipX)
+            remotePlayer.sprite.flipX = state.player.flipX;
+
+          if (state.player.animation)
+            remotePlayer.sprite.anims.play(state.player.animation, true);
+          else if (state.player.texture)
+            remotePlayer.sprite.setTexture(state.player.texture);
+
+          remotePlayer.sprite.setScale(4.5);
         } catch (e) {
           console.error("Error updating remote player:", e);
         }
@@ -1251,7 +1261,7 @@ class scene0 extends Phaser.Scene {
           id: this.game.socket.id,
           x: this.localPlayer.x,
           y: this.localPlayer.y,
-          flipx: this.localPlayer.flipX,
+          flipX: this.localPlayer.flipX,
           texture: this.localPlayer.texture.key,
           animation: currentAnim ? currentAnim.key : null,
           frame: currentFrame ? currentFrame.index : null,

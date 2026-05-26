@@ -33,6 +33,9 @@ class preloader extends Phaser.Scene {
     this.load.image("road&lamps", "road&lamps.png");
     this.load.image("Sakura Tree", "Sakura Tree.gif");
     this.load.image("SCS_Background_Sunset_01", "SCS_Background_Sunset_01.png");
+    
+    
+    // sprite boxes
 
     // sergio spritesheets
 
@@ -108,8 +111,8 @@ class preloader extends Phaser.Scene {
 
     this.load.image("botaochute", "botaochute.png");
     this.load.image("botaosoco", "botaosoco.png");
-    this.load.image("hud_slot", "jogaço/slotface.png");
-    this.load.image("hud_rosto", "jogaço/marcosrosto.png");
+    this.load.image("hud_slot", "jogaco/slotface.png");
+    this.load.image("hud_rosto", "jogaco/marcosrosto.png");
     this.load.spritesheet(
       "hud_coracao",
       "marquinho_sprite/marquinhocoracao.png",
