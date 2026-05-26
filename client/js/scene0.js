@@ -205,16 +205,9 @@ class scene0 extends Phaser.Scene {
     this.layerobjetos = this.tilemap.createLayer("objetos", [this.tilesetArc]);
 
     // ── Player ───────────────────────────────────────────────
-    // Spawn em posições diferentes dependendo do personagem para
-    // evitar que ambos apareçam no mesmo lugar.
-    const spawnPoints = {
-      sergio: { x: 150, y: 656 },
-      marquinhos: { x: 450, y: 656 },
-    };
-    const spawn = spawnPoints[this.game.localPlayer] || spawnPoints.sergio;
     this.localPlayer = this.physics.add.sprite(
-      spawn.x,
-      spawn.y,
+      150,
+      656,
       this.game.localPlayer + "_idle",
       0,
     );
@@ -226,10 +219,7 @@ class scene0 extends Phaser.Scene {
     this.physics.world.gravity.y = 0;
     this.localPlayer.body.setAllowGravity(false);
     this.localPlayer.setCollideWorldBounds(true);
-    this.localPlayer.lastStreetPosition = {
-      x: this.localPlayer.x,
-      y: this.localPlayer.y,
-    };
+    this.localPlayer.lastStreetPosition = { x: 150, y: 656 };
     this.limitLineY = this.localPlayer.y - 40;
 
     // Desenhar linha para visualização da barreira
@@ -609,50 +599,53 @@ class scene0 extends Phaser.Scene {
     this.time.delayedCall(800, () => this._startWave(0));
 
     this.game.socket.on("scene0", (state) => {
-      if (!state.player) return;
-      if (state.player.id === this.game.socket.id) return;
+      if (state.player) {
+        try {
+          if (state.player.id === this.game.socket.id) return;
 
-      try {
-        let remotePlayer = this.remotePlayers.find(
-          (p) => p.id === state.player.id,
-        );
+          let remotePlayer = this.remotePlayers.find(
+            (p) => p.id === state.player.id,
+          );
 
-        const textureKey = state.player.texture || "sergio_idle";
+          if (!remotePlayer) {
+            const remoteTexture =
+              this.game.localPlayer === "sergio"
+                ? "marquinhos_idle"
+                : "sergio_idle";
 
-        if (!remotePlayer) {
-          const sprite = this.add.sprite(state.player.x, state.player.y, textureKey, 0);
-          sprite.setScale(4.5);
-          sprite.setOrigin(0.5, 1);
-          if (this.sys && this.sys.game && this.sys.game.renderer && this.sys.game.renderer.type === Phaser.WEBGL) {
-            sprite.setPipeline && sprite.setPipeline("Light2D");
+            const sprite = this.add.sprite(
+              state.player.x,
+              state.player.y,
+              remoteTexture,
+              0,
+            );
+
+            sprite.setScale(4.5);
+            sprite.setOrigin(0.5, 1);
+
+            this.remotePlayers.push({
+              id: state.player.id,
+              sprite,
+            });
+
+            remotePlayer = this.remotePlayers.find(
+              (p) => p.id === state.player.id,
+            );
           }
 
-          remotePlayer = { id: state.player.id, sprite };
-          this.remotePlayers.push(remotePlayer);
-        }
+          remotePlayer.sprite.setPosition(state.player.x, state.player.y);
 
-        if (typeof state.player.flipX !== "undefined") {
-          remotePlayer.sprite.setFlipX(state.player.flipX);
-        }
-        remotePlayer.sprite.setPosition(state.player.x, state.player.y);
-
-        if (state.player.texture && remotePlayer.sprite.texture.key !== state.player.texture) {
-          remotePlayer.sprite.setTexture(state.player.texture);
-        }
-
-        if (state.player.animation) {
-          const curr = remotePlayer.sprite.anims && remotePlayer.sprite.anims.currentAnim;
-          const isPlaying = remotePlayer.sprite.anims && remotePlayer.sprite.anims.isPlaying;
-          if (!curr || curr.key !== state.player.animation || !isPlaying) {
-            try {
-              remotePlayer.sprite.anims.play(state.player.animation, true);
-            } catch (err) {
-              console.warn("Remote animation missing:", state.player.animation);
-            }
+          if (state.player.flipX !== undefined) {
+            remotePlayer.sprite.setFlipX(state.player.flipX);
           }
+
+          if (state.player.animation)
+            remotePlayer.sprite.anims.play(state.player.animation, true);
+          else if (state.player.texture)
+            remotePlayer.sprite.setTexture(state.player.texture);
+        } catch (e) {
+          console.error("Error updating remote player:", e);
         }
-      } catch (e) {
-        console.error("Error updating remote player:", e);
       }
     });
   }
