@@ -27,13 +27,46 @@ class scene0 extends Phaser.Scene {
             { x: 500, y: 650, type: "normal" },
           ],
           [
-            { x: 700, y: 640, type: "fast" },
+            { x: 400, y: 645, type: "normal" },
+            { x: 600, y: 650, type: "normal" },
+            { x: 800, y: 645, type: "normal" },
+          ],
+          [
+            { x: 300, y: 650, type: "fast" },
+            { x: 550, y: 645, type: "normal" },
+          ],
+          [
+            { x: 400, y: 650, type: "normal" },
+            { x: 600, y: 645, type: "fast" },
+            { x: 800, y: 650, type: "normal" },
+          ],
+          [
+            { x: 350, y: 650, type: "fast" },
+            { x: 550, y: 645, type: "fast" },
+            { x: 750, y: 650, type: "normal" },
+          ],
+          [
+            { x: 300, y: 650, type: "normal" },
+            { x: 500, y: 645, type: "normal" },
+            { x: 700, y: 650, type: "normal" },
+            { x: 900, y: 645, type: "normal" },
+          ],
+          [
+            { x: 400, y: 650, type: "fast" },
+            { x: 600, y: 645, type: "normal" },
+            { x: 800, y: 650, type: "fast" },
+          ],
+          [
+            { x: 300, y: 650, type: "tank" },
+            { x: 600, y: 645, type: "normal" },
             { x: 900, y: 650, type: "normal" },
           ],
           [
-            { x: 600, y: 655, type: "tank" },
-            { x: 800, y: 650, type: "normal" },
+            { x: 400, y: 650, type: "fast" },
+            { x: 600, y: 645, type: "tank" },
+            { x: 800, y: 650, type: "fast" },
           ],
+          [{ x: 576, y: 650, type: "miniboss" }], // MINI BOSS
         ],
       },
       // Wave 2 – Seção 1
@@ -43,17 +76,52 @@ class scene0 extends Phaser.Scene {
           [
             { x: 1400, y: 650, type: "normal" },
             { x: 1600, y: 650, type: "normal" },
-            { x: 1800, y: 640, type: "fast" },
+            { x: 1800, y: 645, type: "normal" },
           ],
           [
-            { x: 1500, y: 655, type: "tank" },
-            { x: 1700, y: 650, type: "normal" },
+            { x: 1300, y: 650, type: "fast" },
+            { x: 1550, y: 645, type: "normal" },
+            { x: 1750, y: 650, type: "fast" },
+          ],
+          [
+            { x: 1400, y: 650, type: "normal" },
+            { x: 1600, y: 645, type: "normal" },
+            { x: 1800, y: 650, type: "normal" },
+            { x: 2000, y: 645, type: "normal" },
+          ],
+          [
+            { x: 1350, y: 650, type: "fast" },
+            { x: 1600, y: 645, type: "fast" },
+            { x: 1850, y: 650, type: "normal" },
+          ],
+          [
+            { x: 1400, y: 650, type: "tank" },
+            { x: 1700, y: 645, type: "normal" },
+            { x: 1900, y: 650, type: "normal" },
           ],
           [
             { x: 1300, y: 650, type: "normal" },
-            { x: 1550, y: 640, type: "fast" },
-            { x: 1750, y: 650, type: "normal" },
+            { x: 1500, y: 645, type: "fast" },
+            { x: 1700, y: 650, type: "normal" },
+            { x: 1900, y: 645, type: "fast" },
           ],
+          [
+            { x: 1400, y: 650, type: "fast" },
+            { x: 1600, y: 645, type: "tank" },
+            { x: 1800, y: 650, type: "fast" },
+          ],
+          [
+            { x: 1300, y: 650, type: "normal" },
+            { x: 1550, y: 645, type: "normal" },
+            { x: 1750, y: 650, type: "tank" },
+            { x: 1950, y: 645, type: "normal" },
+          ],
+          [
+            { x: 1400, y: 650, type: "fast" },
+            { x: 1600, y: 645, type: "fast" },
+            { x: 1800, y: 650, type: "tank" },
+          ],
+          [{ x: 1728, y: 650, type: "miniboss" }], // MINI BOSS
         ],
       },
       // Wave 3 – Seção 2
@@ -62,18 +130,53 @@ class scene0 extends Phaser.Scene {
         hordes: [
           [
             { x: 2500, y: 650, type: "normal" },
-            { x: 2700, y: 650, type: "normal" },
+            { x: 2700, y: 645, type: "normal" },
+            { x: 2900, y: 650, type: "normal" },
           ],
           [
-            { x: 2600, y: 640, type: "fast" },
-            { x: 2800, y: 650, type: "normal" },
-            { x: 2900, y: 655, type: "tank" },
+            { x: 2400, y: 650, type: "fast" },
+            { x: 2650, y: 645, type: "normal" },
+            { x: 2850, y: 650, type: "fast" },
+          ],
+          [
+            { x: 2500, y: 650, type: "normal" },
+            { x: 2700, y: 645, type: "fast" },
+            { x: 2900, y: 650, type: "normal" },
+            { x: 3050, y: 645, type: "normal" },
+          ],
+          [
+            { x: 2450, y: 650, type: "tank" },
+            { x: 2700, y: 645, type: "normal" },
+            { x: 2900, y: 650, type: "normal" },
+          ],
+          [
+            { x: 2500, y: 650, type: "fast" },
+            { x: 2700, y: 645, type: "fast" },
+            { x: 2900, y: 650, type: "fast" },
           ],
           [
             { x: 2400, y: 650, type: "normal" },
-            { x: 2650, y: 640, type: "fast" },
-            { x: 2850, y: 650, type: "normal" },
+            { x: 2600, y: 645, type: "normal" },
+            { x: 2800, y: 650, type: "tank" },
+            { x: 3000, y: 645, type: "normal" },
           ],
+          [
+            { x: 2500, y: 650, type: "fast" },
+            { x: 2700, y: 645, type: "tank" },
+            { x: 2900, y: 650, type: "fast" },
+          ],
+          [
+            { x: 2400, y: 650, type: "normal" },
+            { x: 2650, y: 645, type: "fast" },
+            { x: 2850, y: 650, type: "normal" },
+            { x: 3050, y: 645, type: "fast" },
+          ],
+          [
+            { x: 2500, y: 650, type: "tank" },
+            { x: 2750, y: 645, type: "fast" },
+            { x: 2950, y: 650, type: "tank" },
+          ],
+          [{ x: 2880, y: 650, type: "miniboss" }], // MINI BOSS
         ],
       },
       // Wave 4 – Seção 3
@@ -82,42 +185,113 @@ class scene0 extends Phaser.Scene {
         hordes: [
           [
             { x: 3600, y: 650, type: "normal" },
-            { x: 3800, y: 650, type: "normal" },
-            { x: 4000, y: 640, type: "fast" },
+            { x: 3800, y: 645, type: "normal" },
+            { x: 4000, y: 650, type: "normal" },
           ],
           [
-            { x: 3700, y: 655, type: "tank" },
-            { x: 3900, y: 650, type: "normal" },
+            { x: 3500, y: 650, type: "fast" },
+            { x: 3750, y: 645, type: "normal" },
+            { x: 3950, y: 650, type: "fast" },
+          ],
+          [
+            { x: 3600, y: 650, type: "normal" },
+            { x: 3800, y: 645, type: "fast" },
+            { x: 4000, y: 650, type: "normal" },
+            { x: 4150, y: 645, type: "normal" },
+          ],
+          [
+            { x: 3550, y: 650, type: "tank" },
+            { x: 3800, y: 645, type: "fast" },
+            { x: 4000, y: 650, type: "normal" },
+          ],
+          [
+            { x: 3600, y: 650, type: "fast" },
+            { x: 3800, y: 645, type: "fast" },
+            { x: 4000, y: 650, type: "fast" },
+            { x: 4200, y: 645, type: "fast" },
           ],
           [
             { x: 3500, y: 650, type: "normal" },
-            { x: 3750, y: 640, type: "fast" },
-            { x: 3950, y: 650, type: "normal" },
+            { x: 3700, y: 645, type: "tank" },
+            { x: 3900, y: 650, type: "normal" },
+            { x: 4100, y: 645, type: "normal" },
           ],
+          [
+            { x: 3600, y: 650, type: "fast" },
+            { x: 3800, y: 645, type: "tank" },
+            { x: 4000, y: 650, type: "fast" },
+          ],
+          [
+            { x: 3500, y: 650, type: "tank" },
+            { x: 3750, y: 645, type: "normal" },
+            { x: 3950, y: 650, type: "tank" },
+          ],
+          [
+            { x: 3600, y: 650, type: "fast" },
+            { x: 3800, y: 645, type: "fast" },
+            { x: 4000, y: 650, type: "tank" },
+            { x: 4200, y: 645, type: "fast" },
+          ],
+          [{ x: 4032, y: 650, type: "miniboss" }], // MINI BOSS
         ],
       },
-      // Wave 5 – Seção 4 (final)
+      // Wave 5 – Seção 4
       {
         section: 4,
         hordes: [
           [
             { x: 4700, y: 650, type: "normal" },
-            { x: 4900, y: 650, type: "normal" },
+            { x: 4900, y: 645, type: "normal" },
+            { x: 5100, y: 650, type: "normal" },
           ],
           [
-            { x: 4800, y: 640, type: "fast" },
-            { x: 5000, y: 650, type: "normal" },
-            { x: 5100, y: 655, type: "tank" },
+            { x: 4600, y: 650, type: "fast" },
+            { x: 4850, y: 645, type: "normal" },
+            { x: 5050, y: 650, type: "fast" },
+          ],
+          [
+            { x: 4700, y: 650, type: "normal" },
+            { x: 4900, y: 645, type: "fast" },
+            { x: 5100, y: 650, type: "normal" },
+            { x: 5300, y: 645, type: "normal" },
+          ],
+          [
+            { x: 4650, y: 650, type: "tank" },
+            { x: 4900, y: 645, type: "fast" },
+            { x: 5100, y: 650, type: "normal" },
+          ],
+          [
+            { x: 4700, y: 650, type: "fast" },
+            { x: 4900, y: 645, type: "fast" },
+            { x: 5100, y: 650, type: "fast" },
+            { x: 5300, y: 645, type: "fast" },
           ],
           [
             { x: 4600, y: 650, type: "normal" },
-            { x: 4850, y: 640, type: "fast" },
-            { x: 5050, y: 650, type: "normal" },
+            { x: 4800, y: 645, type: "tank" },
+            { x: 5000, y: 650, type: "normal" },
+            { x: 5200, y: 645, type: "normal" },
           ],
+          [
+            { x: 4700, y: 650, type: "fast" },
+            { x: 4900, y: 645, type: "tank" },
+            { x: 5100, y: 650, type: "fast" },
+          ],
+          [
+            { x: 4600, y: 650, type: "tank" },
+            { x: 4850, y: 645, type: "fast" },
+            { x: 5050, y: 650, type: "tank" },
+          ],
+          [
+            { x: 4700, y: 650, type: "fast" },
+            { x: 4900, y: 645, type: "tank" },
+            { x: 5100, y: 650, type: "fast" },
+            { x: 5300, y: 645, type: "tank" },
+          ],
+          [{ x: 5184, y: 650, type: "miniboss" }], // MINI BOSS
         ],
       },
     ];
-
     // ── Estado da wave ────────────────────────────────────────
     this.currentWave = 0;
     this.currentHorde = 0;
@@ -428,8 +602,9 @@ class scene0 extends Phaser.Scene {
 
       const stats = {
         normal: { scale: 4, health: 3, speed: 80, damage: 1, tint: 0xffffff },
-        fast: { scale: 4, health: 2, speed: 140, damage: 1, tint: 0xff6666 },
+        fast: { scale: 4, health: 2, speed: 140, damage: 1, tint: 0x88ff88 }, 
         tank: { scale: 4, health: 6, speed: 50, damage: 2, tint: 0x6699ff },
+        miniboss: {scale: 5.5,health: 20,speed: 55,damage: 3,tint: 0xff2222,}, 
       };
       const s = stats[type] || stats.normal;
 

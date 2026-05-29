@@ -35,7 +35,28 @@ class preloader extends Phaser.Scene {
     this.load.image("SCS_Background_Sunset_01", "SCS_Background_Sunset_01.png");
     
     
-    // sprite boxes
+    // sprite pote
+
+    this.load.spritesheet("potebronze", "potebronze.png", {
+      frameWidth: 128,
+      frameHeight: 26,
+    });
+    this.load.spritesheet("poteprata", "poteprata.png", {
+      frameWidth: 128,
+      frameHeight: 26,
+    });
+    this.load.spritesheet("poteouro", "poteouro.png", {
+      frameWidth: 128,
+      frameHeight: 26,
+    });
+
+    //food sprite
+
+    this.load.image("pudim", "pudim.png");
+    this.load.image("pizza", "pizza.png");
+    this.load.image("frango", "frango.png");
+    this.load.image("burger", "burger.png");
+    
 
     // sergio spritesheets
 
