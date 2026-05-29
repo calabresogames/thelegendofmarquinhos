@@ -1571,6 +1571,7 @@ class scene0 extends Phaser.Scene {
                 this._applyPlayerDamage();
               }
             });
+            
 
             // Animação termina em ~1000ms (8 frames a 8fps)
             // + 1000ms de pausa antes do próximo ataque
