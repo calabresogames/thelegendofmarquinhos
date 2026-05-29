@@ -80,6 +80,8 @@ class preloader extends Phaser.Scene {
       frameWidth: 25,
       frameHeight: 32,
     });
+    this.load.image("sergio_caido", "sergio_sprite/sergiocaido.png");
+    this.load.image("sergio_pega", "sergio_sprite/sergiopega.png");
 
     // marquinhos spritesheets
 
@@ -123,10 +125,15 @@ class preloader extends Phaser.Scene {
         frameHeight: 32,
       },
     );
+    this.load.image("marquinhos_caido", "marquinho_sprite/marquinhoscaido.png");
+    this.load.image("marquinhos_pega", "marquinho_sprite/marquinhospega.png");
+       
+    //nemy sprite
     this.load.spritesheet("enemy", "Machine_guy_sprite_sheet.png", {
       frameWidth: 180,
       frameHeight: 90,
     });
+
 
     // [FIX 2] punch/kick carregados aqui, não em create()
 
@@ -134,9 +141,21 @@ class preloader extends Phaser.Scene {
     this.load.image("botaosoco", "botaosoco.png");
     this.load.image("hud_slot", "jogaco/slotface.png");
     this.load.image("hud_rosto", "jogaco/marcosrosto.png");
+    this.load.image("hud_rosto2", "jogaco/sergiorosto.png");
     this.load.spritesheet(
       "hud_coracao",
       "marquinho_sprite/marquinhocoracao.png",
+      {
+        frameWidth: 8,
+        frameHeight: 8,
+      },
+    );
+
+
+    
+    this.load.spritesheet(
+      "hud_coracao2",
+      "sergio_sprite/sergiocoracao.png",
       {
         frameWidth: 8,
         frameHeight: 8,
