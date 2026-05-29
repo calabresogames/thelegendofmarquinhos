@@ -46,8 +46,8 @@ class preloader extends Phaser.Scene {
       frameHeight: 26,
     });
     this.load.spritesheet("poteouro", "poteouro.png", {
-      frameWidth: 128,
-      frameHeight: 26,
+      frameWidth: 32,
+      frameHeight: 32,
     });
 
     //food sprite
@@ -126,7 +126,14 @@ class preloader extends Phaser.Scene {
       },
     );
     this.load.image("marquinhos_caido", "marquinho_sprite/marquinhoscaido.png");
-    this.load.image("marquinhos_pega", "marquinho_sprite/marquinhospega.png");
+    this.load.spritesheet(
+      "marquinhos_pega",
+      "marquinho_sprite/marquinhospega.png",
+      {
+        frameWidth: 16,
+        frameHeight: 24,
+      },
+    );
        
     //nemy sprite
     this.load.spritesheet("enemy", "Machine_guy_sprite_sheet.png", {

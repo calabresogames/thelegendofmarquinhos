@@ -15,280 +15,303 @@ class scene0 extends Phaser.Scene {
       { start: 3456, end: 4608 },
       { start: 4608, end: 5760 },
     ];
+    // ── Posições dos potes por seção ─────────────────────────
+   this.potConfigs = [
+     // Seção 0 (0–1152)
+     [
+       { x: 150, y: 730 },
+       { x: 576, y: 630 },
+       { x: 1000, y: 950 },
+     ],
+     // Seção 1 (1152–2304)
+     [
+       { x: 1200, y: 660 },
+       { x: 1728, y: 820 },
+       { x: 2250, y: 935 },
+     ],
+     // Seção 2 (2304–3456)
+     [
+       { x: 2350, y: 945 },
+       { x: 2880, y: 650 },
+       { x: 3400, y: 730 },
+     ],
+     // Seção 3 (3456–4608)
+     [
+       { x: 3500, y: 655 },
+       { x: 4032, y: 930 },
+       { x: 4550, y: 725 },
+     ],
+     // Seção 4 (4608–5760)
+     [
+       { x: 4650, y: 640 },
+       { x: 5184, y: 800 },
+       { x: 5700, y: 650 },
+     ],
+   ];
 
     // ── Configuração das waves (5 seções × 3 ordas) ──────────
     this.waveConfig = [
-      // Wave 1 – Seção 0
+      // Wave 1 – Seção 0 (esquerda ≈ 50–200, direita ≈ 950–1100)
       {
         section: 0,
         hordes: [
           [
-            { x: 300, y: 650, type: "normal" },
-            { x: 500, y: 650, type: "normal" },
+            { x: 80, y: 940, type: "normal" },
+            { x: 1050, y: 660, type: "normal" },
           ],
           [
-            { x: 400, y: 645, type: "normal" },
-            { x: 600, y: 650, type: "normal" },
-            { x: 800, y: 645, type: "normal" },
+            { x: 100, y: 750, type: "normal" },
+            { x: 150, y: 730, type: "normal" },
+            { x: 1000, y: 745, type: "normal" },
           ],
           [
-            { x: 300, y: 650, type: "fast" },
-            { x: 550, y: 645, type: "normal" },
+            { x: 90, y: 835, type: "fast" },
+            { x: 1080, y: 755, type: "normal" },
           ],
           [
-            { x: 400, y: 650, type: "normal" },
-            { x: 600, y: 645, type: "fast" },
-            { x: 800, y: 650, type: "normal" },
+            { x: 80, y: 940, type: "normal" },
+            { x: 130, y: 630, type: "fast" },
+            { x: 1050, y: 645, type: "normal" },
           ],
           [
-            { x: 350, y: 650, type: "fast" },
-            { x: 550, y: 645, type: "fast" },
-            { x: 750, y: 650, type: "normal" },
+            { x: 90, y: 740, type: "fast" },
+            { x: 1000, y: 630, type: "fast" },
+            { x: 1080, y: 960, type: "normal" },
           ],
           [
-            { x: 300, y: 650, type: "normal" },
-            { x: 500, y: 645, type: "normal" },
-            { x: 700, y: 650, type: "normal" },
-            { x: 900, y: 645, type: "normal" },
+            { x: 80, y: 940, type: "normal" },
+            { x: 150, y: 730, type: "normal" },
+            { x: 1000, y: 745, type: "normal" },
+            { x: 1080, y: 925, type: "normal" },
           ],
           [
-            { x: 400, y: 650, type: "fast" },
-            { x: 600, y: 645, type: "normal" },
-            { x: 800, y: 650, type: "fast" },
+            { x: 100, y: 740, type: "fast" },
+            { x: 1020, y: 755, type: "normal" },
+            { x: 1090, y: 930, type: "fast" },
           ],
           [
-            { x: 300, y: 650, type: "tank" },
-            { x: 600, y: 645, type: "normal" },
-            { x: 900, y: 650, type: "normal" },
+            { x: 80, y: 750, type: "tank" },
+            { x: 1000, y: 735, type: "normal" },
+            { x: 1080, y: 960, type: "normal" },
           ],
           [
-            { x: 400, y: 650, type: "fast" },
-            { x: 600, y: 645, type: "tank" },
-            { x: 800, y: 650, type: "fast" },
+            { x: 90, y: 830, type: "fast" },
+            { x: 150, y: 650, type: "tank" },
+            { x: 1050, y: 840, type: "fast" },
           ],
-          [{ x: 576, y: 650, type: "miniboss" }], // MINI BOSS
+          [{ x: 576, y: 735, type: "miniboss" }],
         ],
       },
-      // Wave 2 – Seção 1
+      // Wave 2 – Seção 1 (esquerda ≈ 1200–1350, direita ≈ 2150–2280)
       {
         section: 1,
         hordes: [
           [
-            { x: 1400, y: 650, type: "normal" },
-            { x: 1600, y: 650, type: "normal" },
-            { x: 1800, y: 645, type: "normal" },
+            { x: 1220, y: 745, type: "normal" },
+            { x: 2250, y: 930, type: "normal" },
           ],
           [
-            { x: 1300, y: 650, type: "fast" },
-            { x: 1550, y: 645, type: "normal" },
-            { x: 1750, y: 650, type: "fast" },
+            { x: 1200, y: 755, type: "normal" },
+            { x: 1300, y: 835, type: "normal" },
+            { x: 2200, y: 850, type: "normal" },
           ],
           [
-            { x: 1400, y: 650, type: "normal" },
-            { x: 1600, y: 645, type: "normal" },
-            { x: 1800, y: 650, type: "normal" },
-            { x: 2000, y: 645, type: "normal" },
+            { x: 1220, y: 740, type: "fast" },
+            { x: 2260, y: 960, type: "normal" },
           ],
           [
-            { x: 1350, y: 650, type: "fast" },
-            { x: 1600, y: 645, type: "fast" },
-            { x: 1850, y: 650, type: "normal" },
+            { x: 1200, y: 750, type: "normal" },
+            { x: 1280, y: 925, type: "fast" },
+            { x: 2230, y: 740, type: "normal" },
           ],
           [
-            { x: 1400, y: 650, type: "tank" },
-            { x: 1700, y: 645, type: "normal" },
-            { x: 1900, y: 650, type: "normal" },
+            { x: 1210, y: 735, type: "tank" },
+            { x: 2200, y: 855, type: "normal" },
+            { x: 2270, y: 630, type: "normal" },
           ],
           [
-            { x: 1300, y: 650, type: "normal" },
-            { x: 1500, y: 645, type: "fast" },
-            { x: 1700, y: 650, type: "normal" },
-            { x: 1900, y: 645, type: "fast" },
+            { x: 1200, y: 745, type: "normal" },
+            { x: 1300, y: 860, type: "fast" },
+            { x: 2220, y: 735, type: "normal" },
+            { x: 2280, y: 850, type: "fast" },
           ],
           [
-            { x: 1400, y: 650, type: "fast" },
-            { x: 1600, y: 645, type: "tank" },
-            { x: 1800, y: 650, type: "fast" },
+            { x: 1220, y: 730, type: "fast" },
+            { x: 1290, y: 955, type: "tank" },
+            { x: 2250, y: 740, type: "fast" },
           ],
           [
-            { x: 1300, y: 650, type: "normal" },
-            { x: 1550, y: 645, type: "normal" },
-            { x: 1750, y: 650, type: "tank" },
-            { x: 1950, y: 645, type: "normal" },
+            { x: 1200, y: 750, type: "normal" },
+            { x: 1310, y: 835, type: "normal" },
+            { x: 2200, y: 860, type: "tank" },
+            { x: 2270, y: 830, type: "normal" },
           ],
           [
-            { x: 1400, y: 650, type: "fast" },
-            { x: 1600, y: 645, type: "fast" },
-            { x: 1800, y: 650, type: "tank" },
+            { x: 1210, y: 740, type: "fast" },
+            { x: 2230, y: 850, type: "fast" },
+            { x: 2280, y: 725, type: "tank" },
           ],
-          [{ x: 1728, y: 650, type: "miniboss" }], // MINI BOSS
+          [{ x: 1728, y: 735, type: "miniboss" }],
         ],
       },
-      // Wave 3 – Seção 2
+      // Wave 3 – Seção 2 (esquerda ≈ 2350–2500, direita ≈ 3300–3430)
       {
         section: 2,
         hordes: [
           [
-            { x: 2500, y: 650, type: "normal" },
-            { x: 2700, y: 645, type: "normal" },
-            { x: 2900, y: 650, type: "normal" },
+            { x: 2370, y: 740, type: "normal" },
+            { x: 3400, y: 855, type: "normal" },
           ],
           [
-            { x: 2400, y: 650, type: "fast" },
-            { x: 2650, y: 645, type: "normal" },
-            { x: 2850, y: 650, type: "fast" },
+            { x: 2350, y: 750, type: "normal" },
+            { x: 2450, y: 830, type: "normal" },
+            { x: 3380, y: 745, type: "normal" },
           ],
           [
-            { x: 2500, y: 650, type: "normal" },
-            { x: 2700, y: 645, type: "fast" },
-            { x: 2900, y: 650, type: "normal" },
-            { x: 3050, y: 645, type: "normal" },
+            { x: 2360, y: 835, type: "fast" },
+            { x: 3410, y: 760, type: "normal" },
           ],
           [
-            { x: 2450, y: 650, type: "tank" },
-            { x: 2700, y: 645, type: "normal" },
-            { x: 2900, y: 650, type: "normal" },
+            { x: 2350, y: 855, type: "tank" },
+            { x: 2440, y: 930, type: "normal" },
+            { x: 3390, y: 740, type: "normal" },
           ],
           [
-            { x: 2500, y: 650, type: "fast" },
-            { x: 2700, y: 645, type: "fast" },
-            { x: 2900, y: 650, type: "fast" },
+            { x: 2370, y: 740, type: "fast" },
+            { x: 3380, y: 750, type: "fast" },
+            { x: 3420, y: 725, type: "fast" },
           ],
           [
-            { x: 2400, y: 650, type: "normal" },
-            { x: 2600, y: 645, type: "normal" },
-            { x: 2800, y: 650, type: "tank" },
-            { x: 3000, y: 645, type: "normal" },
+            { x: 2350, y: 745, type: "normal" },
+            { x: 2460, y: 760, type: "normal" },
+            { x: 3370, y: 735, type: "tank" },
+            { x: 3430, y: 750, type: "normal" },
           ],
           [
-            { x: 2500, y: 650, type: "fast" },
-            { x: 2700, y: 645, type: "tank" },
-            { x: 2900, y: 650, type: "fast" },
+            { x: 2360, y: 830, type: "fast" },
+            { x: 2450, y: 755, type: "tank" },
+            { x: 3400, y: 740, type: "fast" },
           ],
           [
-            { x: 2400, y: 650, type: "normal" },
-            { x: 2650, y: 645, type: "fast" },
-            { x: 2850, y: 650, type: "normal" },
-            { x: 3050, y: 645, type: "fast" },
+            { x: 2350, y: 750, type: "normal" },
+            { x: 2440, y: 925, type: "normal" },
+            { x: 3380, y: 760, type: "tank" },
+            { x: 3430, y: 835, type: "normal" },
           ],
           [
-            { x: 2500, y: 650, type: "tank" },
-            { x: 2750, y: 645, type: "fast" },
-            { x: 2950, y: 650, type: "tank" },
+            { x: 2370, y: 840, type: "fast" },
+            { x: 3390, y: 750, type: "fast" },
+            { x: 3420, y: 725, type: "tank" },
           ],
-          [{ x: 2880, y: 650, type: "miniboss" }], // MINI BOSS
+          [{ x: 2880, y: 735, type: "miniboss" }],
         ],
       },
-      // Wave 4 – Seção 3
+      // Wave 4 – Seção 3 (esquerda ≈ 3500–3650, direita ≈ 4460–4580)
       {
         section: 3,
         hordes: [
           [
-            { x: 3600, y: 650, type: "normal" },
-            { x: 3800, y: 645, type: "normal" },
-            { x: 4000, y: 650, type: "normal" },
+            { x: 3520, y: 745, type: "normal" },
+            { x: 4550, y: 830, type: "normal" },
           ],
           [
-            { x: 3500, y: 650, type: "fast" },
-            { x: 3750, y: 645, type: "normal" },
-            { x: 3950, y: 650, type: "fast" },
+            { x: 3500, y: 755, type: "normal" },
+            { x: 3600, y: 835, type: "normal" },
+            { x: 4530, y: 750, type: "normal" },
           ],
           [
-            { x: 3600, y: 650, type: "normal" },
-            { x: 3800, y: 645, type: "fast" },
-            { x: 4000, y: 650, type: "normal" },
-            { x: 4150, y: 645, type: "normal" },
+            { x: 3510, y: 940, type: "fast" },
+            { x: 4560, y: 760, type: "normal" },
           ],
           [
-            { x: 3550, y: 650, type: "tank" },
-            { x: 3800, y: 645, type: "fast" },
-            { x: 4000, y: 650, type: "normal" },
+            { x: 3500, y: 750, type: "tank" },
+            { x: 3590, y: 725, type: "fast" },
+            { x: 4540, y: 740, type: "normal" },
           ],
           [
-            { x: 3600, y: 650, type: "fast" },
-            { x: 3800, y: 645, type: "fast" },
-            { x: 4000, y: 650, type: "fast" },
-            { x: 4200, y: 645, type: "fast" },
+            { x: 3520, y: 735, type: "fast" },
+            { x: 3610, y: 760, type: "fast" },
+            { x: 4520, y: 745, type: "fast" },
+            { x: 4570, y: 725, type: "fast" },
           ],
           [
-            { x: 3500, y: 650, type: "normal" },
-            { x: 3700, y: 645, type: "tank" },
-            { x: 3900, y: 650, type: "normal" },
-            { x: 4100, y: 645, type: "normal" },
+            { x: 3500, y: 745, type: "normal" },
+            { x: 3600, y: 960, type: "tank" },
+            { x: 4530, y: 830, type: "normal" },
+            { x: 4580, y: 750, type: "normal" },
           ],
           [
-            { x: 3600, y: 650, type: "fast" },
-            { x: 3800, y: 645, type: "tank" },
-            { x: 4000, y: 650, type: "fast" },
+            { x: 3510, y: 730, type: "fast" },
+            { x: 3590, y: 755, type: "tank" },
+            { x: 4550, y: 840, type: "fast" },
           ],
           [
-            { x: 3500, y: 650, type: "tank" },
-            { x: 3750, y: 645, type: "normal" },
-            { x: 3950, y: 650, type: "tank" },
+            { x: 3500, y: 750, type: "tank" },
+            { x: 3610, y: 725, type: "normal" },
+            { x: 4520, y: 760, type: "tank" },
+            { x: 4570, y: 835, type: "normal" },
           ],
           [
-            { x: 3600, y: 650, type: "fast" },
-            { x: 3800, y: 645, type: "fast" },
-            { x: 4000, y: 650, type: "tank" },
-            { x: 4200, y: 645, type: "fast" },
+            { x: 3520, y: 840, type: "fast" },
+            { x: 3600, y: 755, type: "fast" },
+            { x: 4540, y: 925, type: "tank" },
+            { x: 4580, y: 750, type: "fast" },
           ],
-          [{ x: 4032, y: 650, type: "miniboss" }], // MINI BOSS
+          [{ x: 4032, y: 935, type: "miniboss" }],
         ],
       },
-      // Wave 5 – Seção 4
+      // Wave 5 – Seção 4 (esquerda ≈ 4650–4800, direita ≈ 5610–5730)
       {
         section: 4,
         hordes: [
           [
-            { x: 4700, y: 650, type: "normal" },
-            { x: 4900, y: 645, type: "normal" },
-            { x: 5100, y: 650, type: "normal" },
+            { x: 4670, y: 745, type: "normal" },
+            { x: 5700, y: 930, type: "normal" },
           ],
           [
-            { x: 4600, y: 650, type: "fast" },
-            { x: 4850, y: 645, type: "normal" },
-            { x: 5050, y: 650, type: "fast" },
+            { x: 4650, y: 755, type: "normal" },
+            { x: 4750, y: 835, type: "normal" },
+            { x: 5680, y: 750, type: "normal" },
           ],
           [
-            { x: 4700, y: 650, type: "normal" },
-            { x: 4900, y: 645, type: "fast" },
-            { x: 5100, y: 650, type: "normal" },
-            { x: 5300, y: 645, type: "normal" },
+            { x: 4660, y: 740, type: "fast" },
+            { x: 5710, y: 860, type: "normal" },
           ],
           [
-            { x: 4650, y: 650, type: "tank" },
-            { x: 4900, y: 645, type: "fast" },
-            { x: 5100, y: 650, type: "normal" },
+            { x: 4650, y: 950, type: "tank" },
+            { x: 4740, y: 725, type: "fast" },
+            { x: 5690, y: 840, type: "normal" },
           ],
           [
-            { x: 4700, y: 650, type: "fast" },
-            { x: 4900, y: 645, type: "fast" },
-            { x: 5100, y: 650, type: "fast" },
-            { x: 5300, y: 645, type: "fast" },
+            { x: 4670, y: 735, type: "fast" },
+            { x: 4760, y: 860, type: "fast" },
+            { x: 5670, y: 845, type: "fast" },
+            { x: 5720, y: 725, type: "fast" },
           ],
           [
-            { x: 4600, y: 650, type: "normal" },
-            { x: 4800, y: 645, type: "tank" },
-            { x: 5000, y: 650, type: "normal" },
-            { x: 5200, y: 645, type: "normal" },
+            { x: 4650, y: 745, type: "normal" },
+            { x: 4750, y: 960, type: "tank" },
+            { x: 5680, y: 730, type: "normal" },
+            { x: 5730, y: 750, type: "normal" },
           ],
           [
-            { x: 4700, y: 650, type: "fast" },
-            { x: 4900, y: 645, type: "tank" },
-            { x: 5100, y: 650, type: "fast" },
+            { x: 4660, y: 730, type: "fast" },
+            { x: 4740, y: 755, type: "tank" },
+            { x: 5700, y: 840, type: "fast" },
           ],
           [
-            { x: 4600, y: 650, type: "tank" },
-            { x: 4850, y: 645, type: "fast" },
-            { x: 5050, y: 650, type: "tank" },
+            { x: 4650, y: 750, type: "tank" },
+            { x: 4760, y: 725, type: "normal" },
+            { x: 5670, y: 960, type: "tank" },
+            { x: 5720, y: 935, type: "normal" },
           ],
           [
-            { x: 4700, y: 650, type: "fast" },
-            { x: 4900, y: 645, type: "tank" },
-            { x: 5100, y: 650, type: "fast" },
-            { x: 5300, y: 645, type: "tank" },
+            { x: 4670, y: 940, type: "fast" },
+            { x: 4750, y: 755, type: "fast" },
+            { x: 5690, y: 825, type: "tank" },
+            { x: 5730, y: 750, type: "fast" },
           ],
-          [{ x: 5184, y: 650, type: "miniboss" }], // MINI BOSS
+          [{ x: 5184, y: 835, type: "miniboss" }],
         ],
       },
     ];
@@ -380,7 +403,7 @@ class scene0 extends Phaser.Scene {
 
     // ── Player ───────────────────────────────────────────────
     this.localPlayer = this.physics.add.sprite(
-      150,
+      300,
       656,
       this.game.localPlayer + "_idle",
       0,
@@ -589,8 +612,97 @@ class scene0 extends Phaser.Scene {
       repeat: 0,
     });
 
+    // ── Animação do pote quebrar ──────────────────────────────
+    if (!this.anims.exists("pote_quebrar")) {
+      this.anims.create({
+        key: "pote_quebrar",
+        frames: this.anims.generateFrameNumbers("poteouro", {
+          frames: [9, 10, 11],
+        }),
+        frameRate: 8,
+        repeat: 0,
+      });
+    }
+
+    // ── Animação de pegar (marquinhos e sergio) ───────────────
+    if (!this.anims.exists("marquinhos-pegar")) {
+      this.anims.create({
+        key: "marquinhos-pegar",
+        frames: [{ key: "marquinhos_pega", frame: 0 }],
+        frameRate: 6,
+        repeat: 0,
+      });
+    }
+    if (!this.anims.exists("sergio-pegar")) {
+      this.anims.create({
+        key: "sergio-pegar",
+        frames: [{ key: "sergio_pega", frame: 0 }],
+        frameRate: 6,
+        repeat: 0,
+      });
+    }
+
     // ── Grupo de inimigos ────────────────────────────────────
     this.enemies = this.physics.add.group();
+
+    // ── Grupo de potes ────────────────────────────────────────
+    this.potes = this.physics.add.staticGroup();
+    this.burgers = this.physics.add.staticGroup();
+
+    // ── Spawn dos potes da seção atual ───────────────────────
+    this._spawnPotesDaSecao = (sectionIndex) => {
+      const configs = this.potConfigs[sectionIndex];
+      if (!configs) return;
+      configs.forEach((cfg) => {
+        const pote = this.potes.create(cfg.x, cfg.y, "poteouro", 8);
+        pote.setScale(3);
+        pote.setOrigin(0.5, 1);
+        pote.hits = 0; // contador de golpes
+        pote.broken = false;
+        pote.refreshBody();
+      });
+    };
+
+    // ── Colisão player → pote ─────────────────────────────────
+    this._setupPoteOverlap = () => {
+      this.physics.add.overlap(this.localPlayer, this.potes, null, null, this);
+    };
+    this._setupPoteOverlap();
+
+    // ── Colisão player → burger ───────────────────────────────
+    this.physics.add.overlap(
+      this.localPlayer,
+      this.burgers,
+      (player, burger) => {
+        if (burger._collected) return;
+        burger._collected = true;
+
+        // Animação de pegar
+        this.localPlayer.setVelocity(0, 0);
+        const pegarKey = this._getLocalPlayerAnimKey("pegar");
+        this.localPlayer.anims.play(pegarKey, true);
+
+        // Remove o burger com efeito
+        this.tweens.add({
+          targets: burger,
+          alpha: 0,
+          y: burger.y - 20,
+          duration: 300,
+          onComplete: () => burger.destroy(),
+        });
+
+        // Restaura 1/4 de coração após animação
+        this.time.delayedCall(300, () => {
+          this._healPlayer();
+          this.localPlayer.anims.play(
+            this._getLocalPlayerAnimKey("idle-frame0"),
+            true,
+          );
+        });
+      },
+      null,
+      this,
+    );
 
     // ── Spawn de inimigo ─────────────────────────────────────
     this.spawnEnemy = (x, y, type = "normal") => {
@@ -602,9 +714,15 @@ class scene0 extends Phaser.Scene {
 
       const stats = {
         normal: { scale: 4, health: 3, speed: 80, damage: 1, tint: 0xffffff },
-        fast: { scale: 4, health: 2, speed: 140, damage: 1, tint: 0x88ff88 }, 
+        fast: { scale: 4, health: 2, speed: 140, damage: 1, tint: 0x88ff88 },
         tank: { scale: 4, health: 6, speed: 50, damage: 2, tint: 0x6699ff },
-        miniboss: {scale: 5.5,health: 20,speed: 55,damage: 3,tint: 0xff2222,}, 
+        miniboss: {
+          scale: 5.5,
+          health: 20,
+          speed: 100,
+          damage: 3,
+          tint: 0xff2222,
+        },
       };
       const s = stats[type] || stats.normal;
 
@@ -736,6 +854,7 @@ class scene0 extends Phaser.Scene {
             true,
           );
         }
+        this._checkPoteHit(60);
         this._dealDamage(60, 1, 150);
       })
       .on("pointerup", () => this.punchButton.clearTint())
@@ -759,6 +878,7 @@ class scene0 extends Phaser.Scene {
             this._getLocalPlayerAnimKey("kicking"),
             true,
           );
+          this._checkPoteHit(80);
           this._dealDamage(80, 2, 200);
         }
       })
@@ -852,6 +972,9 @@ class scene0 extends Phaser.Scene {
     // Limites = exatamente as bordas da seção do mapa (1152px cada)
     this.waveLeftBound = section.start;
     this.waveRightBound = section.end;
+
+    // Spawna potes da seção atual
+    this._spawnPotesDaSecao(waveDef.section);
 
     // Para o follow e trava AMBOS os eixos da câmera
     this.cameras.main.stopFollow();
@@ -1113,6 +1236,107 @@ class scene0 extends Phaser.Scene {
       heart.anims.play("heart_full");
       this.hudHearts.push(heart);
     }
+  }
+
+  _healPlayer() {
+    // Não cura se está com vida cheia ou morto
+    if (this.localPlayerDead) return;
+    if (
+      this.localPlayerLives === this.localPlayerTotalLives &&
+      this.localPlayerHits === 0
+    )
+      return;
+
+    const heartIndex = this.localPlayerTotalLives - this.localPlayerLives;
+    const damageKeys = [
+      "heart_full",
+      "heart_hit1",
+      "heart_hit2",
+      "heart_empty",
+    ];
+
+    // Regride 1 estágio no coração atual
+    if (this.localPlayerHits > 0) {
+      this.localPlayerHits--;
+      const frame = Math.min(this.localPlayerHits, 3);
+      const heart = this.hudHearts[heartIndex];
+      if (heart) {
+        this.tweens.add({
+          targets: heart,
+          scaleX: heart.scaleX * 1.2,
+          scaleY: heart.scaleY * 1.2,
+          duration: 80,
+          yoyo: true,
+          ease: "Power2",
+          onComplete: () => heart.anims.play(damageKeys[frame]),
+        });
+      }
+    } else if (heartIndex > 0) {
+      // Coração atual está cheio, restaura o anterior
+      this.localPlayerLives++;
+      this.localPlayerHits = this.localPlayerHitsPerLife - 1;
+      const prevIndex = heartIndex - 1;
+      const heart = this.hudHearts[prevIndex];
+      if (heart) {
+        heart.setAlpha(1);
+        heart.anims.play("heart_hit2"); // restaura 3/4
+      }
+    }
+  }
+
+  _hitPote(pote) {
+    if (!pote || pote.broken) return;
+
+    pote.hits++;
+
+    // Flash no pote
+    pote.setTint(0xffff00);
+    this.time.delayedCall(80, () => {
+      if (pote && pote.active) pote.clearTint();
+    });
+
+    if (pote.hits >= 3) {
+      pote.broken = true;
+      pote.body.enable = false;
+
+      // Animação de quebrar
+      pote.anims.play("pote_quebrar", true);
+      pote.once("animationcomplete", () => {
+        const bx = pote.x;
+        const by = pote.y;
+        pote.destroy();
+
+        // Spawna o burger no lugar
+        const burger = this.burgers.create(bx, by, "burger");
+        burger.setOrigin(0.5, 1);
+        burger.setScale(1.5);
+        burger._collected = false;
+        burger.refreshBody();
+
+        // Efeito de aparecer
+        burger.setAlpha(0);
+        this.tweens.add({
+          targets: burger,
+          alpha: 1,
+          y: by - 10,
+          duration: 300,
+          ease: "Back.Out",
+        });
+      });
+    }
+  }
+
+  _checkPoteHit(range) {
+    if (!this.potes) return;
+    const punchOffsetX = this.localPlayer.flipX ? -range : range;
+    const punchX = this.localPlayer.x + punchOffsetX;
+    const punchY = this.localPlayer.y - 40;
+
+    this.potes.children.iterate((pote) => {
+      if (!pote || !pote.active || pote.broken) return;
+      const dist = Phaser.Math.Distance.Between(punchX, punchY, pote.x, pote.y);
+      if (dist <= range) this._hitPote(pote);
+    });
   }
 
   _applyPlayerDamage() {
@@ -1483,7 +1707,9 @@ class scene0 extends Phaser.Scene {
       this.localPlayer.anims.currentAnim.key !==
         this._getLocalPlayerAnimKey("kicking") &&
       this.localPlayer.anims.currentAnim.key !==
-        this._getLocalPlayerAnimKey("idle-frame0")
+        this._getLocalPlayerAnimKey("idle-frame0") &&
+      this.localPlayer.anims.currentAnim.key !== // ← linha adicionada
+        this._getLocalPlayerAnimKey("pegar") // ← linha adicionada
     ) {
       this.localPlayer.anims.play(
         this._getLocalPlayerAnimKey("standing-still"),
@@ -1571,7 +1797,6 @@ class scene0 extends Phaser.Scene {
                 this._applyPlayerDamage();
               }
             });
-            
 
             // Animação termina em ~1000ms (8 frames a 8fps)
             // + 1000ms de pausa antes do próximo ataque
