@@ -1215,6 +1215,9 @@ class scene0 extends Phaser.Scene {
   // ═══════════════════════════════════════════════════════════
 
   update() {
+    // Se o player já morreu, para o update do jogo
+    if (this.localPlayerDead) return;
+
     try {
       const currentAnim = this.localPlayer.anims.currentAnim;
       const currentFrame = this.localPlayer.anims.currentFrame;
@@ -1232,9 +1235,6 @@ class scene0 extends Phaser.Scene {
     } catch (e) {
       console.error("Error updating player:", e);
     }
-
-    // Se o player já morreu, para o update do jogo
-    if (this.localPlayerDead) return;
 
     // Câmera travada durante wave — trava AMBOS os eixos
     if (this.cameraLocked) {
@@ -1331,19 +1331,36 @@ class scene0 extends Phaser.Scene {
           return;
         }
 
-        const dist = Phaser.Math.Distance.Between(
+        const distLocal = Phaser.Math.Distance.Between(
           enemy.x,
           enemy.y,
           this.localPlayer.x,
           this.localPlayer.y,
         );
+        let dist = distLocal;
+        let targetPlayer = this.localPlayer;
+
+        if (this.remotePlayers.length > 0) {
+          const distRemote = Phaser.Math.Distance.Between(
+            enemy.x,
+            enemy.y,
+            this.remotePlayers[0].sprite.x,
+            this.remotePlayers[0].sprite.y,
+          );
+
+          if (distLocal > distRemote) {
+            dist = distRemote;
+            targetPlayer = this.remotePlayers[0].sprite;
+          }
+        }
+
         const attackRange = 80; // distância para parar e atacar
         const stopRange = 60; // distância mínima — não encosta na hitbox
 
         if (dist > attackRange) {
           // ── Perseguir ──
           enemy.body.setImmovable(false);
-          this.physics.moveToObject(enemy, this.localPlayer, enemy.speed);
+          this.physics.moveToObject(enemy, targetPlayer, enemy.speed);
           if (
             !enemy.anims.currentAnim ||
             enemy.anims.currentAnim.key !== "enemy_run"
