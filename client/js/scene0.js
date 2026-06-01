@@ -331,6 +331,14 @@ class scene0 extends Phaser.Scene {
     this.localPlayerHitsPerLife = 4;
     this.localPlayerHits = 0;
     this.localPlayerDead = false;
+
+    // ── Sistema de buffs ──────────────────────────────────
+    this.buffSpeed = false;       // café: velocidade
+    this.buffStrength = false;    // frango: força
+    this.buffSpeedTimer = null;
+    this.buffStrengthTimer = null;
+    this.baseSpeed = 200;         // velocidade base do joystick
+    this.baseKnockback = 150;     // knockback base do soco
   }
 
   _getLocalPlayerPrefix() {
@@ -669,31 +677,26 @@ class scene0 extends Phaser.Scene {
     };
     this._setupPoteOverlap();
 
-    // ── Colisão player → burger ───────────────────────────────
     this.physics.add.overlap(
       this.localPlayer,
       this.burgers,
-      (player, burger) => {
-        if (burger._collected) return;
-        burger._collected = true;
+      (player, food) => {
+        if (food._collected) return;
+        food._collected = true;
 
-        // Animação de pegar
         this.localPlayer.setVelocity(0, 0);
-        const pegarKey = this._getLocalPlayerAnimKey("pegar");
-        this.localPlayer.anims.play(pegarKey, true);
+        this.localPlayer.anims.play(this._getLocalPlayerAnimKey("pegar"), true);
 
-        // Remove o burger com efeito
         this.tweens.add({
-          targets: burger,
+          targets: food,
           alpha: 0,
-          y: burger.y - 20,
+          y: food.y - 20,
           duration: 300,
-          onComplete: () => burger.destroy(),
+          onComplete: () => food.destroy(),
         });
 
-        // Restaura 1/4 de coração após animação
         this.time.delayedCall(300, () => {
-          this._healPlayer();
+          this._collectFood(food._foodType || "burger");
           this.localPlayer.anims.play(
             this._getLocalPlayerAnimKey("idle-frame0"),
             true,
@@ -808,8 +811,9 @@ class scene0 extends Phaser.Scene {
           Math.cos(angle),
           Math.sin(angle),
         ).normalize();
-        let vx = dir.x * 200;
-        const vy = dir.y * 200;
+        const speedMult = this.buffSpeed ? 1.6 : 1;
+        let vx = dir.x * 200 * speedMult;
+        const vy = dir.y * 200 * speedMult;
 
         if (
           this.waveActive &&
@@ -1106,6 +1110,7 @@ class scene0 extends Phaser.Scene {
     });
   }
 
+  
   /** Todas as waves concluídas. */
   _onAllWavesCleared() {
     this._showVictoryBanner();
@@ -1155,11 +1160,15 @@ class scene0 extends Phaser.Scene {
       enemy.state = "knockback";
       enemy._knockbackTimer = 500;
 
-      enemy.setVelocityX(knockback * dir);
+      const knockbackFinal = this.buffStrength ? knockback * 2 : knockback;
+      const dmgFinal = this.buffStrength ? dmg * 2 : dmg;
+      enemy.health -= dmgFinal - dmg; // aplica dano extra do buff
+
+      enemy.setVelocityX(knockbackFinal * dir);
 
       this.tweens.add({
         targets: enemy,
-        x: enemy.x + knockback * dir * 0.8,
+        x: enemy.x + knockbackFinal * dir * 0.8,
         duration: 300,
         ease: "Cubic.Out",
         onComplete: () => {
@@ -1238,6 +1247,117 @@ class scene0 extends Phaser.Scene {
     }
   }
 
+_collectFood(foodType) {
+  // Toda comida cura 1/4 de coração
+  this._healPlayer();
+
+  // Buffs específicos por comida
+  if (foodType === "cafe") {
+    this._applyBuffSpeed();
+  } else if (foodType === "frango") {
+    this._applyBuffStrength();
+  }
+  // burger, pudim, pizza: só cura, sem buff extra
+}
+
+_applyBuffSpeed() {
+  this.buffSpeed = true;
+
+  // Mostra ícone de buff na tela
+  this._showBuffIcon("cafe", "⚡ VELOCIDADE +");
+
+  // Cancela timer anterior se já tinha o buff
+  if (this.buffSpeedTimer) this.buffSpeedTimer.remove();
+
+  this.buffSpeedTimer = this.time.delayedCall(10000, () => {
+    this.buffSpeed = false;
+    this.buffSpeedTimer = null;
+    this._hideBuffIcon("cafe");
+  });
+}
+
+_applyBuffStrength() {
+  this.buffStrength = true;
+
+  this._showBuffIcon("frango", "💪 FORÇA +");
+
+  if (this.buffStrengthTimer) this.buffStrengthTimer.remove();
+
+  this.buffStrengthTimer = this.time.delayedCall(10000, () => {
+    this.buffStrength = false;
+    this.buffStrengthTimer = null;
+    this._hideBuffIcon("frango");
+  });
+}
+
+_showBuffIcon(key, label) {
+  // Remove ícone anterior do mesmo buff se existir
+  this._hideBuffIcon(key);
+
+  if (!this._buffIcons) this._buffIcons = {};
+
+  const yOffset = key === "cafe" ? 60 : 90;
+
+  const icon = this.add.text(
+    this.cameras.main.width - 16,
+    yOffset,
+    label,
+    {
+      fontFamily: "'Arial Black', Arial",
+      fontSize: "18px",
+      color: key === "cafe" ? "#ffff00" : "#ff8800",
+      stroke: "#000000",
+      strokeThickness: 4,
+    }
+  )
+    .setOrigin(1, 0)
+    .setScrollFactor(0)
+    .setDepth(30)
+    .setAlpha(0);
+
+  this.tweens.add({
+    targets: icon,
+    alpha: 1,
+    duration: 300,
+    ease: "Cubic.Out",
+  });
+
+  // Barra de progresso
+  const barBg = this.add.rectangle(
+    this.cameras.main.width - 16,
+    yOffset + 22,
+    120, 6, 0x000000
+  ).setOrigin(1, 0).setScrollFactor(0).setDepth(30);
+
+  const bar = this.add.rectangle(
+    this.cameras.main.width - 16,
+    yOffset + 22,
+    120, 6,
+    key === "cafe" ? 0xffff00 : 0xff8800
+  ).setOrigin(1, 0).setScrollFactor(0).setDepth(31);
+
+  // Anima a barra reduzindo em 10 segundos
+  this.tweens.add({
+    targets: bar,
+    scaleX: 0,
+    duration: 10000,
+    ease: "Linear",
+  });
+
+  this._buffIcons[key] = { icon, bar, barBg };
+}
+
+_hideBuffIcon(key) {
+  if (!this._buffIcons || !this._buffIcons[key]) return;
+  const { icon, bar, barBg } = this._buffIcons[key];
+  this.tweens.killTweensOf(icon);
+  this.tweens.killTweensOf(bar);
+  icon.destroy();
+  bar.destroy();
+  barBg.destroy();
+  delete this._buffIcons[key];
+}
+
   _healPlayer() {
     // Não cura se está com vida cheia ou morto
     if (this.localPlayerDead) return;
@@ -1306,17 +1426,20 @@ class scene0 extends Phaser.Scene {
         const by = pote.y;
         pote.destroy();
 
-        // Spawna o burger no lugar
-        const burger = this.burgers.create(bx, by, "burger");
-        burger.setOrigin(0.5, 1);
-        burger.setScale(1.5);
-        burger._collected = false;
-        burger.refreshBody();
+        // Drop aleatório de comida
+        const foods = ["burger", "pudim", "pizza", "frango", "cafe"];
+        const foodKey = foods[Phaser.Math.Between(0, foods.length - 1)];
 
-        // Efeito de aparecer
-        burger.setAlpha(0);
+        const food = this.burgers.create(bx, by, foodKey);
+        food.setOrigin(0.5, 1);
+        food.setScale(foodKey === "cafe" ? 3 : 1.5);
+        food._collected = false;
+        food._foodType = foodKey;
+        food.refreshBody();
+
+        food.setAlpha(0);
         this.tweens.add({
-          targets: burger,
+          targets: food,
           alpha: 1,
           y: by - 10,
           duration: 300,
