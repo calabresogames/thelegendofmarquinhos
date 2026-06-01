@@ -56,7 +56,7 @@ class preloader extends Phaser.Scene {
     this.load.image("pizza", "pizza.png");
     this.load.image("frango", "frango.png");
     this.load.image("burger", "burger.png");
-    this.load.image("cafe", "coffe_espresso.png");
+    this.load.image("cafe", "coffee_espresso.png");
     
 
     // sergio spritesheets

@@ -339,6 +339,9 @@ class scene0 extends Phaser.Scene {
     this.buffStrengthTimer = null;
     this.baseSpeed = 200;         // velocidade base do joystick
     this.baseKnockback = 150;     // knockback base do soco
+
+    // ── Cooldown do chute ─────────────────────────────────
+    this.kickCooldown = false;
   }
 
   _getLocalPlayerPrefix() {
@@ -866,29 +869,59 @@ class scene0 extends Phaser.Scene {
       .setDepth(10);
 
     // ── Botão chute ──────────────────────────────────────────
-    this.kickButton = this.add
-      .image(880, 520, "botaochute")
-      .setScale(0.6)
-      .setInteractive()
-      .on("pointerdown", () => {
-        this.kickButton.setTint(0xcccccc);
-        if (
-          !this.localPlayer.anims.isPlaying ||
-          this.localPlayer.anims.currentAnim.key !==
-            this._getLocalPlayerAnimKey("running")
-        ) {
-          this.localPlayer.setVelocity(0);
-          this.localPlayer.anims.play(
-            this._getLocalPlayerAnimKey("kicking"),
-            true,
-          );
-          this._checkPoteHit(80);
-          this._dealDamage(80, 2, 200);
-        }
-      })
-      .on("pointerup", () => this.kickButton.clearTint())
-      .setScrollFactor(0)
-      .setDepth(10);
+     this.kickButton = this.add
+       .image(880, 520, "botaochute")
+       .setScale(0.6)
+       .setInteractive()
+       .on("pointerdown", () => {
+         if (this.kickCooldown) return; // bloqueado pelo cooldown
+
+         this.kickButton.setTint(0xcccccc);
+         if (
+           !this.localPlayer.anims.isPlaying ||
+           this.localPlayer.anims.currentAnim.key !==
+             this._getLocalPlayerAnimKey("running")
+         ) {
+           this.localPlayer.setVelocity(0);
+           this.localPlayer.anims.play(
+             this._getLocalPlayerAnimKey("kicking"),
+             true,
+           );
+           this._checkPoteHit(80);
+           this._dealDamage(80, 2, 200);
+         }
+
+         // Inicia cooldown
+         this.kickCooldown = true;
+         this.kickButton.setAlpha(0.4); // escurece para indicar cooldown
+
+         // Barra de cooldown sobre o botão
+         const bx = 880;
+         const by = 520;
+         const cooldownBar = this.add
+           .rectangle(bx, by + 36, 60, 6, 0xff4444)
+           .setScrollFactor(0)
+           .setDepth(11)
+           .setOrigin(0.5, 0.5);
+
+         this.tweens.add({
+           targets: cooldownBar,
+           scaleX: 0,
+           duration: 5000,
+           ease: "Linear",
+           onComplete: () => {
+             cooldownBar.destroy();
+             this.kickCooldown = false;
+             this.kickButton.setAlpha(1);
+             this.kickButton.clearTint();
+           },
+         });
+       })
+       .on("pointerup", () => {
+         if (!this.kickCooldown) this.kickButton.clearTint();
+       })
+       .setScrollFactor(0)
+       .setDepth(10);
 
     // ── HUD ──────────────────────────────────────────────────
     this._buildWaveHUD();
