@@ -16,38 +16,38 @@ class scene0 extends Phaser.Scene {
       { start: 4608, end: 5760 },
     ];
     // ── Posições dos potes por seção ─────────────────────────
-   this.potConfigs = [
-     // Seção 0 (0–1152)
-     [
-       { x: 150, y: 730 },
-       { x: 576, y: 630 },
-       { x: 1000, y: 950 },
-     ],
-     // Seção 1 (1152–2304)
-     [
-       { x: 1200, y: 660 },
-       { x: 1728, y: 820 },
-       { x: 2250, y: 935 },
-     ],
-     // Seção 2 (2304–3456)
-     [
-       { x: 2350, y: 945 },
-       { x: 2880, y: 650 },
-       { x: 3400, y: 730 },
-     ],
-     // Seção 3 (3456–4608)
-     [
-       { x: 3500, y: 655 },
-       { x: 4032, y: 930 },
-       { x: 4550, y: 725 },
-     ],
-     // Seção 4 (4608–5760)
-     [
-       { x: 4650, y: 640 },
-       { x: 5184, y: 800 },
-       { x: 5700, y: 650 },
-     ],
-   ];
+    this.potConfigs = [
+      // Seção 0 (0–1152)
+      [
+        { x: 150, y: 730 },
+        { x: 576, y: 630 },
+        { x: 1000, y: 950 },
+      ],
+      // Seção 1 (1152–2304)
+      [
+        { x: 1200, y: 660 },
+        { x: 1728, y: 820 },
+        { x: 2250, y: 935 },
+      ],
+      // Seção 2 (2304–3456)
+      [
+        { x: 2350, y: 945 },
+        { x: 2880, y: 650 },
+        { x: 3400, y: 730 },
+      ],
+      // Seção 3 (3456–4608)
+      [
+        { x: 3500, y: 655 },
+        { x: 4032, y: 930 },
+        { x: 4550, y: 725 },
+      ],
+      // Seção 4 (4608–5760)
+      [
+        { x: 4650, y: 640 },
+        { x: 5184, y: 800 },
+        { x: 5700, y: 650 },
+      ],
+    ];
 
     // ── Configuração das waves (5 seções × 3 ordas) ──────────
     this.waveConfig = [
@@ -333,12 +333,12 @@ class scene0 extends Phaser.Scene {
     this.localPlayerDead = false;
 
     // ── Sistema de buffs ──────────────────────────────────
-    this.buffSpeed = false;       // café: velocidade
-    this.buffStrength = false;    // frango: força
+    this.buffSpeed = false; // café: velocidade
+    this.buffStrength = false; // frango: força
     this.buffSpeedTimer = null;
     this.buffStrengthTimer = null;
-    this.baseSpeed = 200;         // velocidade base do joystick
-    this.baseKnockback = 150;     // knockback base do soco
+    this.baseSpeed = 200; // velocidade base do joystick
+    this.baseKnockback = 150; // knockback base do soco
 
     // ── Cooldown do chute ─────────────────────────────────
     this.kickCooldown = false;
@@ -623,6 +623,43 @@ class scene0 extends Phaser.Scene {
       repeat: 0,
     });
 
+    // ── Animações dos corações do Sergio ───────────────────────
+    this.anims.create({
+      key: "heart_full2",
+      frames: [{ key: "hud_coracao2", frame: 0 }],
+      frameRate: 1,
+      repeat: 0,
+    });
+    this.anims.create({
+      key: "heart_hit1_2",
+      frames: [{ key: "hud_coracao2", frame: 3 }],
+      frameRate: 1,
+      repeat: 0,
+    });
+    this.anims.create({
+      key: "heart_hit2_2",
+      frames: [{ key: "hud_coracao2", frame: 2 }],
+      frameRate: 1,
+      repeat: 0,
+    });
+    this.anims.create({
+      key: "heart_empty2",
+      frames: [{ key: "hud_coracao2", frame: 1 }],
+      frameRate: 1,
+      repeat: 0,
+    });
+
+    // Animação de pulso ao levar hit (Sergio)
+    this.anims.create({
+      key: "heart_damage2",
+      frames: this.anims.generateFrameNumbers("hud_coracao2", {
+        start: 0,
+        end: 3,
+      }),
+      frameRate: 12,
+      repeat: 0,
+    });
+
     // ── Animação do pote quebrar ──────────────────────────────
     if (!this.anims.exists("pote_quebrar")) {
       this.anims.create({
@@ -869,59 +906,59 @@ class scene0 extends Phaser.Scene {
       .setDepth(10);
 
     // ── Botão chute ──────────────────────────────────────────
-     this.kickButton = this.add
-       .image(880, 520, "botaochute")
-       .setScale(0.6)
-       .setInteractive()
-       .on("pointerdown", () => {
-         if (this.kickCooldown) return; // bloqueado pelo cooldown
+    this.kickButton = this.add
+      .image(880, 520, "botaochute")
+      .setScale(0.6)
+      .setInteractive()
+      .on("pointerdown", () => {
+        if (this.kickCooldown) return; // bloqueado pelo cooldown
 
-         this.kickButton.setTint(0xcccccc);
-         if (
-           !this.localPlayer.anims.isPlaying ||
-           this.localPlayer.anims.currentAnim.key !==
-             this._getLocalPlayerAnimKey("running")
-         ) {
-           this.localPlayer.setVelocity(0);
-           this.localPlayer.anims.play(
-             this._getLocalPlayerAnimKey("kicking"),
-             true,
-           );
-           this._checkPoteHit(80);
-           this._dealDamage(80, 2, 200);
-         }
+        this.kickButton.setTint(0xcccccc);
+        if (
+          !this.localPlayer.anims.isPlaying ||
+          this.localPlayer.anims.currentAnim.key !==
+            this._getLocalPlayerAnimKey("running")
+        ) {
+          this.localPlayer.setVelocity(0);
+          this.localPlayer.anims.play(
+            this._getLocalPlayerAnimKey("kicking"),
+            true,
+          );
+          this._checkPoteHit(80);
+          this._dealDamage(80, 2, 200);
+        }
 
-         // Inicia cooldown
-         this.kickCooldown = true;
-         this.kickButton.setAlpha(0.4); // escurece para indicar cooldown
+        // Inicia cooldown
+        this.kickCooldown = true;
+        this.kickButton.setAlpha(0.4); // escurece para indicar cooldown
 
-         // Barra de cooldown sobre o botão
-         const bx = 880;
-         const by = 520;
-         const cooldownBar = this.add
-           .rectangle(bx, by + 36, 60, 6, 0xff4444)
-           .setScrollFactor(0)
-           .setDepth(11)
-           .setOrigin(0.5, 0.5);
+        // Barra de cooldown sobre o botão
+        const bx = 880;
+        const by = 520;
+        const cooldownBar = this.add
+          .rectangle(bx, by + 36, 60, 6, 0xff4444)
+          .setScrollFactor(0)
+          .setDepth(11)
+          .setOrigin(0.5, 0.5);
 
-         this.tweens.add({
-           targets: cooldownBar,
-           scaleX: 0,
-           duration: 5000,
-           ease: "Linear",
-           onComplete: () => {
-             cooldownBar.destroy();
-             this.kickCooldown = false;
-             this.kickButton.setAlpha(1);
-             this.kickButton.clearTint();
-           },
-         });
-       })
-       .on("pointerup", () => {
-         if (!this.kickCooldown) this.kickButton.clearTint();
-       })
-       .setScrollFactor(0)
-       .setDepth(10);
+        this.tweens.add({
+          targets: cooldownBar,
+          scaleX: 0,
+          duration: 5000,
+          ease: "Linear",
+          onComplete: () => {
+            cooldownBar.destroy();
+            this.kickCooldown = false;
+            this.kickButton.setAlpha(1);
+            this.kickButton.clearTint();
+          },
+        });
+      })
+      .on("pointerup", () => {
+        if (!this.kickCooldown) this.kickButton.clearTint();
+      })
+      .setScrollFactor(0)
+      .setDepth(10);
 
     // ── HUD ──────────────────────────────────────────────────
     this._buildWaveHUD();
@@ -1143,7 +1180,6 @@ class scene0 extends Phaser.Scene {
     });
   }
 
-  
   /** Todas as waves concluídas. */
   _onAllWavesCleared() {
     this._showVictoryBanner();
@@ -1251,8 +1287,11 @@ class scene0 extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(100);
 
+    // Rosto do personagem (Marquinhos ou Sergio)
+    const rostoKey =
+      this.game.localPlayer === "sergio" ? "hud_rosto2" : "hud_rosto";
     this.hudRosto = this.add
-      .image(slotX + slotSize / 2, slotY + slotSize / 2, "hud_rosto")
+      .image(slotX + slotSize / 2, slotY + slotSize / 2, rostoKey)
       .setDisplaySize(slotSize * 2, slotSize * 2)
       .setOrigin(0.5, 0.5)
       .setScrollFactor(0)
@@ -1262,134 +1301,142 @@ class scene0 extends Phaser.Scene {
     const heartStartX = slotX + slotSize + 16;
     const heartY = slotY + slotSize / 2;
 
+    // Corações do personagem (Marquinhos ou Sergio)
+    const coracaoKey =
+      this.game.localPlayer === "sergio" ? "hud_coracao2" : "hud_coracao";
+
     this.hudHearts = [];
     for (let i = 0; i < this.localPlayerTotalLives; i++) {
       const heart = this.add
         .sprite(
           heartStartX + i * (8 * heartScale + heartSpacing),
           heartY,
-          "hud_coracao",
+          coracaoKey,
         )
         .setOrigin(0.5, 0.5)
         .setScale(heartScale)
         .setScrollFactor(0)
         .setDepth(23);
 
-      heart.anims.play("heart_full");
+      // Usar animação correta conforme o personagem
+      const animKey =
+        this.game.localPlayer === "sergio" ? "heart_full2" : "heart_full";
+      heart.anims.play(animKey);
       this.hudHearts.push(heart);
     }
   }
 
-_collectFood(foodType) {
-  // Toda comida cura 1/4 de coração
-  this._healPlayer();
+  _collectFood(foodType) {
+    // Toda comida cura 1/4 de coração
+    this._healPlayer();
 
-  // Buffs específicos por comida
-  if (foodType === "cafe") {
-    this._applyBuffSpeed();
-  } else if (foodType === "frango") {
-    this._applyBuffStrength();
-  }
-  // burger, pudim, pizza: só cura, sem buff extra
-}
-
-_applyBuffSpeed() {
-  this.buffSpeed = true;
-
-  // Mostra ícone de buff na tela
-  this._showBuffIcon("cafe", "⚡ VELOCIDADE +");
-
-  // Cancela timer anterior se já tinha o buff
-  if (this.buffSpeedTimer) this.buffSpeedTimer.remove();
-
-  this.buffSpeedTimer = this.time.delayedCall(10000, () => {
-    this.buffSpeed = false;
-    this.buffSpeedTimer = null;
-    this._hideBuffIcon("cafe");
-  });
-}
-
-_applyBuffStrength() {
-  this.buffStrength = true;
-
-  this._showBuffIcon("frango", "💪 FORÇA +");
-
-  if (this.buffStrengthTimer) this.buffStrengthTimer.remove();
-
-  this.buffStrengthTimer = this.time.delayedCall(10000, () => {
-    this.buffStrength = false;
-    this.buffStrengthTimer = null;
-    this._hideBuffIcon("frango");
-  });
-}
-
-_showBuffIcon(key, label) {
-  // Remove ícone anterior do mesmo buff se existir
-  this._hideBuffIcon(key);
-
-  if (!this._buffIcons) this._buffIcons = {};
-
-  const yOffset = key === "cafe" ? 60 : 90;
-
-  const icon = this.add.text(
-    this.cameras.main.width - 16,
-    yOffset,
-    label,
-    {
-      fontFamily: "'Arial Black', Arial",
-      fontSize: "18px",
-      color: key === "cafe" ? "#ffff00" : "#ff8800",
-      stroke: "#000000",
-      strokeThickness: 4,
+    // Buffs específicos por comida
+    if (foodType === "cafe") {
+      this._applyBuffSpeed();
+    } else if (foodType === "frango") {
+      this._applyBuffStrength();
     }
-  )
-    .setOrigin(1, 0)
-    .setScrollFactor(0)
-    .setDepth(30)
-    .setAlpha(0);
+    // burger, pudim, pizza: só cura, sem buff extra
+  }
 
-  this.tweens.add({
-    targets: icon,
-    alpha: 1,
-    duration: 300,
-    ease: "Cubic.Out",
-  });
+  _applyBuffSpeed() {
+    this.buffSpeed = true;
 
-  // Barra de progresso
-  const barBg = this.add.rectangle(
-    this.cameras.main.width - 16,
-    yOffset + 22,
-    120, 6, 0x000000
-  ).setOrigin(1, 0).setScrollFactor(0).setDepth(30);
+    // Mostra ícone de buff na tela
+    this._showBuffIcon("cafe", "⚡ VELOCIDADE +");
 
-  const bar = this.add.rectangle(
-    this.cameras.main.width - 16,
-    yOffset + 22,
-    120, 6,
-    key === "cafe" ? 0xffff00 : 0xff8800
-  ).setOrigin(1, 0).setScrollFactor(0).setDepth(31);
+    // Cancela timer anterior se já tinha o buff
+    if (this.buffSpeedTimer) this.buffSpeedTimer.remove();
 
-  // Anima a barra reduzindo em 10 segundos
-  this.tweens.add({
-    targets: bar,
-    scaleX: 0,
-    duration: 10000,
-    ease: "Linear",
-  });
+    this.buffSpeedTimer = this.time.delayedCall(10000, () => {
+      this.buffSpeed = false;
+      this.buffSpeedTimer = null;
+      this._hideBuffIcon("cafe");
+    });
+  }
 
-  this._buffIcons[key] = { icon, bar, barBg };
-}
+  _applyBuffStrength() {
+    this.buffStrength = true;
 
-_hideBuffIcon(key) {
-  if (!this._buffIcons || !this._buffIcons[key]) return;
-  const { icon, bar, barBg } = this._buffIcons[key];
-  this.tweens.killTweensOf(icon);
-  this.tweens.killTweensOf(bar);
-  icon.destroy();
-  bar.destroy();
-  barBg.destroy();
-  delete this._buffIcons[key];
-}
+    this._showBuffIcon("frango", "💪 FORÇA +");
+
+    if (this.buffStrengthTimer) this.buffStrengthTimer.remove();
+
+    this.buffStrengthTimer = this.time.delayedCall(10000, () => {
+      this.buffStrength = false;
+      this.buffStrengthTimer = null;
+      this._hideBuffIcon("frango");
+    });
+  }
+
+  _showBuffIcon(key, label) {
+    // Remove ícone anterior do mesmo buff se existir
+    this._hideBuffIcon(key);
+
+    if (!this._buffIcons) this._buffIcons = {};
+
+    const yOffset = key === "cafe" ? 60 : 90;
+
+    const icon = this.add
+      .text(this.cameras.main.width - 16, yOffset, label, {
+        fontFamily: "'Arial Black', Arial",
+        fontSize: "18px",
+        color: key === "cafe" ? "#ffff00" : "#ff8800",
+        stroke: "#000000",
+        strokeThickness: 4,
+      })
+      .setOrigin(1, 0)
+      .setScrollFactor(0)
+      .setDepth(30)
+      .setAlpha(0);
+
+    this.tweens.add({
+      targets: icon,
+      alpha: 1,
+      duration: 300,
+      ease: "Cubic.Out",
+    });
+
+    // Barra de progresso
+    const barBg = this.add
+      .rectangle(this.cameras.main.width - 16, yOffset + 22, 120, 6, 0x000000)
+      .setOrigin(1, 0)
+      .setScrollFactor(0)
+      .setDepth(30);
+
+    const bar = this.add
+      .rectangle(
+        this.cameras.main.width - 16,
+        yOffset + 22,
+        120,
+        6,
+        key === "cafe" ? 0xffff00 : 0xff8800,
+      )
+      .setOrigin(1, 0)
+      .setScrollFactor(0)
+      .setDepth(31);
+
+    // Anima a barra reduzindo em 10 segundos
+    this.tweens.add({
+      targets: bar,
+      scaleX: 0,
+      duration: 10000,
+      ease: "Linear",
+    });
+
+    this._buffIcons[key] = { icon, bar, barBg };
+  }
+
+  _hideBuffIcon(key) {
+    if (!this._buffIcons || !this._buffIcons[key]) return;
+    const { icon, bar, barBg } = this._buffIcons[key];
+    this.tweens.killTweensOf(icon);
+    this.tweens.killTweensOf(bar);
+    icon.destroy();
+    bar.destroy();
+    barBg.destroy();
+    delete this._buffIcons[key];
+  }
 
   _healPlayer() {
     // Não cura se está com vida cheia ou morto
@@ -1401,12 +1448,10 @@ _hideBuffIcon(key) {
       return;
 
     const heartIndex = this.localPlayerTotalLives - this.localPlayerLives;
-    const damageKeys = [
-      "heart_full",
-      "heart_hit1",
-      "heart_hit2",
-      "heart_empty",
-    ];
+    const damageKeys =
+      this.game.localPlayer === "sergio"
+        ? ["heart_full2", "heart_hit1_2", "heart_hit2_2", "heart_empty2"]
+        : ["heart_full", "heart_hit1", "heart_hit2", "heart_empty"];
 
     // Regride 1 estágio no coração atual
     if (this.localPlayerHits > 0) {
@@ -1432,7 +1477,9 @@ _hideBuffIcon(key) {
       const heart = this.hudHearts[prevIndex];
       if (heart) {
         heart.setAlpha(1);
-        heart.anims.play("heart_hit2"); // restaura 3/4
+        const heartHit2Key =
+          this.game.localPlayer === "sergio" ? "heart_hit2_2" : "heart_hit2";
+        heart.anims.play(heartHit2Key); // restaura 3/4
       }
     }
   }
@@ -1505,12 +1552,10 @@ _hideBuffIcon(key) {
 
     const heart = this.hudHearts[heartIndex];
     if (heart) {
-      const damageKeys = [
-        "heart_full",
-        "heart_hit1",
-        "heart_hit2",
-        "heart_empty",
-      ];
+      const damageKeys =
+        this.game.localPlayer === "sergio"
+          ? ["heart_full2", "heart_hit1_2", "heart_hit2_2", "heart_empty2"]
+          : ["heart_full", "heart_hit1", "heart_hit2", "heart_empty"];
 
       this.tweens.add({
         targets: heart,
@@ -1569,6 +1614,15 @@ _hideBuffIcon(key) {
       scaleY: { from: 0.8, to: 1 },
       duration: 800,
       ease: "Sine.Out",
+      onComplete: () => {
+        // Transiciona para a cena de game over após a animação
+        this.time.delayedCall(1500, () => {
+          this.scene.start("gameover", {
+            waveReached: this.currentWave + 1,
+            hordeReached: this.currentHorde + 1,
+          });
+        });
+      },
     });
   }
 
