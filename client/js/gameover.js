@@ -7,9 +7,13 @@ class gameover extends Phaser.Scene {
   }
 
   init(data) {
-    // Recebe dados como wave alcançada
-    this.waveReached = data?.waveReached || 0;
-    this.hordeReached = data?.hordeReached || 0;
+    // Recebe dados da cena anterior
+    this.waveReached = data?.waveReached || 1;
+    this.hordeReached = data?.hordeReached || 1;
+    this.enemiesDefeated = data?.enemiesDefeated || 0;
+    this.gameTime = data?.gameTime || 0; // em segundos
+    this.continueCountdown = 10; // 10 segundos para continuar
+    this.countdownActive = true;
   }
 
   preload() {
@@ -18,63 +22,145 @@ class gameover extends Phaser.Scene {
   }
 
   create() {
-    // Fundo com imagem GAME_OVER.png
+    // ═══════════════════════════════════════════════════════════
+    // FUNDO COM IMAGEM DE GAME OVER
+    // ═══════════════════════════════════════════════════════════
     this.add
       .image(400, 225, "gameover-bg")
       .setOrigin(0.5, 0.5)
       .setScrollFactor(0)
       .setDepth(0);
 
-    // Score / Wave alcançada
-    const scoreText = `Wave: ${this.waveReached} | Orda: ${this.hordeReached}`;
+    // ═══════════════════════════════════════════════════════════
+    // PLACAR DA SESSÃO
+    // ═══════════════════════════════════════════════════════════
+
+    // Posição configurável: scoreX, scoreY (para ajustar layout depois)
+    const scoreX = 512;
+    const scoreY = 180;
+
+    // Título "PLACAR"
     this.add
-      .text(512, 320, scoreText, {
+      .text(scoreX, scoreY, "PLACAR", {
         fontFamily: "'Arial Black', Arial",
-        fontSize: "40px",
-        color: "#ffffff",
+        fontSize: "32px",
+        color: "#ffdd00",
         stroke: "#000000",
         strokeThickness: 6,
-        align: "center",
+      })
+      .setOrigin(0.5, 0)
+      .setScrollFactor(0)
+      .setDepth(10);
+
+    // Conversão do tempo para minutos:segundos
+    const minutes = Math.floor(this.gameTime / 60);
+    const seconds = this.gameTime % 60;
+    const timeStr = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+
+    // Detalhes do placar (posição configurável)
+    const scoreDetailsY = scoreY + 50;
+    const scoreDetailsSpacing = 35;
+
+    const scoreDetails = [
+      `Wave Alcançada: ${this.waveReached}/5`,
+      `Orda Alcançada: ${this.hordeReached}`,
+      `Inimigos Derrotados: ${this.enemiesDefeated}`,
+      `Tempo de Jogo: ${timeStr}`,
+    ];
+
+    scoreDetails.forEach((detail, index) => {
+      this.add
+        .text(scoreX, scoreDetailsY + index * scoreDetailsSpacing, detail, {
+          fontFamily: "'Arial', Arial",
+          fontSize: "20px",
+          color: "#ffffff",
+          stroke: "#000000",
+          strokeThickness: 3,
+        })
+        .setOrigin(0.5, 0)
+        .setScrollFactor(0)
+        .setDepth(10);
+    });
+
+    // ═══════════════════════════════════════════════════════════
+    // CONTADOR "CONTINUAR?"
+    // ═══════════════════════════════════════════════════════════
+
+    // Posição configurável: countdownX, countdownY
+    const countdownX = 512;
+    const countdownY = 420;
+
+    const countdownText = this.add
+      .text(countdownX, countdownY, `CONTINUAR? ${this.continueCountdown}...`, {
+        fontFamily: "'Arial Black', Arial",
+        fontSize: "36px",
+        color: "#ff4444",
+        stroke: "#000000",
+        strokeThickness: 6,
       })
       .setOrigin(0.5, 0.5)
       .setScrollFactor(0)
       .setDepth(10);
 
-    // Botão "Tentar Novamente"
-    const buttonWidth = 280;
-    const buttonHeight = 60;
+    // Timer que decrementa a cada segundo
+    this.countdownTimer = this.time.addEvent({
+      delay: 1000,
+      callback: () => {
+        this.continueCountdown--;
+        countdownText.setText(`CONTINUAR? ${this.continueCountdown}...`);
+
+        if (this.continueCountdown <= 0) {
+          this.countdownActive = false;
+          this.countdownTimer.remove();
+          // Volta para a cena inicial
+          this.scene.stop("scene0");
+          this.scene.stop("gameover");
+          this.scene.start("start");
+        }
+      },
+      repeat: 9, // 9 vezes (9 a 1, depois dispara ao chegar a 0)
+    });
+
+    // ═══════════════════════════════════════════════════════════
+    // BOTÃO "CONTINUAR"
+    // ═══════════════════════════════════════════════════════════
+
+    // Posição configurável: buttonX, buttonY
     const buttonX = 512;
     const buttonY = 500;
+    const buttonWidth = 280;
+    const buttonHeight = 60;
 
     const buttonBg = this.add
-      .rectangle(buttonX, buttonY, buttonWidth, buttonHeight, 0x4caf50)
+      .rectangle(buttonX, buttonY, buttonWidth, buttonHeight, 0x2196f3)
       .setOrigin(0.5, 0.5)
       .setScrollFactor(0)
       .setDepth(10)
       .setInteractive()
       .on("pointerover", () => {
-        buttonBg.setFillStyle(0x66bb6a);
-        buttonText.setScale(1.05);
+        buttonBg.setFillStyle(0x42a5f5);
+        buttonText.setScale(1.08);
       })
       .on("pointerout", () => {
-        buttonBg.setFillStyle(0x4caf50);
+        buttonBg.setFillStyle(0x2196f3);
         buttonText.setScale(1);
       })
       .on("pointerdown", () => {
-        // Retorna ao start para reiniciar tudo
-        this.scene.stop("scene0");
+        if (!this.countdownActive) return;
+        this.countdownActive = false;
+        if (this.countdownTimer) this.countdownTimer.remove();
+        // Reinicia a wave atual com vida cheia
         this.scene.stop("gameover");
-        this.scene.start("start");
+        this.scene.restart("scene0");
       });
 
     const buttonText = this.add
-      .text(buttonX, buttonY, "Tentar Novamente", {
+      .text(buttonX, buttonY, "Continuar", {
         fontFamily: "'Arial Black', Arial",
         fontSize: "28px",
         color: "#ffffff",
         stroke: "#000000",
         strokeThickness: 4,
-        align: "center",
       })
       .setOrigin(0.5, 0.5)
       .setScrollFactor(0)
@@ -82,13 +168,17 @@ class gameover extends Phaser.Scene {
 
     // Animação de entrada
     this.tweens.add({
-      targets: [buttonBg, buttonText],
+      targets: [countdownText, buttonBg, buttonText],
       alpha: { from: 0, to: 1 },
-      y: { from: 540, to: 500 },
+      scale: { from: 0.8, to: 1 },
       duration: 600,
       ease: "Back.Out",
-      delay: 300,
+      delay: 200,
     });
+  }
+
+  update() {
+    // Lógica pode ser expandida se necessário
   }
 }
 

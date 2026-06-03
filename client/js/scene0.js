@@ -344,6 +344,11 @@ class scene0 extends Phaser.Scene {
 
     // ── Cooldown do chute ─────────────────────────────────
     this.kickCooldown = false;
+
+    // ── Rastreamento de dados para vitória/derrota ─────────────
+    this.enemiesDefeated = 0;
+    this.gameStartTime = 0;
+    this.gameTime = 0;
   }
 
   _getLocalPlayerPrefix() {
@@ -1008,6 +1013,7 @@ class scene0 extends Phaser.Scene {
     this._buildPlayerHUD();
 
     // ── Inicia primeira wave ─────────────────────────────────
+    this.gameStartTime = this.time.now / 1000; // tempo inicial em segundos
     this.time.delayedCall(800, () => this._startWave(0));
 
     this.game.socket.on("scene0", (state) => {
@@ -1227,7 +1233,18 @@ class scene0 extends Phaser.Scene {
   _onAllWavesCleared() {
     this._showVictoryBanner();
     this.cameras.main.startFollow(this.localPlayer, true, 0.08, 0.08);
-    // this.time.delayedCall(3000, () => this.scene.start("scene1"));
+
+    // Calcula tempo de jogo em segundos
+    this.gameTime = Math.floor(this.time.now / 1000 - this.gameStartTime);
+
+    // Após 3 segundos, transiciona para a cena de vitória
+    this.time.delayedCall(3000, () => {
+      this.scene.start("victory", {
+        totalEnemiesDefeated: this.enemiesDefeated,
+        totalGameTime: this.gameTime,
+        remainingLives: this.localPlayerLives,
+      });
+    });
   }
   // ═══════════════════════════════════════════════════════════
   //  DANO
@@ -1303,6 +1320,9 @@ class scene0 extends Phaser.Scene {
     enemy.body.enable = false;
     enemy.setVelocity(0, 0);
     enemy.anims.play("enemy_death", true);
+
+    // Incrementa contador de inimigos derrotados
+    this.enemiesDefeated++;
 
     this.time.delayedCall(700, () => {
       // [FIX 9] checa enemy.scene antes de destruir (evita erro se já foi removido)
@@ -1710,6 +1730,14 @@ class scene0 extends Phaser.Scene {
     this.localPlayer.setVelocity(0, 0);
     this.localPlayer.setTint(0xff0000);
 
+    // Define o sprite para a textura "caido" e fica nesse frame
+    const caidoTexture =
+      this._getLocalPlayerPrefix() === "sergio"
+        ? "sergio_caido"
+        : "marquinhos_caido";
+    this.localPlayer.setTexture(caidoTexture, 0);
+    this.localPlayer.anims.stop();
+
     if (this.enemies) {
       this.enemies.children.iterate((e) => {
         if (e && e.active) e.setVelocity(0, 0);
@@ -1728,11 +1756,16 @@ class scene0 extends Phaser.Scene {
       duration: 800,
       ease: "Sine.Out",
       onComplete: () => {
+        // Calcula tempo de jogo em segundos
+        this.gameTime = Math.floor(this.time.now / 1000 - this.gameStartTime);
+
         // Transiciona para a cena de game over após a animação
         this.time.delayedCall(1500, () => {
           this.scene.start("gameover", {
             waveReached: this.currentWave + 1,
             hordeReached: this.currentHorde + 1,
+            enemiesDefeated: this.enemiesDefeated,
+            gameTime: this.gameTime,
           });
         });
       },
