@@ -57,12 +57,12 @@ class victory extends Phaser.Scene {
     // ═══════════════════════════════════════════════════════════
 
     // Posição configurável: titleX, titleY
-    const titleX = 512;
+    const titleX = 410;
     const titleY = 80;
 
     // Efeito de brilho: texto duplicado em amarelo com blur
     const glowText = this.add
-      .text(titleX, titleY, "PARABÉNS GANHOU!", {
+      .text(titleX, titleY, "PABÉNS GANHOU!", {
         fontFamily: "'Arial Black', Arial",
         fontSize: "64px",
         color: "#ffff00",
@@ -106,8 +106,8 @@ class victory extends Phaser.Scene {
     // ═══════════════════════════════════════════════════════════
 
     // Posição configurável: scoreX, scoreY
-    const scoreX = 512;
-    const scoreY = 200;
+    const scoreX = 400;
+    const scoreY = 150;
     const scoreSpacing = 40;
 
     // Conversão do tempo para minutos:segundos
@@ -151,8 +151,8 @@ class victory extends Phaser.Scene {
     // ═══════════════════════════════════════════════════════════
 
     // Posição configurável: starsX, starsY
-    const starsX = 512;
-    const starsY = 450;
+    const starsX = 400;
+    const starsY = 400;
     const starSize = 60;
     const starSpacing = 100;
 
