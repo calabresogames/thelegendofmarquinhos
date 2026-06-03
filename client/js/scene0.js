@@ -331,6 +331,8 @@ class scene0 extends Phaser.Scene {
     this.localPlayerHitsPerLife = 4;
     this.localPlayerHits = 0;
     this.localPlayerDead = false;
+    // ── Knockback do player ───────────────────────────────
+    this.playerKnockedBack = false;
 
     // ── Sistema de buffs ──────────────────────────────────
     this.buffSpeed = false; // café: velocidade
@@ -690,6 +692,46 @@ class scene0 extends Phaser.Scene {
       });
     }
 
+    // ── Animações de cair e levantar ─────────────────────────
+    if (!this.anims.exists("marquinhos-caindo")) {
+      this.anims.create({
+        key: "marquinhos-caindo",
+        frames: [{ key: "marquinhos_caido", frame: 0 }],
+        frameRate: 1,
+        repeat: 0,
+      });
+    }
+    if (!this.anims.exists("marquinhos-levantando")) {
+      this.anims.create({
+        key: "marquinhos-levantando",
+        frames: [
+          { key: "marquinhos_caido", frame: 0 },
+          { key: "marquinhos_pega", frame: 0 },
+        ],
+        frameRate: 4,
+        repeat: 0,
+      });
+    }
+    if (!this.anims.exists("sergio-caindo")) {
+      this.anims.create({
+        key: "sergio-caindo",
+        frames: [{ key: "sergio_caido", frame: 0 }],
+        frameRate: 1,
+        repeat: 0,
+      });
+    }
+    if (!this.anims.exists("sergio-levantando")) {
+      this.anims.create({
+        key: "sergio-levantando",
+        frames: [
+          { key: "sergio_caido", frame: 0 },
+          { key: "sergio_pega", frame: 0 },
+        ],
+        frameRate: 4,
+        repeat: 0,
+      });
+    }
+
     // ── Grupo de inimigos ────────────────────────────────────
     this.enemies = this.physics.add.group();
 
@@ -843,6 +885,7 @@ class scene0 extends Phaser.Scene {
     });
 
     this.joystick.on("update", () => {
+      if (this.playerKnockedBack) return;
       const angle = Phaser.Math.DegToRad(this.joystick.angle);
       const force = this.joystick.force;
 
@@ -1274,8 +1317,8 @@ class scene0 extends Phaser.Scene {
 
   _buildPlayerHUD() {
     const slotSize = 80;
-    const slotX = -310;
-    const slotY = -200;
+    const slotX = -310; // era -310
+    const slotY = -200; // era -200
     const heartScale = 4;
     const heartSpacing = 32;
 
@@ -1301,9 +1344,8 @@ class scene0 extends Phaser.Scene {
     const heartStartX = slotX + slotSize + 16;
     const heartY = slotY + slotSize / 2;
 
-    // Corações do personagem (Marquinhos ou Sergio)
-    const coracaoKey =
-      this.game.localPlayer === "sergio" ? "hud_coracao2" : "hud_coracao";
+    // Corações do Marquinhos para todos os players
+    const coracaoKey = "hud_coracao";
 
     this.hudHearts = [];
     for (let i = 0; i < this.localPlayerTotalLives; i++) {
@@ -1318,10 +1360,8 @@ class scene0 extends Phaser.Scene {
         .setScrollFactor(0)
         .setDepth(23);
 
-      // Usar animação correta conforme o personagem
-      const animKey =
-        this.game.localPlayer === "sergio" ? "heart_full2" : "heart_full";
-      heart.anims.play(animKey);
+      // Usar animação do coração do Marquinhos
+      heart.anims.play("heart_full");
       this.hudHearts.push(heart);
     }
   }
@@ -1448,10 +1488,12 @@ class scene0 extends Phaser.Scene {
       return;
 
     const heartIndex = this.localPlayerTotalLives - this.localPlayerLives;
-    const damageKeys =
-      this.game.localPlayer === "sergio"
-        ? ["heart_full2", "heart_hit1_2", "heart_hit2_2", "heart_empty2"]
-        : ["heart_full", "heart_hit1", "heart_hit2", "heart_empty"];
+    const damageKeys = [
+      "heart_full",
+      "heart_hit1",
+      "heart_hit2",
+      "heart_empty",
+    ];
 
     // Regride 1 estágio no coração atual
     if (this.localPlayerHits > 0) {
@@ -1477,9 +1519,7 @@ class scene0 extends Phaser.Scene {
       const heart = this.hudHearts[prevIndex];
       if (heart) {
         heart.setAlpha(1);
-        const heartHit2Key =
-          this.game.localPlayer === "sergio" ? "heart_hit2_2" : "heart_hit2";
-        heart.anims.play(heartHit2Key); // restaura 3/4
+        heart.anims.play("heart_hit2"); // restaura 3/4
       }
     }
   }
@@ -1542,20 +1582,22 @@ class scene0 extends Phaser.Scene {
     });
   }
 
-  _applyPlayerDamage() {
+  _applyPlayerDamage(attacker = null) {
     if (this.localPlayerDead) return;
+    if (this.playerKnockedBack) return; // imune durante knockback
 
     this.localPlayerHits += 1;
     const heartIndex = this.localPlayerTotalLives - this.localPlayerLives;
-    // frames 0..3 representam 0%..75% de dano (0 cheio, 3 quase vazio)
     const frame = Math.min(this.localPlayerHits, 3);
 
     const heart = this.hudHearts[heartIndex];
     if (heart) {
-      const damageKeys =
-        this.game.localPlayer === "sergio"
-          ? ["heart_full2", "heart_hit1_2", "heart_hit2_2", "heart_empty2"]
-          : ["heart_full", "heart_hit1", "heart_hit2", "heart_empty"];
+      const damageKeys = [
+        "heart_full",
+        "heart_hit1",
+        "heart_hit2",
+        "heart_empty",
+      ];
 
       this.tweens.add({
         targets: heart,
@@ -1564,29 +1606,100 @@ class scene0 extends Phaser.Scene {
         duration: 80,
         yoyo: true,
         ease: "Power2",
-        onComplete: () => {
-          heart.anims.play(damageKeys[frame]);
-        },
+        onComplete: () => heart.anims.play(damageKeys[frame]),
       });
     }
 
-    this.localPlayer.setTint(0xff4444);
-    this.time.delayedCall(150, () => {
-      if (this.localPlayer && this.localPlayer.active)
-        this.localPlayer.clearTint();
-    });
+    // ── Knockback do player ───────────────────────────────
+    this._applyPlayerKnockback(attacker);
 
     if (this.localPlayerHits >= this.localPlayerHitsPerLife) {
       this.localPlayerHits = 0;
       if (this.hudHearts[heartIndex]) {
         this.hudHearts[heartIndex].setFrame(3).setAlpha(0.3);
       }
-
       this.localPlayerLives -= 1;
       if (this.localPlayerLives <= 0) {
         this._onPlayerDeath();
       }
     }
+  }
+
+  _applyPlayerKnockback(attacker = null) {
+    if (this.playerKnockedBack) return;
+    this.playerKnockedBack = true;
+
+    this.localPlayer.setVelocity(0, 0);
+    const caidoKey = this._getLocalPlayerAnimKey("caindo");
+    this.localPlayer.anims.play(caidoKey, true);
+
+    const knockDir = this.localPlayer.flipX ? 1 : -1;
+    this.localPlayer.setVelocityX(300 * knockDir);
+
+    this.time.delayedCall(300, () => {
+      if (this.localPlayer && this.localPlayer.active)
+        this.localPlayer.setVelocity(0, 0);
+    });
+
+    // ── Congela o atacante em hit-stun ────────────────────────
+    if (attacker && attacker.active && !attacker._dying) {
+      attacker.state = "hit-stun";
+      attacker.setVelocity(0, 0);
+      attacker.body.setImmovable(true);
+      attacker.anims.play("enemy_idle", true);
+    }
+
+    // ── Congela inimigos próximos que perseguiam o localPlayer ─
+    const freezeRadius = 300; // raio de influência do knockback
+    if (this.enemies) {
+      this.enemies.children.iterate((e) => {
+        if (!e || !e.active || e._dying) return;
+        if (e === attacker) return; // já tratado acima
+        if (e.state !== "chasing") return; // só os que estavam perseguindo
+
+        const distToPlayer = Phaser.Math.Distance.Between(
+          e.x,
+          e.y,
+          this.localPlayer.x,
+          this.localPlayer.y,
+        );
+        if (distToPlayer > freezeRadius) return; // fora do raio, ignora
+
+        e.state = "hit-stun";
+        e.setVelocity(0, 0);
+        e.body.setImmovable(true);
+        e.anims.play("enemy_idle", true);
+      });
+    }
+
+    // Após 1.2s: animação de levantar
+    this.time.delayedCall(1200, () => {
+      if (!this.localPlayer || !this.localPlayer.active) return;
+
+      const levantandoKey = this._getLocalPlayerAnimKey("levantando");
+      this.localPlayer.anims.play(levantandoKey, true);
+
+      this.time.delayedCall(500, () => {
+        if (!this.localPlayer || !this.localPlayer.active) return;
+
+        this.playerKnockedBack = false;
+        this.localPlayer.anims.play(
+          this._getLocalPlayerAnimKey("idle-frame0"),
+          true,
+        );
+
+        // ── Libera o atacante e os inimigos congelados ────────
+        if (this.enemies) {
+          this.enemies.children.iterate((e) => {
+            if (!e || !e.active || e._dying) return;
+            if (e.state !== "hit-stun") return;
+            e.body.setImmovable(false);
+            e._hasHitThisAttack = false;
+            e.state = "idle";
+          });
+        }
+      });
+    });
   }
 
   _onPlayerDeath() {
@@ -1918,8 +2031,12 @@ class scene0 extends Phaser.Scene {
         this._getLocalPlayerAnimKey("kicking") &&
       this.localPlayer.anims.currentAnim.key !==
         this._getLocalPlayerAnimKey("idle-frame0") &&
-      this.localPlayer.anims.currentAnim.key !== // ← linha adicionada
-        this._getLocalPlayerAnimKey("pegar") // ← linha adicionada
+      this.localPlayer.anims.currentAnim.key !==
+        this._getLocalPlayerAnimKey("pegar") &&
+      this.localPlayer.anims.currentAnim.key !== // ← adicione
+        this._getLocalPlayerAnimKey("caindo") && // ← adicione
+      this.localPlayer.anims.currentAnim.key !== // ← adicione
+        this._getLocalPlayerAnimKey("levantando")
     ) {
       this.localPlayer.anims.play(
         this._getLocalPlayerAnimKey("standing-still"),
@@ -1931,8 +2048,9 @@ class scene0 extends Phaser.Scene {
     if (this.enemies && this.enemies.children) {
       this.enemies.children.iterate((enemy) => {
         if (!enemy || !enemy.active || enemy._dying) return;
-
+        if (enemy.state === "hit-stun") return;
         // Se está em knockback, só decrementa o timer e pula
+
         if (enemy._knockbackTimer > 0) {
           enemy._knockbackTimer -= this.game.loop.delta;
           if (enemy._knockbackTimer <= 0) {
@@ -1970,6 +2088,7 @@ class scene0 extends Phaser.Scene {
 
         if (dist > attackRange) {
           // ── Perseguir ──
+          if (enemy.state === "attacking" || enemy.state === "hit-stun") return;
           enemy.body.setImmovable(false);
           this.physics.moveToObject(enemy, targetPlayer, enemy.speed);
           if (
@@ -1987,12 +2106,14 @@ class scene0 extends Phaser.Scene {
           if (enemy.state !== "attacking") {
             enemy.state = "attacking";
             enemy._hasHitThisAttack = false;
+            enemy.setVelocity(0, 0);
+            enemy.body.setImmovable(true);
             enemy.anims.play("enemy_attack", true);
 
-            // Frame 19 da animação completa (frames 15-22 a 8fps)
-            // Frame 19 = 4º frame da animação = (19-15)/8 * 1000 = 500ms
+            // Verifica hit no frame 17 da animação
             this.time.delayedCall(250, () => {
               if (!enemy || !enemy.active || enemy._dying) return;
+              if (enemy.state === "hit-stun") return;
               if (enemy._hasHitThisAttack) return;
               if (enemy.state !== "attacking") return;
 
@@ -2004,18 +2125,18 @@ class scene0 extends Phaser.Scene {
               );
               if (d <= attackRange) {
                 enemy._hasHitThisAttack = true;
-                this._applyPlayerDamage();
+                this._applyPlayerDamage(enemy); // ← passa o inimigo
               }
             });
 
-            // Animação termina em ~1000ms (8 frames a 8fps)
-            // + 1000ms de pausa antes do próximo ataque
-            this.time.delayedCall(1500, () => {
-              if (enemy && enemy.active && !enemy._dying) {
-                enemy.body.setImmovable(false);
-                enemy._hasHitThisAttack = false;
-                enemy.state = "idle";
-              }
+            // Animação termina em ~1000ms, depois fica parado 2s
+            this.time.delayedCall(1000, () => {
+              if (!enemy || !enemy.active || enemy._dying) return;
+              if (enemy.state === "hit-stun") return;
+              // Só reseta o estado — sem post-attack, sem parada forçada
+              enemy.body.setImmovable(false);
+              enemy._hasHitThisAttack = false;
+              enemy.state = "idle";
             });
           }
         }
