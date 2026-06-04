@@ -177,6 +177,7 @@ class preloader extends Phaser.Scene {
     this.load.audio("upgrade", "audio/upgrade.wav");
     this.load.audio("quebra", "audio/quebraobjeto.wav");
     this.load.audio("morte", "audio/morte.wav");
+    this.load.audio("musicacombate", "musicacombate.ogg");
   
     this.load.plugin(
       "rexvirtualjoystickplugin",

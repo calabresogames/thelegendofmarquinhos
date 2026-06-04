@@ -476,6 +476,7 @@ class scene0 extends Phaser.Scene {
     this.layerrua = this.tilemap.createLayer("rua", [this.tilesetRoadLamps]);
     this.layerobjetos = this.tilemap.createLayer("objetos", [this.tilesetArc]);
 
+
     // ── Sons ──────────────────────────────────────────────
     this.soundSoco = this.sound.add("soco1", { volume: 0.6 });
     this.soundSoco2 = this.sound.add("soco2", { volume: 0.6 });
@@ -484,6 +485,14 @@ class scene0 extends Phaser.Scene {
     this.soundQuebra = this.sound.add("quebra", { volume: 0.8 });
     this.soundMorte = this.sound.add("morte", { volume: 0.7 });
     // ── Player ───────────────────────────────────────────────
+    // ── Música de fundo ───────────────────────────────────
+this.bgMusic = this.sound.add("musicacombate", { 
+  volume: 0.4, 
+  loop: true 
+});
+    this.bgMusic.play();
+    
+
     this.localPlayer = this.physics.add.sprite(
       300,
       656,
@@ -1302,7 +1311,7 @@ class scene0 extends Phaser.Scene {
   _onAllWavesCleared() {
     this._showVictoryBanner();
     this.cameras.main.startFollow(this.localPlayer, true, 0.08, 0.08);
-
+    if (this.bgMusic) this.bgMusic.stop();
     // Calcula tempo de jogo em segundos
     this.gameTime = Math.floor(this.time.now / 1000 - this.gameStartTime);
 
@@ -1857,6 +1866,8 @@ class scene0 extends Phaser.Scene {
     this.localPlayer.setVelocity(0, 0);
     this.localPlayer.setTint(0xff0000);
 
+    if (this.bgMusic) this.bgMusic.stop();
+
     // Define o sprite para a textura "caido" e fica nesse frame
     const caidoTexture =
       this._getLocalPlayerPrefix() === "sergio"
@@ -1893,6 +1904,8 @@ class scene0 extends Phaser.Scene {
             hordeReached: this.currentHorde + 1,
             enemiesDefeated: this.enemiesDefeated,
             gameTime: this.gameTime,
+
+            
           });
         });
       },
