@@ -171,8 +171,13 @@ class preloader extends Phaser.Scene {
     );
 
     // AUDIO
-    //this.load.audio("music", "music.mp3");
-    //this.load.audio("laser", "laser.mp3");
+    this.load.audio("soco1", "audio/soco1.wav");
+    this.load.audio("soco2", "audio/soco2.wav");
+    this.load.audio("soco3", "audio/soco3.wav");
+    this.load.audio("upgrade", "audio/upgrade.wav");
+    this.load.audio("quebra", "audio/quebraobjeto.wav");
+    this.load.audio("morte", "audio/morte.wav");
+  
     this.load.plugin(
       "rexvirtualjoystickplugin",
       "../js/rexvirtualjoystickplugin.min.js",
@@ -185,7 +190,7 @@ class preloader extends Phaser.Scene {
     if (this.game.room) {
       this.scene.start("player");
     } else {
-      this.scene.start("victory");
+      this.scene.start("room");
     }
   }
 }

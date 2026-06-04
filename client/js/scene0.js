@@ -419,6 +419,13 @@ class scene0 extends Phaser.Scene {
     this.layerrua = this.tilemap.createLayer("rua", [this.tilesetRoadLamps]);
     this.layerobjetos = this.tilemap.createLayer("objetos", [this.tilesetArc]);
 
+    // ── Sons ──────────────────────────────────────────────
+    this.soundSoco = this.sound.add("soco1", { volume: 0.6 });
+    this.soundSoco2 = this.sound.add("soco2", { volume: 0.6 });
+    this.soundChute = this.sound.add("soco3", { volume: 0.6 });
+    this.soundUpgrade = this.sound.add("upgrade", { volume: 0.7 });
+    this.soundQuebra = this.sound.add("quebra", { volume: 0.8 });
+    this.soundMorte = this.sound.add("morte", { volume: 0.7 });
     // ── Player ───────────────────────────────────────────────
     this.localPlayer = this.physics.add.sprite(
       300,
@@ -882,11 +889,11 @@ class scene0 extends Phaser.Scene {
 
     // ── Joystick ─────────────────────────────────────────────
     this.joystick = this.plugins.get("rexvirtualjoystickplugin").add(this, {
-      x: -30,
-      y: 480,
+      x: -250,
+      y: 550,
       radius: 50,
-      base: this.add.circle(0, 0, 80, 0xcccccc),
-      thumb: this.add.circle(0, 0, 35, 0x666666),
+      base: this.add.circle(0, 0, 100, 0xcccccc),
+      thumb: this.add.circle(0, 0, 55, 0x666666),
     });
 
     this.joystick.on("update", () => {
@@ -934,6 +941,7 @@ class scene0 extends Phaser.Scene {
       .setScale(0.6)
       .setInteractive()
       .on("pointerdown", () => {
+        if (this.playerKnockedBack) return;
         this.punchButton.setTint(0xcccccc);
         if (
           !this.localPlayer.anims.isPlaying ||
@@ -947,6 +955,7 @@ class scene0 extends Phaser.Scene {
           );
         }
         this._checkPoteHit(60);
+        this.soundSoco.play();
         this._dealDamage(60, 1, 150);
       })
       .on("pointerup", () => this.punchButton.clearTint())
@@ -959,6 +968,7 @@ class scene0 extends Phaser.Scene {
       .setScale(0.6)
       .setInteractive()
       .on("pointerdown", () => {
+        if (this.playerKnockedBack) return;
         if (this.kickCooldown) return; // bloqueado pelo cooldown
 
         this.kickButton.setTint(0xcccccc);
@@ -973,6 +983,7 @@ class scene0 extends Phaser.Scene {
             true,
           );
           this._checkPoteHit(80);
+          this.soundChute.play();
           this._dealDamage(80, 2, 200);
         }
 
@@ -1274,12 +1285,13 @@ class scene0 extends Phaser.Scene {
       enemy.setTint(0xffffff);
       this.time.delayedCall(90, () => {
         if (!enemy || !enemy.active) return;
-        const tint =
-          enemy.type === "fast"
-            ? 0xff6666
-            : enemy.type === "tank"
-              ? 0x6699ff
-              : 0xffffff;
+        const tintMap = {
+          fast: 0x88ff88, // verde — igual ao spawn
+          tank: 0x6699ff, // azul — igual ao spawn
+          miniboss: 0xff2222, // vermelho — igual ao spawn
+          normal: 0xffffff, // branco — igual ao spawn
+        };
+        const tint = tintMap[enemy.type] || 0xffffff;
         enemy.setTint(tint);
       });
 
@@ -1320,6 +1332,7 @@ class scene0 extends Phaser.Scene {
     enemy.body.enable = false;
     enemy.setVelocity(0, 0);
     enemy.anims.play("enemy_death", true);
+    this.soundMorte.play();
 
     // Incrementa contador de inimigos derrotados
     this.enemiesDefeated++;
@@ -1387,6 +1400,7 @@ class scene0 extends Phaser.Scene {
   }
 
   _collectFood(foodType) {
+    this.soundUpgrade.play();
     // Toda comida cura 1/4 de coração
     this._healPlayer();
 
@@ -1557,6 +1571,7 @@ class scene0 extends Phaser.Scene {
 
     if (pote.hits >= 3) {
       pote.broken = true;
+      this.soundQuebra.play();
       pote.body.enable = false;
 
       // Animação de quebrar
@@ -1629,6 +1644,8 @@ class scene0 extends Phaser.Scene {
         onComplete: () => heart.anims.play(damageKeys[frame]),
       });
     }
+
+    this.soundSoco2.play();
 
     // ── Knockback do player ───────────────────────────────
     this._applyPlayerKnockback(attacker);
@@ -2153,12 +2170,16 @@ class scene0 extends Phaser.Scene {
               const d = Phaser.Math.Distance.Between(
                 enemy.x,
                 enemy.y,
-                this.localPlayer.x,
-                this.localPlayer.y,
+                targetPlayer.x,
+                targetPlayer.y,
               );
               if (d <= attackRange) {
                 enemy._hasHitThisAttack = true;
-                this._applyPlayerDamage(enemy); // ← passa o inimigo
+                if (targetPlayer === this.localPlayer) {
+                  this._applyPlayerDamage(enemy); // ← passa o inimigo
+                } else {
+                  this.soundSoco2.play();
+                }
               }
             });
 

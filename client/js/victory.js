@@ -58,7 +58,7 @@ class victory extends Phaser.Scene {
 
     // Posição configurável: titleX, titleY
     const titleX = 410;
-    const titleY = 80;
+    const titleY = 50;
 
     // Efeito de brilho: texto duplicado em amarelo com blur
     const glowText = this.add
@@ -107,7 +107,7 @@ class victory extends Phaser.Scene {
 
     // Posição configurável: scoreX, scoreY
     const scoreX = 400;
-    const scoreY = 150;
+    const scoreY = 100;
     const scoreSpacing = 40;
 
     // Conversão do tempo para minutos:segundos
@@ -151,33 +151,10 @@ class victory extends Phaser.Scene {
     // ═══════════════════════════════════════════════════════════
 
     // Posição configurável: starsX, starsY
-    const starsX = 400;
-    const starsY = 400;
+    const starsX = 320;
+    const starsY = 295;
     const starSize = 60;
-    const starSpacing = 100;
-
-    const starLabel = this.add
-      .text(starsX, starsY - 60, `AVALIAÇÃO: ${this.stars} ★`, {
-        fontFamily: "'Arial Black', Arial",
-        fontSize: "28px",
-        color: "#ffdd00",
-        stroke: "#ff8800",
-        strokeThickness: 4,
-      })
-      .setOrigin(0.5, 0.5)
-      .setScrollFactor(0)
-      .setDepth(10)
-      .setAlpha(0);
-
-    // Animação do rótulo
-    this.tweens.add({
-      targets: starLabel,
-      alpha: { from: 0, to: 1 },
-      scale: { from: 0.6, to: 1 },
-      duration: 500,
-      ease: "Back.Out",
-      delay: 1100,
-    });
+    const starSpacing = 80;
 
     // Renderiza as estrelas
     for (let i = 1; i <= 3; i++) {
@@ -229,8 +206,8 @@ class victory extends Phaser.Scene {
     // ═══════════════════════════════════════════════════════════
 
     // Posição configurável: buttonX, buttonY
-    const buttonX = 512;
-    const buttonY = 560;
+    const buttonX = 400;
+    const buttonY = 400;
     const buttonWidth = 320;
     const buttonHeight = 70;
 
