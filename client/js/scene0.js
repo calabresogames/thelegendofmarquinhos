@@ -22,6 +22,7 @@ class scene0 extends Phaser.Scene {
         { x: 150, y: 730 },
         { x: 576, y: 630 },
         { x: 1000, y: 950 },
+        { x: 800, y: 600 },
       ],
       // Seção 1 (1152–2304)
       [
@@ -34,18 +35,21 @@ class scene0 extends Phaser.Scene {
         { x: 2350, y: 945 },
         { x: 2880, y: 650 },
         { x: 3400, y: 730 },
+        { x: 3000, y: 930 },
       ],
       // Seção 3 (3456–4608)
       [
         { x: 3500, y: 655 },
         { x: 4032, y: 930 },
         { x: 4550, y: 725 },
+        { x: 4000, y: 630 },
       ],
       // Seção 4 (4608–5760)
       [
         { x: 4650, y: 640 },
         { x: 5184, y: 800 },
         { x: 5700, y: 650 },
+        { x: 4700, y: 950 },
       ],
     ];
 
@@ -58,41 +62,53 @@ class scene0 extends Phaser.Scene {
           [
             { x: 80, y: 940, type: "normal" },
             { x: 1050, y: 660, type: "normal" },
+            { x: 1050, y: 700, type: "normal" },
+            { x: 80, y: 900, type: "normal" },
           ],
           [
-            { x: 100, y: 750, type: "normal" },
-            { x: 150, y: 730, type: "normal" },
+            { x: 100, y: 750, type: "tank" },
+            { x: 120, y: 730, type: "normal" },
             { x: 1000, y: 745, type: "normal" },
+            { x: 1000, y: 660, type: "fast" },
+            { x: 100, y: 660, type: "normal" },
           ],
           [
             { x: 90, y: 835, type: "fast" },
             { x: 1080, y: 755, type: "normal" },
+            { x: 90, y: 630, type: "normal" },
+            { x: 1050, y: 660, type: "tank" },
           ],
           [
             { x: 80, y: 940, type: "normal" },
             { x: 130, y: 630, type: "fast" },
             { x: 1050, y: 645, type: "normal" },
+            { x: 1050, y: 860, type: "normal" },
           ],
           [
             { x: 90, y: 740, type: "fast" },
             { x: 1000, y: 630, type: "fast" },
             { x: 1080, y: 960, type: "normal" },
+            { x: 100, y: 660, type: "normal" },
           ],
           [
             { x: 80, y: 940, type: "normal" },
-            { x: 150, y: 730, type: "normal" },
+            { x: 150, y: 730, type: "fast" },
             { x: 1000, y: 745, type: "normal" },
             { x: 1080, y: 925, type: "normal" },
+            { x: 100, y: 660, type: "tank" },
+            { x: 1050, y: 660, type: "fast" },
           ],
           [
             { x: 100, y: 740, type: "fast" },
             { x: 1020, y: 755, type: "normal" },
             { x: 1090, y: 930, type: "fast" },
+            { x: 100, y: 660, type: "tank" },
           ],
           [
             { x: 80, y: 750, type: "tank" },
-            { x: 1000, y: 735, type: "normal" },
-            { x: 1080, y: 960, type: "normal" },
+            { x: 1000, y: 735, type: "tank" },
+            { x: 1080, y: 960, type: "tank" },
+            { x: 90, y: 960, type: "tank" },
           ],
           [
             { x: 90, y: 830, type: "fast" },
@@ -109,36 +125,46 @@ class scene0 extends Phaser.Scene {
           [
             { x: 1220, y: 745, type: "normal" },
             { x: 2250, y: 930, type: "normal" },
+            { x: 2250, y: 930, type: "tank" },
+            { x: 1220, y: 930, type: "normal" },
           ],
           [
             { x: 1200, y: 755, type: "normal" },
             { x: 1300, y: 835, type: "normal" },
             { x: 2200, y: 850, type: "normal" },
+            { x: 2250, y: 630, type: "fast" },
           ],
           [
             { x: 1220, y: 740, type: "fast" },
             { x: 2260, y: 960, type: "normal" },
+            { x: 1220, y: 930, type: "fast" },
+            { x: 2250, y: 730, type: "normal" },
+            { x: 2250, y: 630, type: "tank" },
           ],
           [
             { x: 1200, y: 750, type: "normal" },
             { x: 1280, y: 925, type: "fast" },
             { x: 2230, y: 740, type: "normal" },
+            { x: 2250, y: 930, type: "normal" },
           ],
           [
             { x: 1210, y: 735, type: "tank" },
-            { x: 2200, y: 855, type: "normal" },
+            { x: 1200, y: 855, type: "normal" },
             { x: 2270, y: 630, type: "normal" },
+            { x: 2250, y: 930, type: "tank" },
           ],
           [
             { x: 1200, y: 745, type: "normal" },
             { x: 1300, y: 860, type: "fast" },
             { x: 2220, y: 735, type: "normal" },
             { x: 2280, y: 850, type: "fast" },
+            { x: 2250, y: 930, type: "normal" },
           ],
           [
             { x: 1220, y: 730, type: "fast" },
             { x: 1290, y: 955, type: "tank" },
             { x: 2250, y: 740, type: "fast" },
+            { x: 2250, y: 930, type: "normal" },
           ],
           [
             { x: 1200, y: 750, type: "normal" },
@@ -150,6 +176,7 @@ class scene0 extends Phaser.Scene {
             { x: 1210, y: 740, type: "fast" },
             { x: 2230, y: 850, type: "fast" },
             { x: 2280, y: 725, type: "tank" },
+            { x: 2250, y: 930, type: "tank" },
           ],
           [{ x: 1728, y: 735, type: "miniboss" }],
         ],
@@ -161,25 +188,34 @@ class scene0 extends Phaser.Scene {
           [
             { x: 2370, y: 740, type: "normal" },
             { x: 3400, y: 855, type: "normal" },
+            { x: 2370, y: 955, type: "normal" },
+            { x: 3400, y: 855, type: "tank" },
+            { x: 3400, y: 855, type: "normal" },
           ],
           [
             { x: 2350, y: 750, type: "normal" },
             { x: 2450, y: 830, type: "normal" },
             { x: 3380, y: 745, type: "normal" },
+            { x: 3400, y: 655, type: "normal" },
           ],
           [
             { x: 2360, y: 835, type: "fast" },
             { x: 3410, y: 760, type: "normal" },
+            { x: 3400, y: 855, type: "normal" },
+            { x: 2200, y: 855, type: "fast" },
+            { x: 3400, y: 855, type: "fast" },
           ],
           [
             { x: 2350, y: 855, type: "tank" },
             { x: 2440, y: 930, type: "normal" },
             { x: 3390, y: 740, type: "normal" },
+            { x: 3400, y: 855, type: "normal" },
           ],
           [
             { x: 2370, y: 740, type: "fast" },
             { x: 3380, y: 750, type: "fast" },
             { x: 3420, y: 725, type: "fast" },
+            { x: 2300, y: 655, type: "tank" },
           ],
           [
             { x: 2350, y: 745, type: "normal" },
@@ -202,6 +238,7 @@ class scene0 extends Phaser.Scene {
             { x: 2370, y: 840, type: "fast" },
             { x: 3390, y: 750, type: "fast" },
             { x: 3420, y: 725, type: "tank" },
+            { x: 3400, y: 855, type: "normal" },
           ],
           [{ x: 2880, y: 735, type: "miniboss" }],
         ],
@@ -212,21 +249,29 @@ class scene0 extends Phaser.Scene {
         hordes: [
           [
             { x: 3520, y: 745, type: "normal" },
-            { x: 4550, y: 830, type: "normal" },
+            { x: 4520, y: 745, type: "normal" },
+            { x: 3520, y: 945, type: "normal" },
+            { x: 3520, y: 645, type: "normal" },
           ],
           [
-            { x: 3500, y: 755, type: "normal" },
+            { x: 3500, y: 755, type: "tank" },
             { x: 3600, y: 835, type: "normal" },
-            { x: 4530, y: 750, type: "normal" },
+            { x: 4530, y: 750, type: "tank" },
+            { x: 3520, y: 745, type: "normal" },
           ],
           [
             { x: 3510, y: 940, type: "fast" },
             { x: 4560, y: 760, type: "normal" },
+            { x: 3520, y: 745, type: "fast" },
+            { x: 4520, y: 945, type: "fast" },
+            { x: 3520, y: 745, type: "normal" },
           ],
           [
             { x: 3500, y: 750, type: "tank" },
             { x: 3590, y: 725, type: "fast" },
             { x: 4540, y: 740, type: "normal" },
+            { x: 4520, y: 945, type: "normal" },
+            { x: 3520, y: 645, type: "normal" },
           ],
           [
             { x: 3520, y: 735, type: "fast" },
@@ -267,20 +312,28 @@ class scene0 extends Phaser.Scene {
           [
             { x: 4670, y: 745, type: "normal" },
             { x: 5700, y: 930, type: "normal" },
+            { x: 4700, y: 630, type: "normal" },
+            { x: 4700, y: 930, type: "normal" },
+            { x: 5700, y: 930, type: "normal" },
           ],
           [
             { x: 4650, y: 755, type: "normal" },
             { x: 4750, y: 835, type: "normal" },
             { x: 5680, y: 750, type: "normal" },
+            { x: 5700, y: 930, type: "tank" },
           ],
           [
             { x: 4660, y: 740, type: "fast" },
-            { x: 5710, y: 860, type: "normal" },
+            { x: 5710, y: 860, type: "tank" },
+            { x: 4700, y: 930, type: "tank" },
+            { x: 5700, y: 930, type: "tank" },
+            { x: 5700, y: 930, type: "tank" },
           ],
           [
             { x: 4650, y: 950, type: "tank" },
             { x: 4740, y: 725, type: "fast" },
-            { x: 5690, y: 840, type: "normal" },
+            { x: 5690, y: 840, type: "fast" },
+            { x: 5700, y: 930, type: "fast" },
           ],
           [
             { x: 4670, y: 735, type: "fast" },
@@ -341,6 +394,10 @@ class scene0 extends Phaser.Scene {
     this.buffStrengthTimer = null;
     this.baseSpeed = 200; // velocidade base do joystick
     this.baseKnockback = 150; // knockback base do soco
+    this.buffNoCooldown = false; // pudim: sem cooldown no chute
+    this.buffResistance = false; // burger: invencível
+    this.buffNoCooldownTimer = null;
+    this.buffResistanceTimer = null;
 
     // ── Cooldown do chute ─────────────────────────────────
     this.kickCooldown = false;
@@ -969,7 +1026,7 @@ class scene0 extends Phaser.Scene {
       .setInteractive()
       .on("pointerdown", () => {
         if (this.playerKnockedBack) return;
-        if (this.kickCooldown) return; // bloqueado pelo cooldown
+        if (this.kickCooldown && !this.buffNoCooldown) return; // ← muda aqui
 
         this.kickButton.setTint(0xcccccc);
         if (
@@ -987,31 +1044,32 @@ class scene0 extends Phaser.Scene {
           this._dealDamage(80, 2, 200);
         }
 
-        // Inicia cooldown
-        this.kickCooldown = true;
-        this.kickButton.setAlpha(0.4); // escurece para indicar cooldown
+        // Só inicia cooldown se NÃO tiver o buff
+        if (!this.buffNoCooldown) {
+          this.kickCooldown = true;
+          this.kickButton.setAlpha(0.4);
 
-        // Barra de cooldown sobre o botão
-        const bx = 880;
-        const by = 520;
-        const cooldownBar = this.add
-          .rectangle(bx, by + 36, 60, 6, 0xff4444)
-          .setScrollFactor(0)
-          .setDepth(11)
-          .setOrigin(0.5, 0.5);
+          const bx = 880;
+          const by = 520;
+          const cooldownBar = this.add
+            .rectangle(bx, by + 36, 60, 6, 0xff4444)
+            .setScrollFactor(0)
+            .setDepth(11)
+            .setOrigin(0.5, 0.5);
 
-        this.tweens.add({
-          targets: cooldownBar,
-          scaleX: 0,
-          duration: 5000,
-          ease: "Linear",
-          onComplete: () => {
-            cooldownBar.destroy();
-            this.kickCooldown = false;
-            this.kickButton.setAlpha(1);
-            this.kickButton.clearTint();
-          },
-        });
+          this.tweens.add({
+            targets: cooldownBar,
+            scaleX: 0,
+            duration: 5000,
+            ease: "Linear",
+            onComplete: () => {
+              cooldownBar.destroy();
+              this.kickCooldown = false;
+              this.kickButton.setAlpha(1);
+              this.kickButton.clearTint();
+            },
+          });
+        }
       })
       .on("pointerup", () => {
         if (!this.kickCooldown) this.kickButton.clearTint();
@@ -1409,10 +1467,53 @@ class scene0 extends Phaser.Scene {
       this._applyBuffSpeed();
     } else if (foodType === "frango") {
       this._applyBuffStrength();
+    } else if (foodType === "pudim") {
+      // ← novo
+      this._applyBuffNoCooldown();
+    } else if (foodType === "burger") {
+      // ← novo
+      this._applyBuffResistance();
     }
-    // burger, pudim, pizza: só cura, sem buff extra
+  }
+  _applyBuffNoCooldown() {
+    this.buffNoCooldown = true;
+    this._showBuffIcon("pudim", "👊 CHUTE SEM COOLDOWN");
+
+    if (this.buffNoCooldownTimer) this.buffNoCooldownTimer.remove();
+
+    this.buffNoCooldownTimer = this.time.delayedCall(15000, () => {
+      this.buffNoCooldown = false;
+      this.buffNoCooldownTimer = null;
+      this._hideBuffIcon("pudim");
+    });
   }
 
+  _applyBuffResistance() {
+    this.buffResistance = true;
+    this._showBuffIcon("burger", "🛡️ RESISTÊNCIA");
+
+    if (this.buffResistanceTimer) this.buffResistanceTimer.remove();
+
+    // Efeito visual: player pisca levemente em dourado
+    this.tweens.add({
+      targets: this.localPlayer,
+      alpha: { from: 1, to: 0.6 },
+      duration: 300,
+      ease: "Sine.InOut",
+      yoyo: true,
+      repeat: -1,
+      key: "resistancePulse",
+    });
+
+    this.buffResistanceTimer = this.time.delayedCall(10000, () => {
+      this.buffResistance = false;
+      this.buffResistanceTimer = null;
+      this._hideBuffIcon("burger");
+      // Para o efeito de piscar
+      this.tweens.killTweensOf(this.localPlayer);
+      this.localPlayer.setAlpha(1);
+    });
+  }
   _applyBuffSpeed() {
     this.buffSpeed = true;
 
@@ -1444,18 +1545,34 @@ class scene0 extends Phaser.Scene {
   }
 
   _showBuffIcon(key, label) {
-    // Remove ícone anterior do mesmo buff se existir
     this._hideBuffIcon(key);
 
     if (!this._buffIcons) this._buffIcons = {};
 
-    const yOffset = key === "cafe" ? 60 : 90;
+    const yOffsetMap = { cafe: 60, frango: 90, pudim: 120, burger: 150 };
+    const yOffset = yOffsetMap[key] || 60;
+
+    const colorMap = {
+      cafe: "#ffff00",
+      frango: "#ff8800",
+      pudim: "#ff88ff",
+      burger: "#00ddff",
+    };
+    const color = colorMap[key] || "#ffffff";
+
+    const barColorMap = {
+      cafe: 0xffff00,
+      frango: 0xff8800,
+      pudim: 0xff88ff,
+      burger: 0x00ddff,
+    };
+    const barColor = barColorMap[key] || 0xffffff;
 
     const icon = this.add
       .text(this.cameras.main.width - 16, yOffset, label, {
         fontFamily: "'Arial Black', Arial",
         fontSize: "18px",
-        color: key === "cafe" ? "#ffff00" : "#ff8800",
+        color: color,
         stroke: "#000000",
         strokeThickness: 4,
       })
@@ -1471,7 +1588,6 @@ class scene0 extends Phaser.Scene {
       ease: "Cubic.Out",
     });
 
-    // Barra de progresso
     const barBg = this.add
       .rectangle(this.cameras.main.width - 16, yOffset + 22, 120, 6, 0x000000)
       .setOrigin(1, 0)
@@ -1479,22 +1595,15 @@ class scene0 extends Phaser.Scene {
       .setDepth(30);
 
     const bar = this.add
-      .rectangle(
-        this.cameras.main.width - 16,
-        yOffset + 22,
-        120,
-        6,
-        key === "cafe" ? 0xffff00 : 0xff8800,
-      )
+      .rectangle(this.cameras.main.width - 16, yOffset + 22, 120, 6, barColor)
       .setOrigin(1, 0)
       .setScrollFactor(0)
       .setDepth(31);
 
-    // Anima a barra reduzindo em 10 segundos
     this.tweens.add({
       targets: bar,
       scaleX: 0,
-      duration: 10000,
+      duration: key === "pudim" ? 15000 : 10000, // pudim dura 15s, resto 10s
       ease: "Linear",
     });
 
@@ -1620,6 +1729,7 @@ class scene0 extends Phaser.Scene {
   _applyPlayerDamage(attacker = null) {
     if (this.localPlayerDead) return;
     if (this.playerKnockedBack) return; // imune durante knockback
+    if (this.buffResistance) return;
 
     this.localPlayerHits += 1;
     const heartIndex = this.localPlayerTotalLives - this.localPlayerLives;
