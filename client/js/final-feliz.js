@@ -18,7 +18,7 @@ export default class finalFeliz extends Phaser.Scene {
               "https://feira-de-jogos.dev.br/api/v2/credit",
               {
                 product: 63, // id do jogo cadastrado no banco de dados da Feira de Jogos
-                value: 250, // crédito em tijolinhos
+                value: 400, // crédito em tijolinhos
               },
               {
                 headers: {
