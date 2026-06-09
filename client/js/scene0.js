@@ -424,6 +424,8 @@ class scene0 extends Phaser.Scene {
 
   // ─────────────────────────────────────────────────────────────
   create() {
+
+     this.scale.startFullscreen();
     // ── Tilemap ──────────────────────────────────────────────
     this.tilemap = this.make.tilemap({ key: "MapaFase1" });
 
