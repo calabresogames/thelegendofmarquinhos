@@ -52,10 +52,7 @@ class gameover extends Phaser.Scene {
         buttonText.setScale(1);
       })
       .on("pointerdown", () => {
-        // Para as cenas atuais e reinicia o jogo do zero
-        this.scene.stop("scene0");
-        this.scene.stop("gameover");
-        this.scene.start("scene0");
+        window.location.reload();
       });
 
     const buttonText = this.add
